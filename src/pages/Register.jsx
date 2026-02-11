@@ -111,7 +111,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://120.55.185.165:8000/api/auth/register/', {
+      const response = await axios.post('http://web.veyth.oj.cqiming.com/api/auth/register/', {
         username: formData.username,
         email: formData.email,
         password: formData.password

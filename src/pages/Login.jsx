@@ -93,7 +93,7 @@ const Login = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://120.55.185.165:8000/api/auth/login/', {
+      const response = await axios.post('http://web.veyth.oj.cqiming.com/api/auth/login/', {
         username: formData.username,
         password: formData.password
       }, {
