@@ -32,7 +32,7 @@ function App() {
 
     const checkConnection = async () => {
       try {
-        const response = await axios.post('http://web.veyth.oj.cqiming.com/tests/test_conntect/', {
+        const response = await axios.post('http://daemon.veyth.oj.cqiming.com/tests/test_conntect/', {
           'message': 'ok'
         });
         if (response.status === 200) {
