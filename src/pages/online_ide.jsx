@@ -5,7 +5,7 @@ import axios from 'axios';
 const OnlineIDE = () => {
   const [code, setCode] = useState('# 欢迎使用在线IDE\nprint("Hello, World!")');
   const [language, setLanguage] = useState('python'); // 默认语言
-  const API_BASE = process.env.REACT_APP_API_BASE || 'http://daemon.veyth.oj.cqiming.com';
+  const API_BASE = process.env.REACT_APP_API_BASE || 'http://cqiming.pythonanywhere.com';
   const WITH_CREDENTIALS = (process.env.REACT_APP_WITH_CREDENTIALS === 'true');
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
