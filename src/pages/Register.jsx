@@ -111,7 +111,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://daemon.veyth.oj.cqiming.com/api/auth/register/', {
+      const response = await axios.post('http://cqiming.pythonanywhere.com/api/auth/register/', {
         username: formData.username,
         email: formData.email,
         password: formData.password
