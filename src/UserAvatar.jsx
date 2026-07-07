@@ -1,13 +1,16 @@
 // UserAvatar.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { deleteCookie } from './services/authService';
 
 const UserAvatar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    try { deleteCookie('user'); } catch (e) {}
+    try { deleteCookie('authToken'); } catch (e) {}
+    try { deleteCookie('refreshToken'); } catch (e) {}
     navigate('/login');
   };
 

@@ -7,6 +7,7 @@ import './AuthPages.css';
 import '../App.css';
 
 import { useAuth } from '../hooks/useAuth';
+import { setCookie } from '../services/authService';
 
 const Login = ({ onLoginSuccess }) => {
     
@@ -93,9 +94,11 @@ const Login = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('https://cqiming.pythonanywhere.com/api/auth/login/', {
-        username: formData.username,
-        password: formData.password
+      const response = await axios.post('https://cqiming.pythonanywhere.com/api/auth/login/', 
+        {
+          username: formData.username,
+          password: formData.password
+        }
       }, {
         headers: {
           'Content-Type': 'application/json'
@@ -103,21 +106,27 @@ const Login = ({ onLoginSuccess }) => {
       });
 
       if (response.status === 200) {
-        // 调用父组件传递的成功回调
+        // 构造 sessionKey（优先使用后端返回的 sessionkey，否则使用 access）
+        const sessionKey = response.data.sessionkey || response.data.access || null;
+
+        // 调用父组件传递的成功回调（通常是 useAuth.login）
         if (onLoginSuccess) {
           onLoginSuccess({
             username: formData.username,
+            sessionKey: sessionKey,
             token: response.data.access,
             refreshToken: response.data.refresh
           });
         }
-        
-        // 存储token（如果是JWT认证）
+
+        // 将 token/refresh 存入带安全属性的 cookie
         if (response.data.access) {
-          localStorage.setItem('authToken', response.data.access);
-          localStorage.setItem('refreshToken', response.data.refresh);
+          try { setCookie('authToken', response.data.access, 30); } catch (e) {}
         }
-        
+        if (response.data.refresh) {
+          try { setCookie('refreshToken', response.data.refresh, 30); } catch (e) {}
+        }
+
         // 登录成功，跳转到首页
         navigate('/');
       }
