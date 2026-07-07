@@ -94,16 +94,17 @@ const Login = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('https://cqiming.pythonanywhere.com/api/auth/login/', 
-        {
-          username: formData.username,
-          password: formData.password
-        }
-      }, {
+      const url = 'https://cqiming.pythonanywhere.com/api/auth/login/';
+      const payload = {
+        username: formData.username,
+        password: formData.password
+      };
+      const config = {
         headers: {
           'Content-Type': 'application/json'
         }
-      });
+      };
+      const response = await axios.post(url, payload, config);
 
       if (response.status === 200) {
         // 构造 sessionKey（优先使用后端返回的 sessionkey，否则使用 access）
