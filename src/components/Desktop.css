@@ -585,6 +585,8 @@
 
     start-in .25s;
 
+    z-index: 9999;
+
 
 
 }

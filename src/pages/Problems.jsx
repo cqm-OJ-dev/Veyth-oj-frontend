@@ -9,14 +9,14 @@ const Problems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const mockProblems = [
-          { id: 101, title: 'Two Sum', difficulty: 'Easy', acceptance: '72.5%', submissions: 1500 },
-          { id: 102, title: 'Reverse Linked List', difficulty: 'Medium', acceptance: '58.3%', submissions: 1200 },
-          { id: 103, title: 'Longest Palindromic Substring', difficulty: 'Hard', acceptance: '32.1%', submissions: 800 },
-        ];
-
-        setProblems(mockProblems);
+        const response = await fetch('http://localhost:1029/problems/problems/');
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+        const data = await response.json();
+        setProblems(Array.isArray(data?.problems) ? data.problems : []);
       } catch (err) {
+        console.error('Failed to load problem list:', err);
         setError('Failed to load problem list');
       } finally {
         setIsLoading(false);
