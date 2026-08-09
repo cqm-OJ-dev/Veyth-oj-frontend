@@ -1,282 +1,594 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
-import { translations, getBrowserLanguage } from '../include/locales';
-import './AuthPages.css';
+import React, {
+    useState,
+    useEffect
+} from "react";
 
-import '../App.css';
+import {
+    useLocation,
+    useNavigate
+} from "react-router-dom";
 
-import { useAuth } from '../hooks/useAuth';
-import { setCookie } from '../services/authService';
+import axios from "axios";
 
-const Login = ({ onLoginSuccess }) => {
-    
-  const navigate = useNavigate();
-  const { currentUser, isLoading: authLoading, login, logout } = useAuth();
-  if (currentUser){
-      navigate('/');
-  }
-  // 设置页面标题
-  document.title = "登录";
-  
-  const [language, setLanguage] = useState(getBrowserLanguage);
-  
-  const t = translations[language] || translations.en;
-  // 状态管理
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
-  
-  // 路由相关
-  const location = useLocation();
+import "./AuthPages.css";
+import "../App.css";
 
-  // 检查注册成功的状态
-  useEffect(() => {
-    if (location.state?.registrationSuccess) {
-      setRegistrationSuccess(true);
-      // 清除state，防止刷新后仍然显示
-      window.history.replaceState({}, document.title);
-    }
-  }, [location]);
+import { setCookie } from "../services/authService";
+import { useAuth } from "../hooks/useAuth";
 
-  // 处理表单变化
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-  const changeLanguage = (lang) => {
-    if (translations[lang]) {
-      setLanguage(lang);
-    }
-  };
-  const UserAvatar = ({ user }) => {
-    const [isOpen, setIsOpen] = useState(false);
+const Login = ({onLoginSuccess}) => {
 
-    return (
-      <div className="user-avatar-container">
-        <button 
-          className="avatar-button"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {user.username.charAt(0).toUpperCase()}
-        </button>
-        
-        {isOpen && (
-          <div className="user-dropdown">
-            <div className="user-info">
-              <span className="username">{user.username}</span>
-            </div>
-            <button className="dropdown-item" onClick={() => setIsOpen(false)}>
-              {t.nav.profile || 'Profile'}
-            </button>
-            <button 
-              className="dropdown-item logout" 
-              onClick={() => logout()}
-            >
-              {t.nav.logout || 'Logout'}
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
 
-  // 处理表单提交
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+    const location = useLocation();
+    const navigate = useNavigate();
 
-    try {
-      const url = 'https://cqiming.pythonanywhere.com/api/auth/login/';
-      const payload = {
-        username: formData.username,
-        password: formData.password
-      };
-      const config = {
-        headers: {
-          'Content-Type': 'application/json'
+    const { currentUser } = useAuth();
+
+
+
+    const [time,setTime] =
+        useState(new Date());
+
+
+
+    const [fadeOut,setFadeOut] =
+        useState(false);
+
+
+
+    const [loading,setLoading] =
+        useState(false);
+
+
+
+    const [error,setError] =
+        useState("");
+
+
+
+    const [registrationSuccess,setRegistrationSuccess] =
+        useState(false);
+
+
+
+
+    const [formData,setFormData] =
+        useState({
+
+            username:"",
+            password:""
+
+        });
+
+
+
+
+
+
+
+
+
+    useEffect(()=>{
+
+
+        const timer =
+        setInterval(()=>{
+
+
+            setTime(
+                new Date()
+            );
+
+
+        },1000);
+
+
+
+        return ()=>clearInterval(timer);
+
+
+    },[]);
+
+
+
+
+
+
+
+
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/', { replace: true });
         }
-      };
-      const response = await axios.post(url, payload, config);
+    }, [currentUser, navigate]);
 
-      if (response.status === 200) {
-        // 构造 sessionKey（优先使用后端返回的 sessionkey，否则使用 access）
-        const sessionKey = response.data.sessionkey || response.data.access || null;
+    useEffect(()=>{
 
-        // 调用父组件传递的成功回调（通常是 useAuth.login）
-        if (onLoginSuccess) {
-          onLoginSuccess({
-            username: formData.username,
-            sessionKey: sessionKey,
-            token: response.data.access,
-            refreshToken: response.data.refresh
-          });
-        }
 
-        // 将 token/refresh 存入带安全属性的 cookie
-        if (response.data.access) {
-          try { setCookie('authToken', response.data.access, 30); } catch (e) {}
-        }
-        if (response.data.refresh) {
-          try { setCookie('refreshToken', response.data.refresh, 30); } catch (e) {}
+        if(
+            location.state?.registrationSuccess
+        ){
+
+            setRegistrationSuccess(true);
+
+
+            window.history.replaceState(
+                {},
+                document.title
+            );
+
         }
 
-        // 登录成功，跳转到首页
-        navigate('/');
-      }
-    } catch (err) {
-      handleLoginError(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  // 处理登录错误
-  const handleLoginError = (error) => {
-    console.error('登录错误:', error);
-    
-    if (error.response) {
-      // 请求已发出，服务器返回非2xx状态码
-      if (error.response.status === 401) {
-        setError('用户名或密码错误');
-      } else if (error.response.status === 400) {
-        setError('请求参数错误');
-      } else if (error.response.status >= 500) {
-        setError('服务器错误，请稍后再试');
-      } else {
-        setError('登录失败，请重试');
-      }
-    } else if (error.request) {
-      // 请求已发出但没有收到响应
-      setError('无法连接到服务器，请检查网络');
-    } else {
-      // 请求配置错误
-      setError('请求配置错误: ' + error.message);
-    }
-  };
-  const renderNav = () => (
-    <nav className="hydro-nav">
-      
-      {currentUser ? (
-        <>
-        <a href="/problems">{t.nav.problems}</a>
-        <a href="/contests">{t.nav.contests}</a>
-        <a href="/submissions">{t.nav.submissions}</a>
-        <UserAvatar user={currentUser} />
-        </>
-      ) : (
-        <>
-          <a href="/login">{t.nav.login}</a>
-          <a href="/register">{t.nav.register}</a>
-        </>
-      )}
-      
-      <div className="language-switcher">
-        <select 
-          value={language}
-          onChange={(e) => changeLanguage(e.target.value)}
-          className="language-select"
-        >
-          <option value="zh">中文</option>
-          <option value="en">English</option>
-        </select>
-      </div>
-    </nav>
-  );
+    },[
+        location
+    ]);
 
-  return (
-    <>
-      
-      <header className="hydro-header">
-        <h1 className="hydro-title">{t.title}</h1>
-        {renderNav()}
-      </header>
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>用户登录</h2>
-        
-        {/* 注册成功提示 */}
-        {registrationSuccess && (
-          <div className="success-message">
-            <span className="success-icon">✓</span>
-            注册成功！请登录您的账号
-          </div>
-        )}
-        
-        {/* 错误提示 */}
-        {error && (
-          <div className="error-message">
-            <span className="error-icon">!</span>
-            {error}
-          </div>
-        )}
-        
-        {/* 登录表单 */}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">用户名</label>
-            <input
-              id="username"
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              autoComplete="username"
-              disabled={isLoading}
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password">密码</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              autoComplete="current-password"
-              disabled={isLoading}
-            />
-          </div>
-          
-          <button 
-            type="submit" 
-            className="auth-button"
-            disabled={isLoading}
-            aria-busy={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <span className="spinner"></span>
-                登录中...
-              </>
-            ) : '立即登录'}
-          </button>
-        </form>
-        <p className="auth-switch">
-          没有账号？{' '}
-          <span 
-            onClick={() => !isLoading && navigate('/register')}
-            className={isLoading ? 'disabled-link' : ''}
-          >
-            立即注册
-          </span>
-          <p>{t.footer.replace('{year}', new Date().getFullYear())}</p>
-        </p>
-      </div>
-    
-    </div>
-    </>
-  );
+
+
+
+
+
+
+
+
+
+
+    const handleChange=(e)=>{
+
+
+        setFormData({
+
+            ...formData,
+
+            [e.target.name]:
+            e.target.value
+
+        });
+
+
+    };
+
+
+
+
+
+
+
+
+
+    const login=async(e)=>{
+
+
+        e.preventDefault();
+
+
+        setError("");
+
+        setLoading(true);
+
+
+
+        try{
+
+
+            const response =
+            await axios.post(
+
+                "http://cqiming.pythonanywhere.com/api/auth/login/",
+
+                formData,
+
+                {
+
+                    headers:{
+
+                        "Content-Type":
+                        "application/json"
+
+                    }
+
+                }
+
+            );
+
+
+
+
+
+
+            if(onLoginSuccess){
+
+
+                await onLoginSuccess({
+
+                    username:
+                    formData.username,
+
+
+                    accessToken:
+                    response.data.access,
+
+
+                    refreshToken:
+                    response.data.refresh
+
+                });
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            if(response.data.refresh){
+
+
+                setCookie(
+
+                    "refreshToken",
+
+                    response.data.refresh,
+
+                    30
+
+                );
+
+            }
+
+
+
+
+
+
+            setFadeOut(true);
+
+        }
+
+        catch(err){
+
+
+
+            setError(
+
+                "用户名或密码错误"
+
+            );
+
+
+
+        }
+
+        finally{
+
+
+            setLoading(false);
+
+
+        }
+
+
+    };
+
+
+
+
+
+
+
+
+
+return (
+
+<div
+
+className={
+
+"windows-lockscreen "
+
++
+
+(
+
+fadeOut
+
+?
+
+"windows-fade-out"
+
+:
+
+""
+
+)
+
+}
+
+>
+
+
+
+
+<div className="lock-wallpaper"/>
+
+
+
+
+
+
+<div className="lock-clock">
+
+
+<div>
+
+{
+time.toLocaleTimeString(
+
+[],
+
+{
+
+hour:"2-digit",
+
+minute:"2-digit"
+
+}
+
+)
+
+}
+
+</div>
+
+
+
+<span>
+
+{
+time.toLocaleDateString(
+
+"zh-CN",
+
+{
+
+weekday:"long",
+
+year:"numeric",
+
+month:"long",
+
+day:"numeric"
+
+}
+
+)
+
+}
+
+</span>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="windows-login">
+
+
+
+
+
+<div className="windows-avatar">
+
+V
+
+</div>
+
+
+
+
+
+
+<h2>
+
+{
+
+formData.username ||
+
+"用户登录"
+
+}
+
+</h2>
+
+
+
+
+
+
+
+
+{
+registrationSuccess &&
+
+
+<div className="success-message">
+
+注册成功，请登录
+
+</div>
+
+}
+
+
+
+
+
+
+
+{
+error &&
+
+
+<div className="error-message">
+
+{error}
+
+</div>
+
+}
+
+
+
+
+
+
+
+
+
+<form onSubmit={login}>
+
+
+
+
+
+<input
+
+name="username"
+
+placeholder="用户名"
+
+value={formData.username}
+
+onChange={handleChange}
+
+/>
+
+
+
+
+
+
+
+
+<div className="password-wrapper">
+
+
+
+<input
+
+name="password"
+
+type="password"
+
+placeholder="密码"
+
+value={formData.password}
+
+onChange={handleChange}
+
+/>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<button
+
+disabled={loading}
+
+>
+
+
+{
+
+loading
+
+?
+
+"登录中..."
+
+:
+
+"登录"
+
+}
+
+
+</button>
+
+
+
+
+
+
+</form>
+
+
+
+
+
+
+
+
+<p
+
+className="switch"
+
+onClick={() => window.location.href = '/register'}
+
+>
+
+没有账号？立即注册
+
+</p>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+</div>
+
+);
+
+
 };
+
+
 
 export default Login;

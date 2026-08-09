@@ -1,0 +1,159 @@
+.ide-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef3fb 100%);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.ide-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.ide-title {
+  font-weight: 700;
+  color: #14213d;
+  margin-right: 6px;
+}
+
+.ide-toolbar select,
+.ide-toolbar button {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.92rem;
+  background: #fff;
+  color: #14213d;
+}
+
+.ide-toolbar button {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ide-toolbar button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.ide-toolbar button.primary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: white;
+  border-color: transparent;
+}
+
+.ide-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.ide-editor-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.ide-panel-title {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: #5b6b8a;
+  background: rgba(248, 250, 252, 0.95);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.ide-editor-wrap {
+  flex: 1;
+  min-height: 0;
+}
+
+.ide-console-panel {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.ide-console-content {
+  flex: 1;
+  padding: 12px;
+  overflow: auto;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  font-family: Consolas, monospace;
+}
+
+.ide-console-input {
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ide-console-input textarea {
+  width: 100%;
+  min-height: 90px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #f8fafc;
+  padding: 10px;
+  resize: vertical;
+  font-family: Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+.ide-console-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ide-console-actions button {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  cursor: pointer;
+}
+
+.ide-console-actions button.danger {
+  border-color: rgba(248, 113, 113, 0.25);
+  background: rgba(127, 29, 29, 0.35);
+}
+
+.ide-console-meta {
+  margin-top: 10px;
+  color: #93c5fd;
+  font-size: 0.82rem;
+}
+
+.ide-error {
+  margin-top: 10px;
+  color: #fda4af;
+  border-top: 1px dashed rgba(248, 113, 113, 0.25);
+  padding-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .ide-main {
+    flex-direction: column;
+  }
+
+  .ide-console-panel {
+    width: 100%;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+  }
+}

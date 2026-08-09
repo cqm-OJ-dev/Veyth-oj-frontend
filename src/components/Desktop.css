@@ -1,0 +1,805 @@
+/* =========================
+   Windows 11 Desktop
+========================= */
+
+
+.desktop-root {
+
+    width:100vw;
+    height:100vh;
+
+    overflow:hidden;
+
+    position:relative;
+
+
+    font-family:
+
+    "Segoe UI",
+
+    "Microsoft YaHei",
+
+    sans-serif;
+
+
+    color:white;
+
+}
+
+
+
+
+/* 壁纸层 */
+
+.desktop-background {
+
+
+    position:absolute;
+
+
+    inset:0;
+
+
+
+    background-size:
+
+    cover;
+
+
+
+    background-position:
+
+    center;
+
+
+
+    background-repeat:
+
+    no-repeat;
+
+
+
+    filter:
+
+    saturate(1.1);
+
+
+
+}
+
+
+
+
+
+/* =========================
+   桌面图标
+========================= */
+
+
+.desktop-icons {
+
+
+    position:absolute;
+
+
+    top:35px;
+
+
+    left:35px;
+
+
+
+    display:flex;
+
+
+    flex-direction:column;
+
+
+    gap:20px;
+
+
+
+}
+
+
+
+
+.desktop-icon {
+
+
+    width:90px;
+
+
+    padding:10px 8px;
+
+
+
+    border-radius:14px;
+
+
+
+    text-align:center;
+
+
+
+    cursor:pointer;
+
+
+
+    transition:.2s;
+
+
+
+}
+
+
+
+.desktop-icon:hover {
+
+
+    background:
+
+    rgba(255,255,255,.15);
+
+
+
+    backdrop-filter:
+
+    blur(20px);
+
+
+
+}
+
+
+
+.icon-label {
+
+
+    margin-top:8px;
+
+
+    font-size:14px;
+
+
+
+    text-shadow:
+
+    0 2px 8px rgba(0,0,0,.6);
+
+
+
+}
+
+
+
+
+
+/* 图标 */
+
+.icon-visual {
+
+
+    width:56px;
+
+
+    height:56px;
+
+
+
+    margin:auto;
+
+
+
+    border-radius:16px;
+
+
+
+    background:
+
+
+    rgba(255,255,255,.22);
+
+
+
+    backdrop-filter:
+
+
+    blur(18px);
+
+
+
+    box-shadow:
+
+
+    0 8px 25px rgba(0,0,0,.35);
+
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+
+}
+
+
+
+
+.icon-problems::after {
+
+    content:"📘";
+
+    font-size:32px;
+
+}
+
+
+
+.icon-contests::after {
+
+    content:"🏆";
+
+    font-size:32px;
+
+}
+
+
+
+.icon-submissions::after {
+
+    content:"📋";
+
+    font-size:32px;
+
+}
+
+
+
+.icon-ide::after {
+
+    content:"</>";
+
+    font-size:25px;
+
+    font-weight:700;
+
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+   任务栏
+========================= */
+
+
+.taskbar {
+
+
+    position:absolute;
+
+
+    bottom:0;
+
+
+    left:0;
+
+
+
+    width:100%;
+
+
+    height:70px;
+
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+
+    background:
+
+
+    rgba(30,30,30,.45);
+
+
+
+    backdrop-filter:
+
+
+    blur(35px);
+
+
+
+    border-top:
+
+
+    1px solid rgba(255,255,255,.12);
+
+
+
+}
+
+
+
+
+
+.start {
+
+
+    height:45px;
+
+
+
+    padding:
+
+    0 18px;
+
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+
+    gap:8px;
+
+
+
+    border-radius:12px;
+
+
+
+    cursor:pointer;
+
+
+
+    transition:.2s;
+
+
+
+}
+
+
+
+
+
+.start:hover {
+
+
+    background:
+
+
+    rgba(255,255,255,.15);
+
+
+
+}
+
+
+
+
+
+.start-icon {
+
+
+    font-size:30px;
+
+
+}
+
+
+
+
+
+
+.taskbar-windows {
+
+
+    display:flex;
+
+
+    gap:8px;
+
+
+
+    margin-left:20px;
+
+
+
+}
+
+
+
+
+.taskbar-item {
+
+
+    padding:
+
+    8px 18px;
+
+
+
+    border-radius:10px;
+
+
+
+    background:
+
+
+    rgba(255,255,255,.12);
+
+
+
+    cursor:pointer;
+
+
+
+    transition:.2s;
+
+
+
+}
+
+
+
+.taskbar-item:hover {
+
+
+    background:
+
+
+    rgba(255,255,255,.22);
+
+
+
+}
+
+
+
+.taskbar-item.active {
+
+
+    background:
+
+
+    rgba(255,255,255,.3);
+
+
+
+}
+
+
+
+
+
+
+
+.tray {
+
+
+    position:absolute;
+
+
+    right:25px;
+
+
+
+    font-size:14px;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+   Win11 Start菜单
+========================= */
+
+
+.start-menu {
+
+
+    position:absolute;
+
+
+    left:50%;
+
+
+    bottom:90px;
+
+
+
+    transform:
+
+    translateX(-50%);
+
+
+
+    width:620px;
+
+
+
+    padding:25px;
+
+
+
+    border-radius:22px;
+
+
+
+    background:
+
+
+    rgba(245,245,245,.72);
+
+
+
+    color:#111;
+
+
+
+    backdrop-filter:
+
+
+    blur(40px);
+
+
+
+    box-shadow:
+
+
+    0 30px 80px rgba(0,0,0,.45);
+
+
+
+    animation:
+
+
+    start-in .25s;
+
+
+
+}
+
+
+
+
+.start-menu-search {
+
+
+    height:45px;
+
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+
+    gap:10px;
+
+
+
+    background:
+
+
+    rgba(255,255,255,.8);
+
+
+
+    border-radius:12px;
+
+
+
+    padding:0 15px;
+
+
+
+}
+
+
+
+
+
+.start-menu-search input {
+
+
+    border:none;
+
+
+    outline:none;
+
+
+    background:none;
+
+
+    flex:1;
+
+
+    font-size:15px;
+
+
+
+}
+
+
+
+
+.start-menu-section-title {
+
+
+    margin-top:25px;
+
+
+    margin-bottom:15px;
+
+
+
+    font-weight:600;
+
+
+
+}
+
+
+
+
+
+.start-menu-grid {
+
+
+    display:grid;
+
+
+
+    grid-template-columns:
+
+    repeat(4,1fr);
+
+
+
+    gap:15px;
+
+
+
+}
+
+
+
+
+
+.start-menu-item {
+
+
+    height:90px;
+
+
+
+    border:none;
+
+
+    border-radius:15px;
+
+
+
+    background:
+
+
+    rgba(255,255,255,.35);
+
+
+
+    cursor:pointer;
+
+
+
+    transition:.2s;
+
+
+
+}
+
+
+
+
+.start-menu-item:hover {
+
+
+    background:
+
+
+    rgba(255,255,255,.7);
+
+
+
+}
+
+
+
+
+.start-menu-icon {
+
+
+    margin:auto;
+
+
+    width:40px;
+
+
+    height:40px;
+
+
+
+}
+
+
+
+
+
+
+@keyframes start-in {
+
+
+from {
+
+
+    opacity:0;
+
+
+    transform:
+
+    translate(-50%,30px);
+
+
+
+}
+
+
+
+to {
+
+
+    opacity:1;
+
+
+    transform:
+
+    translate(-50%,0);
+
+
+
+}
+
+
+
+}

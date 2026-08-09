@@ -1,45 +1,79 @@
 // src/hooks/useAuth.js
 import { useState, useEffect } from 'react';
-import { getCookie, setCookie, deleteCookie, migrateLocalStorageToCookies } from '../services/authService';
+import {
+  getCookie,
+  setCookie,
+  deleteCookie,
+  migrateLocalStorageToCookies,
+  saveUserSession,
+  getUserSession,
+  deleteUserSession,
+  generateToken
+} from '../services/authService';
 
 export function useAuth() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 迁移旧的 localStorage（如果存在）到带安全属性的 cookie
-    try {
-      migrateLocalStorageToCookies();
-    } catch (e) {}
-
-    // 从 cookie 加载用户数据
-    const userCookie = getCookie('user');
-    if (userCookie) {
+    const loadUser = async () => {
+      // 迁移旧的 localStorage（如果存在）到带安全属性的 cookie
       try {
-        setCurrentUser(JSON.parse(userCookie));
-      } catch (e) {
-        // 如果不是 JSON，则忽略
+        migrateLocalStorageToCookies();
+      } catch (e) {}
+
+      const token = getCookie('authToken') || getCookie('userToken') || getCookie('sessionToken');
+      if (token) {
         try {
-          setCurrentUser({ username: userCookie });
-        } catch (err) {}
+          const storedSession = await getUserSession(token);
+          if (storedSession?.userData) {
+            setCurrentUser(storedSession.userData);
+          }
+        } catch (e) {
+          // ignore
+        }
       }
-    }
-    setIsLoading(false);
+
+      setIsLoading(false);
+    };
+
+    loadUser();
   }, []);
 
-  const login = (userData) => {
+  const login = async (userData) => {
+    const clientToken = generateToken(16);
+    const normalizedUser = {
+      ...userData,
+      token: clientToken,
+      accessToken: userData.accessToken || userData.token || null,
+      refreshToken: userData.refreshToken || null
+    };
+
     try {
-      setCookie('user', JSON.stringify(userData), 30);
+      setCookie('authToken', clientToken, 30);
+      setCookie('userToken', clientToken, 30);
+      await saveUserSession(clientToken, normalizedUser);
     } catch (e) {
-      // fallback: store minimal
-      setCookie('user', userData.username || '', 30);
+      // ignore
     }
-    setCurrentUser(userData);
+
+    setCurrentUser(normalizedUser);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const token = getCookie('authToken') || getCookie('userToken') || getCookie('sessionToken');
+    if (token) {
+      try {
+        await deleteUserSession(token);
+      } catch (e) {
+        // ignore
+      }
+    }
+
     deleteCookie('user');
     deleteCookie('authToken');
+    deleteCookie('userToken');
+    deleteCookie('sessionToken');
     deleteCookie('refreshToken');
     setCurrentUser(null);
   };
