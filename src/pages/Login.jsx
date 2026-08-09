@@ -176,7 +176,7 @@ const Login = ({onLoginSuccess}) => {
             const response =
             await axios.post(
 
-                "http://cqiming.pythonanywhere.com/api/auth/login/",
+                "https://cqiming.pythonanywhere.com/api/auth/login/",
 
                 formData,
 

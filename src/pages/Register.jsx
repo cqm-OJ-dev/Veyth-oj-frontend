@@ -126,7 +126,7 @@ const Register = () => {
 
             await axios.post(
 
-                "http://cqiming.pythonanywhere.com/api/auth/register/",
+                "https://cqiming.pythonanywhere.com/api/auth/register/",
 
 
                 {

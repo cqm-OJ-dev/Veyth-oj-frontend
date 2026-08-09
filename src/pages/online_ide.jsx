@@ -6,7 +6,7 @@ import './online_ide.css';
 const OnlineIDE = () => {
   const [code, setCode] = useState('# Welcome to the online IDE\nprint("Hello, World!")');
   const [language, setLanguage] = useState('python');
-  const API_BASE = process.env.REACT_APP_API_BASE || 'http://cqiming.pythonanywhere.com';
+  const API_BASE = process.env.REACT_APP_API_BASE || 'https://cqiming.pythonanywhere.com';
   const WITH_CREDENTIALS = process.env.REACT_APP_WITH_CREDENTIALS === 'true';
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
