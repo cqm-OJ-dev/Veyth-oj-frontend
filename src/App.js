@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LoadingScreen from './LoadingScreen';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import OAuthCallback from './pages/OAuthCallback';
 import { translations, getBrowserLanguage } from './include/locales';
 import { useAuth } from './hooks/useAuth';
 import axios from 'axios';
@@ -68,6 +69,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login language={language} onLoginSuccess={login} />} />
             <Route path="/register" element={<Register language={language} />} />
+            <Route path="/oauth/callback" element={<OAuthCallback onLoginSuccess={login} />} />
             <Route path="/" element={<Login language={language} onLoginSuccess={login} />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>

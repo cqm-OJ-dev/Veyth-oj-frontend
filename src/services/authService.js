@@ -1,38 +1,44 @@
 import axios from 'axios';
+import initSqlJs from 'sql.js';
 
-const API_URL = 'http://120.55.185.165:8000/api/auth/'; // 替换为你的Django后端地址
+export const API_BASE = process.env.REACT_APP_API_BASE || 'https://cqiming.pythonanywhere.com';
+const API_URL = `${API_BASE}/api/auth/`;
 
-function getFallbackSessionStore() {
+let sqlReadyPromise = null;
+let sqlDatabase = null;
+
+async function getSqlDatabase() {
   if (typeof window === 'undefined') return null;
-  try {
-    const raw = window.localStorage.getItem('veyth-auth-fallback');
-    return raw ? JSON.parse(raw) : {};
-  } catch (e) {
-    return {};
+  if (sqlDatabase) return sqlDatabase;
+
+  if (!sqlReadyPromise) {
+    sqlReadyPromise = initSqlJs({
+      locateFile: (file) => `https://sql.js.org/dist/${file}`
+    });
   }
+
+  const SQL = await sqlReadyPromise;
+  const stored = window.localStorage.getItem('veyth-auth-db');
+
+  if (stored) {
+    try {
+      const bytes = new Uint8Array(JSON.parse(stored));
+      sqlDatabase = new SQL.Database(bytes);
+    } catch (e) {
+      sqlDatabase = new SQL.Database();
+    }
+  } else {
+    sqlDatabase = new SQL.Database();
+  }
+
+  sqlDatabase.run('CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, user_data TEXT, created_at INTEGER)');
+  return sqlDatabase;
 }
 
-function setFallbackSessionStore(store) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem('veyth-auth-fallback', JSON.stringify(store));
-}
-
-function openSessionDb() {
-  if (typeof window === 'undefined' || !('indexedDB' in window)) return null;
-
-  return new Promise((resolve, reject) => {
-    const request = window.indexedDB.open('veyth-auth-db', 1);
-
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('sessions')) {
-        db.createObjectStore('sessions', { keyPath: 'token' });
-      }
-    };
-
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+async function persistSqlDatabase(database) {
+  if (typeof window === 'undefined' || !database) return;
+  const bytes = database.export();
+  window.localStorage.setItem('veyth-auth-db', JSON.stringify(Array.from(bytes)));
 }
 
 export function generateToken(length = 16) {
@@ -93,6 +99,8 @@ export function deleteCookie(name) {
 
 export async function saveUserSession(token, userData) {
   if (typeof window === 'undefined') return null;
+  const database = await getSqlDatabase();
+  if (!database) return null;
 
   const payload = {
     token,
@@ -100,74 +108,39 @@ export async function saveUserSession(token, userData) {
     savedAt: Date.now()
   };
 
-  const database = await openSessionDb();
-  if (database) {
-    try {
-      const transaction = database.transaction(['sessions'], 'readwrite');
-      const store = transaction.objectStore('sessions');
-      await new Promise((resolve, reject) => {
-        const request = store.put(payload);
-        request.onsuccess = () => resolve(payload);
-        request.onerror = () => reject(request.error);
-      });
-      database.close();
-    } catch (e) {
-      // fall back below
-    }
-  }
-
-  const store = getFallbackSessionStore();
-  store[token] = payload;
-  setFallbackSessionStore(store);
+  const statement = database.prepare('INSERT OR REPLACE INTO sessions (token, user_data, created_at) VALUES (?, ?, ?)');
+  statement.run([token, JSON.stringify(payload), Date.now()]);
+  statement.free();
+  await persistSqlDatabase(database);
   return payload;
 }
 
 export async function getUserSession(token) {
   if (typeof window === 'undefined' || !token) return null;
+  const database = await getSqlDatabase();
+  if (!database) return null;
 
-  const database = await openSessionDb();
-  if (database) {
-    try {
-      const transaction = database.transaction(['sessions'], 'readonly');
-      const store = transaction.objectStore('sessions');
-      const payload = await new Promise((resolve, reject) => {
-        const request = store.get(token);
-        request.onsuccess = () => resolve(request.result || null);
-        request.onerror = () => reject(request.error);
-      });
-      database.close();
-      if (payload?.userData) return payload;
-    } catch (e) {
-      // fall back below
-    }
+  const statement = database.prepare('SELECT user_data FROM sessions WHERE token = ?');
+  statement.bind([token]);
+
+  let payload = null;
+  if (statement.step()) {
+    const row = statement.getAsObject();
+    payload = row.user_data ? JSON.parse(row.user_data) : null;
   }
-
-  const store = getFallbackSessionStore();
-  return store[token] || null;
+  statement.free();
+  return payload;
 }
 
 export async function deleteUserSession(token) {
   if (typeof window === 'undefined' || !token) return null;
+  const database = await getSqlDatabase();
+  if (!database) return null;
 
-  const database = await openSessionDb();
-  if (database) {
-    try {
-      const transaction = database.transaction(['sessions'], 'readwrite');
-      const store = transaction.objectStore('sessions');
-      await new Promise((resolve, reject) => {
-        const request = store.delete(token);
-        request.onsuccess = () => resolve(true);
-        request.onerror = () => reject(request.error);
-      });
-      database.close();
-    } catch (e) {
-      // ignore
-    }
-  }
-
-  const store = getFallbackSessionStore();
-  delete store[token];
-  setFallbackSessionStore(store);
+  const statement = database.prepare('DELETE FROM sessions WHERE token = ?');
+  statement.run([token]);
+  statement.free();
+  await persistSqlDatabase(database);
   return true;
 }
 
@@ -201,6 +174,8 @@ const authService = {
   setCookie,
   getCookie,
   deleteCookie,
+  getSqlDatabase,
+  persistSqlDatabase,
   generateToken,
   saveUserSession,
   getUserSession,

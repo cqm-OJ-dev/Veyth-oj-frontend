@@ -1,13 +1,15 @@
 /*
 =================================
- Windows 11 Login Style
- AuthPages.css
+Veyth OJ Login
+Windows + GitHub Style
 =================================
 */
 
 
 *{
+
     box-sizing:border-box;
+
 }
 
 
@@ -32,7 +34,7 @@ body{
 
 /*
 =================================
- 锁屏主体
+锁屏主体
 =================================
 */
 
@@ -70,10 +72,9 @@ body{
 
 
 
-
 /*
 =================================
- 壁纸
+背景
 =================================
 */
 
@@ -85,7 +86,6 @@ body{
 
 
     inset:0;
-
 
 
     background:
@@ -100,11 +100,9 @@ body{
     ),
 
 
-
     url(
     "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
     );
-
 
 
     background-size:cover;
@@ -128,20 +126,18 @@ body{
 @keyframes wallpaperMove{
 
 
-    from{
+from{
 
-        transform:
-        scale(1);
+    transform:scale(1);
 
-    }
+}
 
 
-    to{
+to{
 
-        transform:
-        scale(1.08);
+    transform:scale(1.08);
 
-    }
+}
 
 
 }
@@ -153,11 +149,9 @@ body{
 
 
 
-
-
 /*
 =================================
- 时间日期
+时间
 =================================
 */
 
@@ -180,14 +174,7 @@ body{
     z-index:2;
 
 
-    animation:
-
-    clockShow .8s;
-
-
-
 }
-
 
 
 
@@ -200,10 +187,6 @@ body{
     font-weight:300;
 
 
-    letter-spacing:2px;
-
-
-
 }
 
 
@@ -211,56 +194,16 @@ body{
 .lock-clock span{
 
 
-    margin-top:10px;
-
-
     display:block;
+
+
+    margin-top:10px;
 
 
     font-size:24px;
 
 
-
 }
-
-
-
-
-
-
-
-@keyframes clockShow{
-
-
-from{
-
-
-    opacity:0;
-
-
-    transform:
-    translateY(-30px);
-
-
-}
-
-
-
-to{
-
-
-    opacity:1;
-
-
-    transform:
-    translateY(0);
-
-
-}
-
-
-}
-
 
 
 
@@ -271,21 +214,48 @@ to{
 
 /*
 =================================
- 登录框
+整体登录卡片
 =================================
 */
 
 
-.windows-login{
+.login-container{
 
 
-    width:360px;
+    width:900px;
+
+
+    min-height:480px;
+
+
+    display:flex;
 
 
     z-index:3;
 
 
-    text-align:center;
+    overflow:hidden;
+
+
+    border-radius:28px;
+
+
+
+    background:
+
+    rgba(255,255,255,.15);
+
+
+
+    backdrop-filter:
+
+    blur(25px);
+
+
+
+    box-shadow:
+
+    0 30px 90px rgba(0,0,0,.45);
 
 
 
@@ -294,11 +264,7 @@ to{
     loginShow .7s ease;
 
 
-
 }
-
-
-
 
 
 
@@ -309,14 +275,11 @@ to{
 
 from{
 
-
     opacity:0;
 
-
     transform:
+
     translateY(50px);
-
-
 
 }
 
@@ -324,20 +287,16 @@ from{
 
 to{
 
-
     opacity:1;
 
-
     transform:
+
     translateY(0);
 
-
 }
 
 
-
 }
-
 
 
 
@@ -349,31 +308,21 @@ to{
 
 /*
 =================================
-头像
+左侧Logo
 =================================
 */
 
 
-.windows-avatar{
+.login-logo-area{
 
 
-    width:120px;
-
-
-    height:120px;
-
-
-    margin:
-
-    0 auto 20px;
-
-
-
-    border-radius:50%;
-
+    width:50%;
 
 
     display:flex;
+
+
+    flex-direction:column;
 
 
     align-items:center;
@@ -385,29 +334,100 @@ to{
 
     background:
 
+    rgba(255,255,255,.12);
 
-    linear-gradient(
 
-    135deg,
-
-    #00a4ff,
-
-    #0067c0
-
-    );
+}
 
 
 
-    font-size:55px;
+
+.login-logo{
 
 
-    font-weight:300;
+    width:180px;
+
+
+    height:180px;
+
+
+    object-fit:cover;
+
+
+    border-radius:50%;
+
 
 
     box-shadow:
 
-    0 20px 60px rgba(0,0,0,.45);
 
+    0 20px 60px rgba(0,0,0,.4);
+
+
+}
+
+
+
+
+
+.login-logo-area h1{
+
+
+    margin-top:30px;
+
+
+    margin-bottom:5px;
+
+
+    font-size:38px;
+
+
+    font-weight:500;
+
+
+}
+
+
+
+.login-logo-area p{
+
+
+    opacity:.8;
+
+
+    font-size:18px;
+
+
+}
+
+
+
+
+
+
+
+
+
+/*
+=================================
+右侧登录
+=================================
+*/
+
+
+.windows-login{
+
+
+    width:50%;
+
+
+    padding:
+
+    55px;
+
+
+
+    text-align:center;
 
 
 }
@@ -421,14 +441,13 @@ to{
 .windows-login h2{
 
 
-    font-size:26px;
+    font-size:28px;
 
 
     font-weight:400;
 
 
-    margin-bottom:25px;
-
+    margin-bottom:30px;
 
 
 }
@@ -466,11 +485,11 @@ to{
 
     margin:
 
-    7px 0;
+    8px 0;
 
 
 
-    border-radius:8px;
+    border-radius:10px;
 
 
 
@@ -482,20 +501,14 @@ to{
 
     background:
 
-    rgba(255,255,255,.9);
+    rgba(255,255,255,.92);
 
 
 
     outline:none;
 
 
-
     font-size:16px;
-
-
-
-    transition:.2s;
-
 
 
 }
@@ -505,11 +518,7 @@ to{
 .windows-login input:focus{
 
 
-    background:white;
-
-
     border-color:#0078d4;
-
 
 
     box-shadow:
@@ -521,13 +530,6 @@ to{
 
 
 }
-
-
-
-
-
-
-
 
 
 
@@ -560,7 +562,7 @@ to{
     border:none;
 
 
-    border-radius:8px;
+    border-radius:10px;
 
 
 
@@ -571,20 +573,17 @@ to{
     color:white;
 
 
-
     font-size:17px;
-
 
 
     cursor:pointer;
 
 
-
-    transition:.2s;
-
+    transition:.25s;
 
 
 }
+
 
 
 
@@ -595,16 +594,9 @@ to{
     background:#106ebe;
 
 
-}
+    transform:
 
-
-
-
-
-.windows-login form > button:disabled{
-
-
-    opacity:.6;
+    translateY(-2px);
 
 
 }
@@ -619,7 +611,151 @@ to{
 
 /*
 =================================
-切换注册
+GitHub OAuth
+=================================
+*/
+
+
+.github-login-button{
+
+
+    width:100%;
+
+
+    height:50px;
+
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+
+    gap:12px;
+
+
+
+    background:#24292f !important;
+
+
+
+    color:white;
+
+
+
+    border-radius:10px;
+
+
+
+    font-size:16px;
+
+
+
+}
+
+
+
+.github-login-button:hover{
+
+
+    background:#000 !important;
+
+
+}
+
+
+
+
+.github-icon{
+
+
+    width:23px;
+
+
+    height:23px;
+
+
+}
+
+
+
+
+
+
+
+
+.oauth-divider{
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:15px;
+
+
+    margin:
+
+    25px 0;
+
+
+    opacity:.8;
+
+
+}
+
+
+
+.oauth-divider::before,
+
+
+.oauth-divider::after{
+
+
+    content:"";
+
+
+    flex:1;
+
+
+    height:1px;
+
+
+    background:
+
+    rgba(255,255,255,.5);
+
+
+}
+
+
+
+.oauth-divider span{
+
+
+    font-size:14px;
+
+
+}
+
+
+
+
+
+
+
+
+
+/*
+=================================
+注册
 =================================
 */
 
@@ -627,23 +763,13 @@ to{
 .switch{
 
 
-    margin-top:22px;
+    margin-top:20px;
 
 
     cursor:pointer;
 
 
-
     opacity:.85;
-
-
-
-    font-size:15px;
-
-
-
-    transition:.2s;
-
 
 
 }
@@ -668,28 +794,26 @@ to{
 
 
 
-
-
-
 /*
 =================================
-提示信息
+提示
 =================================
 */
 
 
 .error-message,
+
+
 .success-message{
 
 
     padding:12px;
 
 
-    border-radius:8px;
+    border-radius:10px;
 
 
     margin-bottom:15px;
-
 
 
     background:
@@ -701,10 +825,7 @@ to{
     color:#222;
 
 
-
 }
-
-
 
 
 
@@ -717,8 +838,6 @@ to{
 
 
 }
-
-
 
 
 
@@ -742,7 +861,7 @@ to{
 
 /*
 =================================
-登录退出动画
+退出动画
 =================================
 */
 
@@ -755,9 +874,7 @@ to{
     shutdown .9s forwards;
 
 
-
 }
-
 
 
 
@@ -771,6 +888,7 @@ opacity:1;
 }
 
 
+
 70%{
 
 opacity:.2;
@@ -778,40 +896,14 @@ opacity:.2;
 }
 
 
-100%{
 
+100%{
 
 opacity:0;
 
-
 background:black;
 
-
 }
-
-
-
-}
-
-
-
-
-
-
-
-
-
-/*
-=================================
-注册页
-=================================
-*/
-
-
-.register-box{
-
-
-    margin-top:40px;
 
 
 }
@@ -831,34 +923,30 @@ background:black;
 */
 
 
-@media(max-width:600px){
+@media(max-width:700px){
 
 
 
-.lock-clock{
+.login-container{
 
 
-top:40px;
+    width:90%;
 
 
-}
-
-
-
-.lock-clock div{
-
-
-font-size:60px;
+    flex-direction:column;
 
 
 }
 
 
 
-.lock-clock span{
+.login-logo-area{
 
 
-font-size:18px;
+    width:100%;
+
+
+    padding:40px 0;
 
 
 }
@@ -868,23 +956,43 @@ font-size:18px;
 .windows-login{
 
 
-width:85%;
+    width:100%;
+
+
+    padding:35px;
 
 
 }
 
 
 
-.windows-avatar{
+.login-logo{
 
 
-width:90px;
+    width:120px;
 
 
-height:90px;
+    height:120px;
 
 
-font-size:40px;
+}
+
+
+
+.lock-clock div{
+
+
+    font-size:60px;
+
+
+}
+
+
+
+.lock-clock span{
+
+
+    font-size:18px;
 
 
 }

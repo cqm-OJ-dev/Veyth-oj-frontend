@@ -3,64 +3,82 @@ import React, {
     useEffect
 } from "react";
 
+
 import {
     useLocation,
     useNavigate
 } from "react-router-dom";
 
+
 import axios from "axios";
+
 
 import "./AuthPages.css";
 import "../App.css";
 
-import { setCookie } from "../services/authService";
-import { useAuth } from "../hooks/useAuth";
+
+import {
+    setCookie
+} from "../services/authService";
+
+
+import {
+    useAuth
+} from "../hooks/useAuth";
+
+
+
+
 
 const Login = ({onLoginSuccess}) => {
 
 
+
     const location = useLocation();
+
     const navigate = useNavigate();
 
-    const { currentUser } = useAuth();
+
+
+    const {
+        currentUser
+    } = useAuth();
 
 
 
-    const [time,setTime] =
-        useState(new Date());
 
 
 
     const [fadeOut,setFadeOut] =
-        useState(false);
+    useState(false);
 
 
 
     const [loading,setLoading] =
-        useState(false);
+    useState(false);
 
 
 
     const [error,setError] =
-        useState("");
+    useState("");
 
 
 
     const [registrationSuccess,setRegistrationSuccess] =
-        useState(false);
+    useState(false);
+
 
 
 
 
     const [formData,setFormData] =
-        useState({
+    useState({
 
-            username:"",
-            password:""
+        username:"",
 
-        });
+        password:""
 
-
+    });
 
 
 
@@ -71,37 +89,33 @@ const Login = ({onLoginSuccess}) => {
     useEffect(()=>{
 
 
-        const timer =
-        setInterval(()=>{
+        if(currentUser){
 
 
-            setTime(
-                new Date()
+            navigate(
+
+                "/",
+
+                {
+                    replace:true
+                }
+
             );
 
 
-        },1000);
-
-
-
-        return ()=>clearInterval(timer);
-
-
-    },[]);
-
-
-
-
-
-
-
-
-
-    useEffect(() => {
-        if (currentUser) {
-            navigate('/', { replace: true });
         }
-    }, [currentUser, navigate]);
+
+
+    },[
+        currentUser,
+        navigate
+    ]);
+
+
+
+
+
+
 
     useEffect(()=>{
 
@@ -110,13 +124,19 @@ const Login = ({onLoginSuccess}) => {
             location.state?.registrationSuccess
         ){
 
+
             setRegistrationSuccess(true);
 
 
+
             window.history.replaceState(
+
                 {},
+
                 document.title
+
             );
+
 
         }
 
@@ -133,17 +153,20 @@ const Login = ({onLoginSuccess}) => {
 
 
 
-
-
     const handleChange=(e)=>{
 
 
         setFormData({
 
+
             ...formData,
 
+
             [e.target.name]:
+
             e.target.value
+
+
 
         });
 
@@ -164,9 +187,12 @@ const Login = ({onLoginSuccess}) => {
         e.preventDefault();
 
 
+
         setError("");
 
         setLoading(true);
+
+
 
 
 
@@ -174,24 +200,37 @@ const Login = ({onLoginSuccess}) => {
 
 
             const response =
+
             await axios.post(
+
 
                 "https://cqiming.pythonanywhere.com/api/auth/login/",
 
+
                 formData,
+
 
                 {
 
+
                     headers:{
 
+
                         "Content-Type":
+
                         "application/json"
+
 
                     }
 
+
                 }
 
+
+
             );
+
+
 
 
 
@@ -201,23 +240,54 @@ const Login = ({onLoginSuccess}) => {
             if(onLoginSuccess){
 
 
-                const serverUser = response.data.user || {};
+                const serverUser =
+
+                response.data.user || {};
+
+
+
+
                 onLoginSuccess({
-                    username: serverUser.username || formData.username,
-                    accessToken: response.data.access,
-                    refreshToken: response.data.refresh,
+
+
+                    username:
+
+                    serverUser.username ||
+
+                    formData.username,
+
+
+
+                    accessToken:
+
+                    response.data.access,
+
+
+
+                    refreshToken:
+
+                    response.data.refresh,
+
+
+
                     ...serverUser,
-                    is_staff: serverUser.is_staff ?? response.data.is_staff ?? false
+
+
+
+                    is_staff:
+
+                    serverUser.is_staff ??
+
+                    response.data.is_staff ??
+
+                    false
+
+
                 });
 
 
+
             }
-
-
-
-
-
-
 
 
 
@@ -239,8 +309,8 @@ const Login = ({onLoginSuccess}) => {
 
                 );
 
-            }
 
+            }
 
 
 
@@ -248,10 +318,13 @@ const Login = ({onLoginSuccess}) => {
 
             setFadeOut(true);
 
+
+
+
         }
 
-        catch(err){
 
+        catch(err){
 
 
             setError(
@@ -261,8 +334,8 @@ const Login = ({onLoginSuccess}) => {
             );
 
 
-
         }
+
 
         finally{
 
@@ -283,13 +356,123 @@ const Login = ({onLoginSuccess}) => {
 
 
 
+
+
+
+    const githubLogin=()=>{
+
+
+
+        const githubClientId =
+
+        process.env.REACT_APP_GITHUB_CLIENT_ID || '';
+
+
+
+
+
+        if(!githubClientId){
+
+
+            alert(
+
+                "请先在 .env 文件中设置 REACT_APP_GITHUB_CLIENT_ID"
+
+            );
+
+
+            return;
+
+
+        }
+
+
+
+
+
+
+        const redirectUri =
+
+        `${window.location.origin}/oauth/callback`;
+
+
+
+
+
+
+        const scope =
+
+        "read:user user:email";
+
+
+
+
+
+
+
+        const state =
+
+        Math.random()
+
+        .toString(36)
+
+        .substring(2);
+
+
+
+
+
+
+        sessionStorage.setItem(
+
+            "github_oauth_state",
+
+            state
+
+        );
+
+
+
+
+
+
+
+        const authUrl =
+
+
+        `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(githubClientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`;
+
+
+
+
+
+
+
+        window.location.href = authUrl;
+
+
+    };
+
+
+
+
+
+
+
+
+
 return (
+
+
 
 <div
 
+
 className={
 
+
 "windows-lockscreen "
+
 
 +
 
@@ -297,19 +480,30 @@ className={
 
 fadeOut
 
+
 ?
+
 
 "windows-fade-out"
 
+
 :
+
 
 ""
 
+
 )
+
+
 
 }
 
+
 >
+
+
+
 
 
 
@@ -321,60 +515,67 @@ fadeOut
 
 
 
-<div className="lock-clock">
 
 
-<div>
 
-{
-time.toLocaleTimeString(
+<div className="login-container">
 
-[],
 
-{
 
-hour:"2-digit",
 
-minute:"2-digit"
 
-}
 
-)
 
-}
+{/* 左侧 LOGO */}
+
+<div className="login-logo-area">
+
+
+
+<img
+
+
+src="/logo.png"
+
+
+className="login-logo"
+
+
+alt="Veyth OJ"
+
+
+
+/>
+
+
+
+
+
+
+<h1>
+
+Veyth OJ
+
+</h1>
+
+
+
+
+
+
+<p>
+
+Online Judge System
+
+</p>
+
+
+
 
 </div>
 
 
 
-<span>
-
-{
-time.toLocaleDateString(
-
-"zh-CN",
-
-{
-
-weekday:"long",
-
-year:"numeric",
-
-month:"long",
-
-day:"numeric"
-
-}
-
-)
-
-}
-
-</span>
-
-
-
-</div>
 
 
 
@@ -383,18 +584,11 @@ day:"numeric"
 
 
 
+
+
+{/* 右侧登录 */}
 
 <div className="windows-login">
-
-
-
-
-
-<div className="windows-avatar">
-
-V
-
-</div>
 
 
 
@@ -403,13 +597,19 @@ V
 
 <h2>
 
+
 {
+
 
 formData.username ||
 
+
 "用户登录"
 
+
 }
+
+
 
 </h2>
 
@@ -421,14 +621,19 @@ formData.username ||
 
 
 {
+
 registrationSuccess &&
+
 
 
 <div className="success-message">
 
+
 注册成功，请登录
 
+
 </div>
+
 
 }
 
@@ -439,14 +644,19 @@ registrationSuccess &&
 
 
 {
+
 error &&
+
 
 
 <div className="error-message">
 
+
 {error}
 
+
 </div>
+
 
 }
 
@@ -464,15 +674,21 @@ error &&
 
 
 
+
 <input
+
 
 name="username"
 
+
 placeholder="用户名"
+
 
 value={formData.username}
 
+
 onChange={handleChange}
+
 
 />
 
@@ -489,21 +705,27 @@ onChange={handleChange}
 
 <input
 
+
 name="password"
+
 
 type="password"
 
+
 placeholder="密码"
+
 
 value={formData.password}
 
+
 onChange={handleChange}
+
 
 />
 
 
-
 </div>
+
 
 
 
@@ -521,20 +743,106 @@ disabled={loading}
 
 {
 
+
 loading
+
 
 ?
 
+
 "登录中..."
+
 
 :
 
+
 "登录"
+
+
 
 }
 
 
+
 </button>
+
+
+
+
+
+
+
+
+
+<button
+
+
+type="button"
+
+
+className="github-login-button"
+
+
+onClick={githubLogin}
+
+
+
+>
+
+
+
+
+
+
+
+<svg
+
+
+className="github-icon"
+
+
+viewBox="0 0 24 24"
+
+
+
+>
+
+
+
+<path
+
+
+fill="currentColor"
+
+
+d="M12 .3a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 016 0c2.3-1.6 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.3.8 1 .8 2v3c0 .3.2.7.8.6A12 12 0 0012 .3"
+
+
+/>
+
+
+</svg>
+
+
+
+
+
+
+
+<span>
+
+使用 GitHub 登录
+
+</span>
+
+
+
+
+
+
+</button>
+
+
 
 
 
@@ -550,11 +858,33 @@ loading
 
 
 
+
+<div className="oauth-divider">
+
+<span>
+
+或者
+
+</span>
+
+</div>
+
+
+
+
+
+
+
+
 <p
+
 
 className="switch"
 
-onClick={() => window.location.href = '/register'}
+
+onClick={()=>navigate("/register")}
+
+
 
 >
 
@@ -567,6 +897,16 @@ onClick={() => window.location.href = '/register'}
 
 
 
+
+</div>
+
+
+
+
+
+
+
+
 </div>
 
 
@@ -574,11 +914,11 @@ onClick={() => window.location.href = '/register'}
 
 
 
-
-
 </div>
+
 
 );
+
 
 
 };

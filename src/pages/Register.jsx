@@ -2,13 +2,17 @@ import React, {
     useState
 } from "react";
 
+
 import {
     useNavigate
 } from "react-router-dom";
 
+
 import axios from "axios";
 
+
 import "./AuthPages.css";
+
 
 
 
@@ -53,8 +57,6 @@ const Register = () => {
 
 
 
-
-
     const handleChange=(e)=>{
 
 
@@ -62,7 +64,9 @@ const Register = () => {
 
             ...formData,
 
+
             [e.target.name]:
+
             e.target.value
 
 
@@ -115,7 +119,6 @@ const Register = () => {
 
 
 
-
         setLoading(true);
 
 
@@ -126,38 +129,54 @@ const Register = () => {
 
             await axios.post(
 
+
                 "https://cqiming.pythonanywhere.com/api/auth/register/",
+
 
 
                 {
 
+
                     username:
+
                     formData.username,
 
 
+
                     email:
+
                     formData.email,
 
 
+
                     password:
+
                     formData.password
+
 
 
                 },
 
+
+
                 {
+
 
                     headers:{
 
+
                         "Content-Type":
+
                         "application/json"
+
 
                     }
 
+
                 }
 
-            );
 
+            );
 
 
 
@@ -165,8 +184,12 @@ const Register = () => {
 
 
             setSuccess(
+
                 "注册成功，正在登录页面..."
+
             );
+
+
 
 
 
@@ -208,12 +231,15 @@ const Register = () => {
 
             setError(
 
+
                 err.response?.data?.error ||
+
 
                 "注册失败"
 
-            );
 
+
+            );
 
 
         }
@@ -239,7 +265,12 @@ const Register = () => {
 
 return (
 
-<div className="windows-lockscreen">
+
+<div
+
+className="windows-lockscreen"
+
+>
 
 
 
@@ -254,7 +285,8 @@ return (
 
 
 
-<div className="windows-login register-box">
+
+<div className="login-container">
 
 
 
@@ -262,10 +294,42 @@ return (
 
 
 
-<div className="windows-avatar">
+{/* 左侧 LOGO */}
+
+<div className="login-logo-area">
 
 
-✦
+
+<img
+
+src="/logo.png"
+
+className="login-logo"
+
+alt="Veyth OJ"
+
+/>
+
+
+
+
+
+<h1>
+
+Veyth OJ
+
+</h1>
+
+
+
+
+<p>
+
+Create your account
+
+</p>
+
+
 
 </div>
 
@@ -275,11 +339,28 @@ return (
 
 
 
+
+
+
+
+
+
+{/* 右侧注册 */}
+
+<div
+
+className="windows-login register-box"
+
+>
+
+
+
+
+
+
 <h2>
 
-
 创建账户
-
 
 </h2>
 
@@ -290,20 +371,27 @@ return (
 
 
 
-
 {
+
 error &&
 
 
-<div className="error-message">
+
+<div
+
+className="error-message"
+
+>
+
 
 {error}
+
 
 </div>
 
 
-}
 
+}
 
 
 
@@ -313,14 +401,23 @@ error &&
 
 
 {
+
 success &&
 
 
-<div className="success-message">
+
+<div
+
+className="success-message"
+
+>
+
 
 {success}
 
+
 </div>
+
 
 
 }
@@ -333,9 +430,11 @@ success &&
 
 
 
-<form onSubmit={register}>
+<form
 
+onSubmit={register}
 
+>
 
 
 
@@ -359,8 +458,6 @@ onChange={handleChange}
 
 
 />
-
-
 
 
 
@@ -422,7 +519,6 @@ onChange={handleChange}
 />
 
 
-
 </div>
 
 
@@ -458,8 +554,8 @@ onChange={handleChange}
 />
 
 
-
 </div>
+
 
 
 
@@ -471,28 +567,38 @@ onChange={handleChange}
 
 <button
 
+
 disabled={loading}
+
 
 >
 
 
 {
 
+
 loading
+
 
 ?
 
+
 "注册中..."
+
 
 :
 
+
 "注册"
+
+
 
 }
 
 
 
 </button>
+
 
 
 
@@ -512,9 +618,12 @@ loading
 
 <p
 
+
 className="switch"
 
+
 onClick={()=>navigate("/login")}
+
 
 >
 
@@ -523,6 +632,15 @@ onClick={()=>navigate("/login")}
 
 
 </p>
+
+
+
+
+
+
+
+
+</div>
 
 
 
