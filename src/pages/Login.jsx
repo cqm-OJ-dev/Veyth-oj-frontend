@@ -201,19 +201,13 @@ const Login = ({onLoginSuccess}) => {
             if(onLoginSuccess){
 
 
+                const serverUser = response.data.user || {};
                 onLoginSuccess({
-
-                    username:
-                    formData.username,
-
-
-                    token:
-                    response.data.access,
-
-
-                    refreshToken:
-                    response.data.refresh
-
+                    username: serverUser.username || formData.username,
+                    accessToken: response.data.access,
+                    refreshToken: response.data.refresh,
+                    ...serverUser,
+                    is_staff: serverUser.is_staff ?? response.data.is_staff ?? false
                 });
 
 
@@ -225,20 +219,6 @@ const Login = ({onLoginSuccess}) => {
 
 
 
-            if(response.data.access){
-
-
-                setCookie(
-
-                    "authToken",
-
-                    response.data.access,
-
-                    30
-
-                );
-
-            }
 
 
 
