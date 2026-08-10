@@ -9,7 +9,7 @@ const Problems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const response = await fetch('http://localhost:1029/problems/problems/');
+        const response = await fetch('https://cqiming.pythonanywhere.com/problems/problems/');
         if (!response.ok) {
           throw new Error(`HTTP error ${response.status}`);
         }
