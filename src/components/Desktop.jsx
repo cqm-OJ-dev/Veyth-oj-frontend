@@ -5,6 +5,7 @@ import Problems from '../pages/Problems';
 import Contests from '../pages/Contests';
 import Submissions from '../pages/Submissions';
 import OnlineIDE from '../pages/online_ide';
+import Admin from '../pages/Admin';
 import wallpaper from "../assets/wallpaper.jpg";
 
 const APP_LIST = [
@@ -32,10 +33,12 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
 
   const openApp = (appKey) => {
     const app = APP_LIST.find(a => a.key === appKey);
-    if (!app) return;
+    // allow admin as a dynamic app
+    if (!app && appKey !== 'admin') return;
     const id = Date.now();
-    const Component = app.component;
-    setWindows(w => [...w, { id, key: appKey, title: app.title, Component, z: zBase, minimized: false, maximized: false, pos: defaultPos, size: defaultSize }]);
+    const Component = app ? app.component : Admin;
+    const title = app ? app.title : '管理平台';
+    setWindows(w => [...w, { id, key: appKey, title, Component, z: zBase, minimized: false, maximized: false, pos: defaultPos, size: defaultSize }]);
     setZBase(z => z + 1);
   };
 
@@ -107,6 +110,12 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
             <div className="icon-label">{app.title}</div>
           </div>
         ))}
+        {currentUser?.is_staff && (
+          <div className="desktop-icon" onDoubleClick={() => openApp('admin')} onClick={() => openApp('admin')}>
+            <div className={`icon-visual icon-admin`} />
+            <div className="icon-label">管理平台</div>
+          </div>
+        )}
       </div>
 
       {windows.map(win => (
@@ -153,6 +162,12 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
                   <span>{app.title}</span>
                 </button>
               ))}
+              {currentUser?.is_staff && (
+                <button className="start-menu-item" onClick={() => { openApp('admin'); setIsStartOpen(false); }}>
+                  <div className={`start-menu-icon icon-admin`} />
+                  <span>管理平台</span>
+                </button>
+              )}
             </div>
           </div>
           <div className="">
