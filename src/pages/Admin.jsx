@@ -1,6 +1,6 @@
 import React from 'react';
 import './online_ide.css';
-import '../components/window.css';
+import '../components/Window.css';
 
 export default function Admin() {
   return (

@@ -11,9 +11,15 @@ export default function OAuthCallback({ onLoginSuccess }) {
   useEffect(() => {
     const code = searchParams.get('code');
     const state = searchParams.get('state');
+    const savedState = sessionStorage.getItem('github_oauth_state');
 
     if (!code) {
-      setError('OAuth code not found.');
+      setError('OAuth 回调缺少 code。');
+      return;
+    }
+
+    if (savedState && state && savedState !== state) {
+      setError('OAuth state 校验失败，请重试。');
       return;
     }
 
@@ -24,21 +30,28 @@ export default function OAuthCallback({ onLoginSuccess }) {
           state,
         });
 
-        if (response.data) {
+        const payload = response?.data ?? {};
+        const access = payload.access || payload.accessToken || payload.token;
+        const refresh = payload.refresh || payload.refreshToken;
+        const user = payload.user || payload.profile || {};
+
+        if (access) {
           await onLoginSuccess({
-            username: response.data.user?.username,
-            accessToken: response.data.access,
-            refreshToken: response.data.refresh,
-            ...response.data.user,
-            is_staff: response.data.user?.is_staff ?? false,
+            username: user.username || payload.username || 'github-user',
+            accessToken: access,
+            refreshToken: refresh,
+            ...user,
+            is_staff: user.is_staff ?? payload.is_staff ?? false,
           });
+          sessionStorage.removeItem('github_oauth_state');
           navigate('/', { replace: true });
         } else {
-          setError('OAuth login failed.');
+          setError('后端未返回有效登录凭据。');
         }
       } catch (err) {
         console.error('GitHub OAuth callback error:', err);
-        setError('GitHub OAuth login error.');
+        const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message;
+        setError(serverMessage ? `GitHub 登录失败：${serverMessage}` : 'GitHub OAuth 登录失败。');
       }
     };
 
