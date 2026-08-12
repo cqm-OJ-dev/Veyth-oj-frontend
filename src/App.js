@@ -8,6 +8,7 @@ import OAuthCallback from './pages/OAuthCallback';
 import { translations, getBrowserLanguage } from './include/locales';
 import { useAuth } from './hooks/useAuth';
 import axios from 'axios';
+import { API_BASE } from './services/authService';
 import './App.css';
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
 
     const checkConnection = async () => {
       try {
-        const response = await axios.post('https://cqiming.pythonanywhere.com/tests/test_conntect/', {
+        const response = await axios.post(`${API_BASE}/tests/test_conntect/`, {
           'message': 'ok' 
         });
         if (response.status === 200) {

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE } from '../services/authService';
 import './Problems.css';
 
 const Problems = () => {
@@ -9,7 +10,7 @@ const Problems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const response = await fetch('https://cqiming.pythonanywhere.com/problems/problems/');
+        const response = await fetch(`${API_BASE}/problems/problems/`);
         if (!response.ok) {
           throw new Error(`HTTP error ${response.status}`);
         }
