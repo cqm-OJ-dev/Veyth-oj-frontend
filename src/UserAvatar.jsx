@@ -1,45 +1,99 @@
-// UserAvatar.jsx
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { deleteCookie } from './services/authService';
 
-const UserAvatar = ({ user }) => {
+const UserAvatar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const handler = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('mousedown', handler);
+    return () => window.removeEventListener('mousedown', handler);
+  }, [isOpen]);
+
   const handleLogout = () => {
-    try { deleteCookie('user'); } catch (e) {}
-    try { deleteCookie('authToken'); } catch (e) {}
-    try { deleteCookie('refreshToken'); } catch (e) {}
-    navigate('/login');
+    if (typeof onLogout === 'function') {
+      onLogout();
+    }
+    navigate('/login', { replace: true });
   };
 
+  if (!user) return null;
+
+  const initial = (user.username || 'U').charAt(0).toUpperCase();
+
   return (
-    <div className="user-avatar-container">
-      <button 
+    <div className="user-avatar-container" ref={containerRef}>
+      <button
         className="avatar-button"
-        onClick={() => setIsOpen(!isOpen)}
+        title={user.username}
+        onClick={() => setIsOpen((open) => !open)}
       >
-        {user.username.charAt(0).toUpperCase()}
+        {user.avatar ? (
+          <img src={user.avatar} alt="" className="avatar-img" />
+        ) : (
+          <span>{initial}</span>
+        )}
       </button>
-      
+
       {isOpen && (
-        <div className="user-dropdown">
+        <div className="user-dropdown" role="menu">
           <div className="user-info">
-            <span className="username">{user.username}</span>
-            <span className="email">{user.email}</span>
+            <div className="user-info-avatar">
+              {user.avatar ? (
+                <img src={user.avatar} alt="" className="dropdown-avatar" />
+              ) : (
+                <span>{initial}</span>
+              )}
+            </div>
+            <div className="user-info-text">
+              <span className="username">{user.username}</span>
+              {user.email && <span className="email">{user.email}</span>}
+              {user.is_staff && (
+                <span className="staff-badge">管理员</span>
+              )}
+            </div>
           </div>
-          <button 
+          <div className="dropdown-divider" />
+          <button
             className="dropdown-item"
-            onClick={() => navigate('/profile')}
+            role="menuitem"
+            onClick={() => {
+              setIsOpen(false);
+              navigate('/profile');
+            }}
           >
-            个人中心
+            <span className="dropdown-icon">👤</span>
+            <span>个人中心</span>
           </button>
-          <button 
-            className="dropdown-item logout"
-            onClick={handleLogout}
+          <button
+            className="dropdown-item"
+            role="menuitem"
+            onClick={() => {
+              setIsOpen(false);
+              navigate('/settings');
+            }}
           >
-            退出登录
+            <span className="dropdown-icon">⚙️</span>
+            <span>设置</span>
+          </button>
+          <div className="dropdown-divider" />
+          <button
+            className="dropdown-item logout"
+            role="menuitem"
+            onClick={() => {
+              setIsOpen(false);
+              handleLogout();
+            }}
+          >
+            <span className="dropdown-icon">🚪</span>
+            <span>退出登录</span>
           </button>
         </div>
       )}
