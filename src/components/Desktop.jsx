@@ -6,6 +6,7 @@ import Contests from '../pages/Contests';
 import Submissions from '../pages/Submissions';
 import OnlineIDE from '../pages/online_ide';
 import Admin from '../pages/Admin';
+import UserAvatar from '../UserAvatar';
 import wallpaper from "../assets/wallpaper.jpg";
 
 const APP_LIST = [
@@ -145,7 +146,10 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
             <div key={w.id} className={`taskbar-item${w.id === activeWindowId ? ' active' : ''}`} onClick={() => taskbarClick(w.id)}>{w.title}</div>
           ))}
         </div>
-        <div className="tray">{currentTime.toLocaleTimeString()}</div>
+        <div className="tray-right">
+          <UserAvatar user={currentUser} onLogout={onLogout} />
+          <div className="tray">{currentTime.toLocaleTimeString()}</div>
+        </div>
       </div>
       {isStartOpen && (
         <div className="start-menu" ref={startMenuRef}>

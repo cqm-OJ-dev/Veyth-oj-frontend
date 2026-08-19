@@ -1,8 +1,6 @@
-import axios from 'axios';
 import initSqlJs from 'sql.js';
 
 export const API_BASE = process.env.REACT_APP_API_BASE || 'https://cqiming.pythonanywhere.com';
-const API_URL = `${API_BASE}/api/auth/`;
 
 let sqlReadyPromise = null;
 let sqlDatabase = null;
@@ -55,21 +53,6 @@ export function generateToken(length = 16) {
   }
   return token;
 }
-
-const register = (username, email, password) => {
-  return axios.post(API_URL + 'register/', {
-    username,
-    email,
-    password
-  });
-};
-
-const login = (username, password) => {
-  return axios.post(API_URL + 'login/', {
-    username,
-    password
-  });
-};
 
 // Cookie helpers - 设置带安全属性的 cookie
 function _cookieExpires(days) {
@@ -169,8 +152,6 @@ export function migrateLocalStorageToCookies() {
 }
 
 const authService = {
-  register,
-  login,
   setCookie,
   getCookie,
   deleteCookie,

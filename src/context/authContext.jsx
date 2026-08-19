@@ -1,5 +1,14 @@
-import { createContext, useState, useEffect } from 'react';
-import { getCookie, setCookie, deleteCookie, migrateLocalStorageToCookies } from '../services/authService';
+import { createContext, useState, useEffect, useContext } from 'react';
+import {
+  getCookie,
+  setCookie,
+  deleteCookie,
+  migrateLocalStorageToCookies,
+  saveUserSession,
+  getUserSession,
+  deleteUserSession,
+  generateToken
+} from '../services/authService';
 
 export const AuthContext = createContext();
 
@@ -8,26 +17,69 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try { migrateLocalStorageToCookies(); } catch (e) {}
-    const userCookie = getCookie('user');
-    if (userCookie) {
+    const loadUser = async () => {
       try {
-        setCurrentUser(JSON.parse(userCookie));
-      } catch (e) {
-        setCurrentUser({ username: userCookie });
+        migrateLocalStorageToCookies();
+      } catch (e) {}
+
+      const token =
+        getCookie('authToken') ||
+        getCookie('userToken') ||
+        getCookie('sessionToken');
+      if (token) {
+        try {
+          const storedSession = await getUserSession(token);
+          if (storedSession?.userData) {
+            setCurrentUser(storedSession.userData);
+          }
+        } catch (e) {
+          // ignore
+        }
       }
-    }
-    setIsLoading(false);
+
+      setIsLoading(false);
+    };
+
+    loadUser();
   }, []);
 
-  const login = (userData) => {
-    try { setCookie('user', JSON.stringify(userData), 30); } catch (e) { setCookie('user', userData.username || '', 30); }
-    setCurrentUser(userData);
+  const login = async (userData) => {
+    const clientToken = generateToken(16);
+    const normalizedUser = {
+      ...userData,
+      token: clientToken,
+      accessToken: userData.accessToken || userData.token || null,
+      refreshToken: userData.refreshToken || null
+    };
+
+    try {
+      setCookie('authToken', clientToken, 30);
+      setCookie('userToken', clientToken, 30);
+      await saveUserSession(clientToken, normalizedUser);
+    } catch (e) {
+      // ignore
+    }
+
+    setCurrentUser(normalizedUser);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const token =
+      getCookie('authToken') ||
+      getCookie('userToken') ||
+      getCookie('sessionToken');
+    if (token) {
+      try {
+        await deleteUserSession(token);
+      } catch (e) {
+        // ignore
+      }
+    }
+
     deleteCookie('user');
     deleteCookie('authToken');
+    deleteCookie('userToken');
+    deleteCookie('sessionToken');
     deleteCookie('refreshToken');
     setCurrentUser(null);
   };
@@ -38,3 +90,7 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export function useAuthContext() {
+  return useContext(AuthContext);
+}

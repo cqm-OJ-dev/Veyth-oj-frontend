@@ -5,13 +5,16 @@ import LoadingScreen from './LoadingScreen';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import OAuthCallback from './pages/OAuthCallback';
+import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
 import { translations, getBrowserLanguage } from './include/locales';
-import { useAuth } from './hooks/useAuth';
+import { AuthProvider, useAuthContext } from './context/authContext';
 import axios from 'axios';
+import { API_BASE } from './services/authService';
 import './App.css';
 
-function App() {
-  const { currentUser, login, logout } = useAuth();
+function AppContent() {
+  const { currentUser, login, logout } = useAuthContext();
   const [isLoading, setIsLoading] = useState(true);
   const [language, setLanguage] = useState('en');
   const [isConnected, setIsConnected] = useState(false);
@@ -28,7 +31,7 @@ function App() {
 
     const checkConnection = async () => {
       try {
-        const response = await axios.post('https://cqiming.pythonanywhere.com/tests/test_conntect/', {
+        const response = await axios.post(`${API_BASE}/tests/test_conntect/`, {
           'message': 'ok' 
         });
         if (response.status === 200) {
@@ -64,7 +67,12 @@ function App() {
     <Router>
       <div style={{width: '100vw', height: '100vh'}}>
         {currentUser ? (
-          <Desktop language={language} currentUser={currentUser} onLoginSuccess={login} onLogout={logout} />
+          <Routes>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<NotFound />} />
+            <Route path="/" element={<Desktop language={language} currentUser={currentUser} onLoginSuccess={login} onLogout={logout} />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         ) : (
           <Routes>
             <Route path="/login" element={<Login language={language} onLoginSuccess={login} />} />
@@ -79,6 +87,14 @@ function App() {
         )}
       </div>
     </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
