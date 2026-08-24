@@ -4,12 +4,12 @@ import axios from "axios";
 import "./AuthPages.css";
 import "../App.css";
 import { setCookie, API_BASE } from "../services/authService";
-import { useAuth } from "../hooks/useAuth";
+import { useAuthContext } from "../context/authContext";
 
 const Login = ({ onLoginSuccess }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser } = useAuthContext();
 
   const [fadeOut, setFadeOut] = useState(false);
   const [loading, setLoading] = useState(false);
