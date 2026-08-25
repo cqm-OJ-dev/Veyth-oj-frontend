@@ -11,7 +11,7 @@ async function getSqlDatabase() {
 
   if (!sqlReadyPromise) {
     sqlReadyPromise = initSqlJs({
-      locateFile: (file) => `https://sql.js.org/dist/${file}`
+      locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.14.0/${file}`
     });
   }
 

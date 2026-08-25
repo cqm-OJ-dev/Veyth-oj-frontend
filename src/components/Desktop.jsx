@@ -106,13 +106,13 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
 
       <div className="desktop-icons">
         {APP_LIST.map(app => (
-          <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)} onClick={() => openApp(app.key)}>
+          <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
             <div className={`icon-visual icon-${app.key}`} />
             <div className="icon-label">{app.title}</div>
           </div>
         ))}
         {currentUser?.is_staff && (
-          <div className="desktop-icon" onDoubleClick={() => openApp('admin')} onClick={() => openApp('admin')}>
+          <div className="desktop-icon" onDoubleClick={() => openApp('admin')}>
             <div className={`icon-visual icon-admin`} />
             <div className="icon-label">管理平台</div>
           </div>
