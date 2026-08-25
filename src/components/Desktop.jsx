@@ -8,7 +8,7 @@ import OnlineIDE from '../pages/online_ide';
 import Admin from '../pages/Admin';
 import UserAvatar from '../UserAvatar';
 import wallpaper from "../assets/wallpaper.jpg";
-
+ 
 const APP_LIST = [
   { key: 'problems', title: 'Problems', component: Problems },
   { key: 'contests', title: 'Contests', component: Contests },
@@ -16,22 +16,22 @@ const APP_LIST = [
   { key: 'ide', title: 'Online IDE', component: OnlineIDE },
   // login/register are full-screen flows and intentionally not added as desktop apps
 ];
-
+ 
 export default function Desktop({ language, currentUser, onLoginSuccess, onLogout }) {
   const [windows, setWindows] = useState([]);
   const [zBase, setZBase] = useState(100);
   const [isStartOpen, setIsStartOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const startMenuRef = useRef(null);
-
+ 
   const defaultPos = { x: 120, y: 80 };
   const defaultSize = { w: 900, h: 560 };
-
+ 
   const activeWindowId = windows.reduce((current, win) => {
     if (!current || win.z > current.z) return win;
     return current;
   }, null)?.id;
-
+ 
   const openApp = (appKey) => {
     const app = APP_LIST.find(a => a.key === appKey);
     // allow admin as a dynamic app
@@ -42,15 +42,15 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     setWindows(w => [...w, { id, key: appKey, title, Component, z: zBase, minimized: false, maximized: false, pos: defaultPos, size: defaultSize }]);
     setZBase(z => z + 1);
   };
-
+ 
   const closeWindow = (id) => setWindows(w => w.filter(win => win.id !== id));
-
+ 
   const focusWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win));
-
+ 
   const toggleMinimizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, minimized: !win.minimized } : win));
-
+ 
   const toggleMaximizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, maximized: !win.maximized, minimized: false } : win));
-
+ 
   const taskbarClick = (id) => {
     const win = windows.find(x => x.id === id);
     if (!win) return;
@@ -69,7 +69,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       }
     }
   };
-
+ 
   useEffect(() => {
     if (!isStartOpen) return undefined;
     const handler = (event) => {
@@ -80,15 +80,15 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     window.addEventListener('mousedown', handler);
     return () => window.removeEventListener('mousedown', handler);
   }, [isStartOpen]);
-
+ 
   useEffect(() => {
     const timer = window.setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
+ 
     return () => window.clearInterval(timer);
   }, []);
-
+ 
   return (
     <div className="desktop-root">
       <div
@@ -103,22 +103,22 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
         url(${wallpaper})`
     }}
 />
-
+ 
       <div className="desktop-icons">
         {APP_LIST.map(app => (
-          <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)} onClick={() => openApp(app.key)}>
+          <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
             <div className={`icon-visual icon-${app.key}`} />
             <div className="icon-label">{app.title}</div>
           </div>
         ))}
         {currentUser?.is_staff && (
-          <div className="desktop-icon" onDoubleClick={() => openApp('admin')} onClick={() => openApp('admin')}>
+          <div className="desktop-icon" onDoubleClick={() => openApp('admin')}>
             <div className={`icon-visual icon-admin`} />
             <div className="icon-label">管理平台</div>
           </div>
         )}
       </div>
-
+ 
       {windows.map(win => (
         <Window
           key={win.id}
@@ -135,7 +135,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
           <win.Component language={language} onLoginSuccess={onLoginSuccess} currentUser={currentUser} />
         </Window>
       ))}
-
+ 
       <div className="taskbar">
         <div className="start" onClick={() => setIsStartOpen(open => !open)}>
           <span className="start-icon">⊞</span>
