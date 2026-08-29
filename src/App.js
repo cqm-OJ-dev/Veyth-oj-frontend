@@ -17,7 +17,6 @@ function AppContent() {
   const { currentUser, login, logout } = useAuthContext();
   const [isLoading, setIsLoading] = useState(true);
   const [language, setLanguage] = useState('en');
-  const [isConnected, setIsConnected] = useState(false);
   const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false);
   
   const t = translations[language] || translations.en;
@@ -35,11 +34,10 @@ function AppContent() {
           'message': 'ok' 
         });
         if (response.status === 200) {
-          setIsConnected(true);
+          // 连接正常，无需额外操作
         }
       } catch (error) {
-        console.error('Connection check failed:', error);
-        setIsConnected(false);
+        console.warn('Connection check failed:', error.message);
       } finally {
         setIsLoading(false);
       }
@@ -48,8 +46,8 @@ function AppContent() {
     // 初始检查
     checkConnection();
 
-    // 设置一个定时器，每隔5秒检查一次连接状态
-    const intervalId = setInterval(checkConnection, 5000);
+    // 每30秒检查一次连接状态（降低频率，避免频繁请求和刷屏）
+    const intervalId = setInterval(checkConnection, 30000);
 
     // 设置一个5秒的定时器来显示反馈提示
     const feedbackTimer = setTimeout(() => {
@@ -82,7 +80,7 @@ function AppContent() {
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         )}
-        {(isLoading || !isConnected) && (
+        {isLoading && (
           <LoadingScreen inline={true} showFeedbackPrompt={showFeedbackPrompt} />
         )}
       </div>
