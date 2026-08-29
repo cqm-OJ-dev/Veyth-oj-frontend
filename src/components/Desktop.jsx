@@ -18,6 +18,9 @@ const APP_LIST = [
   { key: 'ide', title: 'Online IDE', component: OnlineIDE },
 ];
 
+const DEFAULT_POS = Object.freeze({ x: 120, y: 80 });
+const DEFAULT_SIZE = Object.freeze({ w: 900, h: 560 });
+
 const APP_RESOLVERS = {
   'problem-detail': {
     title: (props) => `Problem #${props?.problemId ?? '—'}`,
@@ -44,19 +47,16 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
   const [currentTime, setCurrentTime] = useState(new Date());
   const startMenuRef = useRef(null);
 
-  const defaultPos = { x: 120, y: 80 };
-  const defaultSize = { w: 900, h: 560 };
-
   const activeWindowId = windows.reduce((current, win) => {
     if (!current || win.z > current.z) return win;
     return current;
   }, null)?.id;
 
-  const createWindow = useCallback(({ key, title, Component, props = {}, size = defaultSize }) => {
+  const createWindow = useCallback(({ key, title, Component, props = {}, size = DEFAULT_SIZE }) => {
     const id = Date.now() + Math.floor(Math.random() * 1000);
     setWindows(w => [...w, {
       id, key, title, Component, z: zBase, minimized: false, maximized: false,
-      pos: { x: defaultPos.x + ((w.length * 24) % 180), y: defaultPos.y + ((w.length * 18) % 120) },
+      pos: { x: DEFAULT_POS.x + ((w.length * 24) % 180), y: DEFAULT_POS.y + ((w.length * 18) % 120) },
       size,
       props
     }]);
@@ -96,7 +96,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     createWindow({ key: appKey, title, Component: wrappedComponent });
   };
 
-  const focusWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win));
+  const focusWindow = useCallback((id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win)), [zBase]);
   const closeWindow = (id) => setWindows(w => w.filter(win => win.id !== id));
   const toggleMinimizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, minimized: !win.minimized } : win));
   const toggleMaximizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, maximized: !win.maximized, minimized: false } : win));
@@ -157,7 +157,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
         />
       </Window>
     );
-  }), [windows, language, onLoginSuccess, currentUser]);
+  }), [windows, language, onLoginSuccess, currentUser, focusWindow]);
 
   return (
     <div className="desktop-root">

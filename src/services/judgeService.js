@@ -65,7 +65,7 @@ export function pollSubmission(id, { maxWaitMs = 15000, intervalMs = 800 } = {})
   return new Promise(tick);
 }
 
-export default {
+const judgeService = {
   listProblems,
   getProblem,
   submitCode,
@@ -73,3 +73,5 @@ export default {
   getSubmission,
   pollSubmission
 };
+
+export default judgeService;

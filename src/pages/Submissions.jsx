@@ -98,9 +98,13 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
                   >
                     <td>{id ?? '—'}</td>
                     <td onClick={(e) => openPb(sub, e)} title="open problem">
-                      <a className="sub-problem-link" onClick={(e) => { e.preventDefault(); openPb(sub, e); }}>
+                      <button
+                        type="button"
+                        className="sub-problem-link sub-problem-btn"
+                        onClick={(e) => { e.stopPropagation(); openPb(sub, e); }}
+                      >
                         {problemTitle}
-                      </a>
+                      </button>
                     </td>
                     <td>{sub.language ?? '—'}</td>
                     <td>
