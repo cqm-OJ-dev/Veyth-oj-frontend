@@ -80,6 +80,45 @@
   color: #f39c12;
 }
 
+.status.time-limit-exceeded,
+.status.memory-limit-exceeded {
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+.status.pending,
+.status.running,
+.status.queued {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status.internal-error {
+  background-color: #fdecea;
+  color: #e74c3c;
+}
+
+.sub-row:hover td {
+  background-color: #f3f7ff !important;
+}
+.sub-row td,
+.submissions-table td {
+  border-bottom: 1px solid #eee;
+}
+
+.sub-problem-link {
+  color: #2563eb;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+}
+.sub-problem-link:hover {
+  text-decoration: underline;
+}
+
 
 .detail-link {
   color: #1a2a6c;
