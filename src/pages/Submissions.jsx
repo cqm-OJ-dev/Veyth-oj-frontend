@@ -1,49 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { listSubmissions } from '../services/judgeService';
 import './Submissions.css';
 
-const Submissions = () => {
+const statusKey = (s) => String(s || '').toLowerCase().replace(/\s+/g, '-');
+
+const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
   const { currentUser } = useAuth();
   const [submissions, setSubmissions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let alive = true;
     const fetchSubmissions = async () => {
       try {
-        if (!currentUser) return;
-
-        const mockSubmissions = [
-          {
-            id: 1,
-            problemTitle: 'Two Sum',
-            language: 'Python',
-            status: 'Compile Error',
-            runtime: '45ms',
-            memory: '14.5MB',
-            submittedAt: '2023-04-10T14:30:00'
-          },
-          {
-            id: 2,
-            problemTitle: 'Reverse Linked List',
-            language: 'C++',
-            status: 'Wrong Answer',
-            runtime: 'N/A',
-            memory: 'N/A',
-            submittedAt: '2023-04-08T09:15:00'
-          }
-        ];
-
-        setSubmissions(mockSubmissions);
+        if (!currentUser) { if (alive) { setIsLoading(false); } return; }
+        const data = await listSubmissions();
+        const arr = Array.isArray(data?.submissions) ? data.submissions
+          : Array.isArray(data?.results) ? data.results
+          : Array.isArray(data) ? data : [];
+        if (alive) setSubmissions(arr);
       } catch (err) {
-        setError('Failed to load submissions');
+        if (alive) setError(err?.message || 'Failed to load submissions');
       } finally {
-        setIsLoading(false);
+        if (alive) setIsLoading(false);
       }
     };
-
     fetchSubmissions();
+    return () => { alive = false; };
   }, [currentUser]);
+
+  const openSub = (s) => {
+    const id = s?.id ?? s?.submission_id;
+    if (id != null) onOpenSubmission?.(id);
+  };
+  const openPb = (s, e) => {
+    e.stopPropagation?.();
+    const pid = s?.problem_id ?? s?.problem?.id;
+    if (pid != null) onOpenProblem?.(pid);
+  };
 
   return (
     <div className="window-page-shell">
@@ -70,25 +66,53 @@ const Submissions = () => {
                 <th>Problem</th>
                 <th>Language</th>
                 <th>Status</th>
+                <th>Passed</th>
                 <th>Runtime</th>
                 <th>Memory</th>
                 <th>Submitted</th>
               </tr>
             </thead>
             <tbody>
-              {submissions.map((sub) => (
-                <tr key={sub.id}>
-                  <td>{sub.id}</td>
-                  <td>{sub.problemTitle}</td>
-                  <td>{sub.language}</td>
-                  <td>
-                    <span className={`status ${sub.status.toLowerCase().replace(' ', '-')}`}>{sub.status}</span>
-                  </td>
-                  <td>{sub.runtime}</td>
-                  <td>{sub.memory}</td>
-                  <td>{new Date(sub.submittedAt).toLocaleString()}</td>
-                </tr>
-              ))}
+              {submissions.length === 0 ? (
+                <tr><td colSpan={8} style={{ textAlign: 'center', color: '#666', padding: 24 }}>No submissions yet.</td></tr>
+              ) : submissions.map((sub) => {
+                const id = sub.id ?? sub.submission_id;
+                const problemTitle = sub.problem_title ?? sub.problemTitle ?? sub.problem?.title ?? `#${sub.problem_id ?? sub.problem?.id ?? '—'}`;
+                const status = sub.status ?? '-';
+                const runtime = typeof sub.time_ms === 'number'
+                  ? `${sub.time_ms}ms`
+                  : (sub.runtime ?? 'N/A');
+                const memory = typeof sub.memory_mb === 'number'
+                  ? `${sub.memory_mb}MB`
+                  : (sub.memory ?? 'N/A');
+                const at = sub.created_at ?? sub.submitted_at ?? sub.submittedAt;
+                const passedTotal = sub.passed != null || sub.total != null
+                  ? `${sub.passed ?? '?'}/${sub.total ?? '?'}`
+                  : '—';
+                return (
+                  <tr
+                    key={id ?? sub.submittedAt ?? sub.time_ms}
+                    className="sub-row"
+                    onClick={() => openSub(sub)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td>{id ?? '—'}</td>
+                    <td onClick={(e) => openPb(sub, e)} title="open problem">
+                      <a className="sub-problem-link" onClick={(e) => { e.preventDefault(); openPb(sub, e); }}>
+                        {problemTitle}
+                      </a>
+                    </td>
+                    <td>{sub.language ?? '—'}</td>
+                    <td>
+                      <span className={`status ${statusKey(status)}`}>{status}</span>
+                    </td>
+                    <td>{passedTotal}</td>
+                    <td>{runtime}</td>
+                    <td>{memory}</td>
+                    <td>{at ? new Date(at).toLocaleString() : '—'}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

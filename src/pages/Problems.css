@@ -67,6 +67,35 @@
   background: white;
   border: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.problem-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  border-color: rgba(37, 99, 235, 0.35);
+}
+
+.problem-card:active {
+  transform: translateY(0);
+}
+
+.problem-tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.problem-tag {
+  font-size: 0.72rem;
+  color: #334155;
+  background: #eef2f7;
+  border: 1px solid #dbe4ef;
+  border-radius: 999px;
+  padding: 2px 8px;
 }
 
 .problem-card-head {
@@ -251,4 +280,22 @@
 .status.compile-error {
   background: #fffbeb;
   color: #b45309;
+}
+
+.status.time-limit-exceeded,
+.status.memory-limit-exceeded {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.status.pending,
+.status.running,
+.status.queued {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status.internal-error {
+  background: #fef2f2;
+  color: #b91c1c;
 }
