@@ -1,10 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const UserAvatar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // 头像 URL 加载失败后，降级为首字母，永远不显示破碎图
+  const [avatarBroken, setAvatarBroken] = useState(false);
   const containerRef = useRef(null);
   const navigate = useNavigate();
+
+  // 只要 user.avatar 变了（切账号/上传新图），就清空 onError 的降级标记
+  useEffect(() => {
+    setAvatarBroken(false);
+  }, [user?.avatar]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -24,9 +31,12 @@ const UserAvatar = ({ user, onLogout }) => {
     navigate('/login', { replace: true });
   };
 
+  const onImgError = useCallback(() => setAvatarBroken(true), []);
+
   if (!user) return null;
 
   const initial = (user.username || 'U').charAt(0).toUpperCase();
+  const showAvatarImg = user.avatar && !avatarBroken;
 
   return (
     <div className="user-avatar-container" ref={containerRef}>
@@ -35,8 +45,13 @@ const UserAvatar = ({ user, onLogout }) => {
         title={user.username}
         onClick={() => setIsOpen((open) => !open)}
       >
-        {user.avatar ? (
-          <img src={user.avatar} alt="" className="avatar-img" />
+        {showAvatarImg ? (
+          <img
+            src={user.avatar}
+            alt=""
+            className="avatar-img"
+            onError={onImgError}
+          />
         ) : (
           <span>{initial}</span>
         )}
@@ -46,8 +61,13 @@ const UserAvatar = ({ user, onLogout }) => {
         <div className="user-dropdown" role="menu">
           <div className="user-info">
             <div className="user-info-avatar">
-              {user.avatar ? (
-                <img src={user.avatar} alt="" className="dropdown-avatar" />
+              {showAvatarImg ? (
+                <img
+                  src={user.avatar}
+                  alt=""
+                  className="dropdown-avatar"
+                  onError={onImgError}
+                />
               ) : (
                 <span>{initial}</span>
               )}
