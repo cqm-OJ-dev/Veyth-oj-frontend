@@ -28,9 +28,23 @@ export function useAuth() {
           const storedSession = await getUserSession(token);
           if (storedSession?.userData) {
             setCurrentUser(storedSession.userData);
+            setIsLoading(false);
+            return;
           }
         } catch (e) {
-          // ignore
+          // ignore，继续走 cookie 回退
+        }
+
+        const userCookie = getCookie('user');
+        if (userCookie) {
+          try {
+            const parsed = JSON.parse(userCookie);
+            if (parsed && parsed.username) {
+              setCurrentUser(parsed);
+            }
+          } catch (e) {
+            // ignore
+          }
         }
       }
 
@@ -52,12 +66,32 @@ export function useAuth() {
     try {
       setCookie('authToken', clientToken, 30);
       setCookie('userToken', clientToken, 30);
+      setCookie('user', JSON.stringify(normalizedUser), 30);
       await saveUserSession(clientToken, normalizedUser);
     } catch (e) {
       // ignore
     }
 
     setCurrentUser(normalizedUser);
+  };
+
+  const updateCurrentUser = async (patch) => {
+    setCurrentUser((prev) => {
+      const next = prev ? { ...prev, ...patch } : patch;
+      try {
+        setCookie('user', JSON.stringify(next), 30);
+      } catch (e) {
+        // ignore
+      }
+      const token =
+        getCookie('authToken') ||
+        getCookie('userToken') ||
+        getCookie('sessionToken');
+      if (token) {
+        saveUserSession(token, next).catch(() => undefined);
+      }
+      return next;
+    });
   };
 
   const logout = async () => {
@@ -78,5 +112,5 @@ export function useAuth() {
     setCurrentUser(null);
   };
 
-  return { currentUser, isLoading, login, logout };
+  return { currentUser, isLoading, login, logout, updateCurrentUser };
 }
