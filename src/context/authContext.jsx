@@ -104,8 +104,34 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(null);
   };
 
+  /**
+   * 增量更新当前用户信息（头像、昵称等）。
+   * 同时同步到 React state、user cookie、sql.js session，
+   * 保证侧边栏/任务栏/桌面的所有头像组件立即重渲染，且刷新后仍在。
+   */
+  const updateCurrentUser = async (patch) => {
+    setCurrentUser((prev) => {
+      const next = prev ? { ...prev, ...patch } : patch;
+      try {
+        setCookie('user', JSON.stringify(next), 30);
+      } catch (e) {
+        // ignore
+      }
+      const token =
+        getCookie('authToken') ||
+        getCookie('userToken') ||
+        getCookie('sessionToken');
+      if (token) {
+        saveUserSession(token, next).catch(() => undefined);
+      }
+      return next;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ currentUser, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{ currentUser, isLoading, login, logout, updateCurrentUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
