@@ -90,9 +90,11 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
   };
 
   const overall = result?.submission || result || null;
-  const caseResults = result?.results || overall?.results || [];
-  const passed = overall?.passed;
-  const total = overall?.total;
+  // 后端 Serializer 返回字段是 case_results，兼容旧字段名 results
+  const caseResults = result?.case_results || result?.results
+    || overall?.case_results || overall?.results || [];
+  const passed = overall?.passed ?? overall?.passed_cases;
+  const total = overall?.total ?? overall?.total_cases;
 
   return (
     <div className="pd-root">
@@ -200,8 +202,10 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
                   {overall.status || '-'}
                 </span>
                 <span className="pd-meta">{passed ?? '?'}/{total ?? '?'}</span>
-                {typeof overall.time_ms === 'number' && <span className="pd-meta">{overall.time_ms}ms</span>}
-                {typeof overall.memory_mb === 'number' && <span className="pd-meta">{overall.memory_mb}MB</span>}
+                {typeof (overall?.time_ms ?? overall?.max_time_ms) === 'number' &&
+                  <span className="pd-meta">{overall?.time_ms ?? overall?.max_time_ms}ms</span>}
+                {typeof (overall?.memory_mb ?? overall?.max_memory_mb) === 'number' &&
+                  <span className="pd-meta">{overall?.memory_mb ?? overall?.max_memory_mb}MB</span>}
                 {overall.id && (
                   <button className="pd-link-btn" onClick={() => onOpenSubmission?.(overall.id)}>
                     view submission #{overall.id}

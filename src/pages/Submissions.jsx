@@ -79,15 +79,15 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
                 const id = sub.id ?? sub.submission_id;
                 const problemTitle = sub.problem_title ?? sub.problemTitle ?? sub.problem?.title ?? `#${sub.problem_id ?? sub.problem?.id ?? '—'}`;
                 const status = sub.status ?? '-';
-                const runtime = typeof sub.time_ms === 'number'
-                  ? `${sub.time_ms}ms`
+                const runtime = typeof (sub.time_ms ?? sub.max_time_ms) === 'number'
+                  ? `${sub.time_ms ?? sub.max_time_ms}ms`
                   : (sub.runtime ?? 'N/A');
-                const memory = typeof sub.memory_mb === 'number'
-                  ? `${sub.memory_mb}MB`
+                const memory = typeof (sub.memory_mb ?? sub.max_memory_mb) === 'number'
+                  ? `${sub.memory_mb ?? sub.max_memory_mb}MB`
                   : (sub.memory ?? 'N/A');
                 const at = sub.created_at ?? sub.submitted_at ?? sub.submittedAt;
-                const passedTotal = sub.passed != null || sub.total != null
-                  ? `${sub.passed ?? '?'}/${sub.total ?? '?'}`
+                const passedTotal = sub.passed_cases != null || sub.total_cases != null || sub.passed != null || sub.total != null
+                  ? `${sub.passed ?? sub.passed_cases ?? '?'}/${sub.total ?? sub.total_cases ?? '?'}`
                   : '—';
                 return (
                   <tr
@@ -98,9 +98,13 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
                   >
                     <td>{id ?? '—'}</td>
                     <td onClick={(e) => openPb(sub, e)} title="open problem">
-                      <a className="sub-problem-link" onClick={(e) => { e.preventDefault(); openPb(sub, e); }}>
+                      <button
+                        type="button"
+                        className="sub-problem-link sub-problem-btn"
+                        onClick={(e) => { e.stopPropagation(); openPb(sub, e); }}
+                      >
                         {problemTitle}
-                      </a>
+                      </button>
                     </td>
                     <td>{sub.language ?? '—'}</td>
                     <td>

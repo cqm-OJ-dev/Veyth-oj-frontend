@@ -62,6 +62,8 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     }]);
     setZBase(z => z + 1);
     return id;
+    // DEFAULT_POS / DEFAULT_SIZE 为模块顶层 Object.freeze 常量，无需也不可放入依赖
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zBase]);
 
   const openApp = (appKey) => {
@@ -96,7 +98,10 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     createWindow({ key: appKey, title, Component: wrappedComponent });
   };
 
-  const focusWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win));
+  const focusWindow = useCallback(
+    (id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win)),
+    [zBase]
+  );
   const closeWindow = (id) => setWindows(w => w.filter(win => win.id !== id));
   const toggleMinimizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, minimized: !win.minimized } : win));
   const toggleMaximizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, maximized: !win.maximized, minimized: false } : win));
@@ -161,7 +166,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
         />
       </Window>
     );
-  }), [windows, language, onLoginSuccess, currentUser]);
+  }), [windows, language, onLoginSuccess, currentUser, focusWindow]);
 
   return (
     <div className="desktop-root">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './ProblemDetail.css';
 import { getSubmission, pollSubmission } from '../services/judgeService';
 
 const STATUS_COLORS = {
@@ -37,7 +38,7 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
   }, [submissionId]);
 
   const data = sub || {};
-  const results = data.results || [];
+  const results = data.case_results || data.results || [];
 
   const statusColor = STATUS_COLORS[data.status] || '#333';
 
@@ -70,9 +71,9 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
               gap: 10, marginBottom: 14,
             }}>
               <InfoCell label="Status" value={data.status || '-'} color={statusColor} bold />
-              <InfoCell label="Passed" value={`${data.passed ?? '?'} / ${data.total ?? '?'}`} />
-              <InfoCell label="Runtime" value={typeof data.time_ms === 'number' ? `${data.time_ms}ms` : '-'} />
-              <InfoCell label="Memory" value={typeof data.memory_mb === 'number' ? `${data.memory_mb}MB` : '-'} />
+              <InfoCell label="Passed" value={`${data.passed ?? data.passed_cases ?? '?'} / ${data.total ?? data.total_cases ?? '?'}`} />
+              <InfoCell label="Runtime" value={typeof (data.time_ms ?? data.max_time_ms) === 'number' ? `${data.time_ms ?? data.max_time_ms}ms` : '-'} />
+              <InfoCell label="Memory" value={typeof (data.memory_mb ?? data.max_memory_mb) === 'number' ? `${data.memory_mb ?? data.max_memory_mb}MB` : '-'} />
               <InfoCell label="Language" value={data.language || '-'} />
               <InfoCell label="At" value={data.created_at ? new Date(data.created_at).toLocaleString() : '-'} />
             </div>
