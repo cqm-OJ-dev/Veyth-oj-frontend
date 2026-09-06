@@ -113,6 +113,36 @@
   font-size: 0.9rem;
 }
 
+.ide-input-label {
+  margin: 10px 0 6px;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.ide-limits {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ide-limits label {
+  flex: 1;
+  min-width: 0;
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+.ide-limits input {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 5px;
+  padding: 7px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #f8fafc;
+}
+
 .ide-console-actions {
   display: flex;
   flex-wrap: wrap;
@@ -137,6 +167,12 @@
 .ide-console-meta {
   margin-top: 10px;
   color: #93c5fd;
+  font-size: 0.82rem;
+}
+
+.ide-console-result {
+  margin-top: 6px;
+  color: #cbd5e1;
   font-size: 0.82rem;
 }
 
