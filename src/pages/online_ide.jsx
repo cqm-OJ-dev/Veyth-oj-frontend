@@ -1,23 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
+import {
+  IDE_DEFAULT_EXPECTED_OUTPUT,
+  IDE_DEFAULT_LANGUAGE,
+  IDE_DEFAULT_MEMORY_LIMIT_MB,
+  IDE_DEFAULT_TIME_LIMIT_MS,
+  JUDGMENT_API_URL,
+  LANGUAGES_API_URL
+} from '../services/authService';
 import './online_ide.css';
 
-const JUDGMENT_API_URL = 'https://apidoc.oj.cqiming.com/api/v1/judgments/';
-const LANGUAGES_API_URL = 'https://apidoc.oj.cqiming.com/languages/';
-
 const OnlineIDE = () => {
-  const [code, setCode] = useState('# Welcome to the online IDE\nprint("Hello, World!")');
-  const [language, setLanguage] = useState('python');
+  const [code, setCode] = useState('# Enter your code here\n');
+  const [language, setLanguage] = useState(IDE_DEFAULT_LANGUAGE);
   const [languages, setLanguages] = useState([]);
   const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState('');
   const [stdin, setStdin] = useState('');
-  const [expectedOutput, setExpectedOutput] = useState('Hello, World!');
-  const [timeLimitMs, setTimeLimitMs] = useState(100);
-  const [memoryLimitMb, setMemoryLimitMb] = useState(512);
+  const [expectedOutput, setExpectedOutput] = useState(IDE_DEFAULT_EXPECTED_OUTPUT);
+  const [timeLimitMs, setTimeLimitMs] = useState(IDE_DEFAULT_TIME_LIMIT_MS);
+  const [memoryLimitMb, setMemoryLimitMb] = useState(IDE_DEFAULT_MEMORY_LIMIT_MB);
   const [judgment, setJudgment] = useState(null);
   const consoleRef = useRef(null);
 
