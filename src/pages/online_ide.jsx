@@ -2,11 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
 import {
-  IDE_DEFAULT_EXPECTED_OUTPUT,
   IDE_DEFAULT_LANGUAGE,
   IDE_DEFAULT_MEMORY_LIMIT_MB,
   IDE_DEFAULT_TIME_LIMIT_MS,
-  JUDGMENT_API_URL,
+  IDE_RUN_API_URL,
   LANGUAGES_API_URL
 } from '../services/authService';
 import './online_ide.css';
@@ -20,7 +19,6 @@ const OnlineIDE = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState('');
   const [stdin, setStdin] = useState('');
-  const [expectedOutput, setExpectedOutput] = useState(IDE_DEFAULT_EXPECTED_OUTPUT);
   const [timeLimitMs, setTimeLimitMs] = useState(IDE_DEFAULT_TIME_LIMIT_MS);
   const [memoryLimitMb, setMemoryLimitMb] = useState(IDE_DEFAULT_MEMORY_LIMIT_MB);
   const [judgment, setJudgment] = useState(null);
@@ -59,13 +57,10 @@ const OnlineIDE = () => {
     setJudgment(null);
 
     try {
-      const response = await axios.post(JUDGMENT_API_URL, {
+      const response = await axios.post(IDE_RUN_API_URL, {
         code,
         language,
-        test_cases: [{
-          input: stdin,
-          output: expectedOutput
-        }],
+        input: stdin,
         time_limit_ms: Number(timeLimitMs),
         memory_limit_mb: Number(memoryLimitMb)
       }, {
@@ -75,13 +70,11 @@ const OnlineIDE = () => {
       });
 
       const data = response.data || {};
-      const results = Array.isArray(data.results) ? data.results : [];
-      const stdout = results.map((result) => result.stdout || '').join('\n');
-      const stderr = results.map((result) => result.stderr || '').filter(Boolean).join('\n');
+  const compileError = data.compile_info?.stderr || data.compile_info?.message || '';
 
       setJudgment(data);
-      setOutput(stdout || 'Execution finished with no output');
-      setError(stderr);
+  setOutput(data.stdout || 'Execution finished with no output');
+  setError(data.stderr || compileError);
     } catch (err) {
       if (err.response) {
         setError(`Server error: ${err.response.status} - ${err.response.data?.error || 'Unknown error'}`);
@@ -169,12 +162,6 @@ const OnlineIDE = () => {
               onChange={(e) => setStdin(e.target.value)}
               placeholder="Input sent to the program through stdin"
             />
-            <div className="ide-input-label">Expected output</div>
-            <textarea
-              value={expectedOutput}
-              onChange={(e) => setExpectedOutput(e.target.value)}
-              placeholder="Expected output for this test case"
-            />
             <div className="ide-limits">
               <label>
                 Time limit (ms)
@@ -201,15 +188,9 @@ const OnlineIDE = () => {
             <div>{output || 'Waiting for output…'}</div>
             {judgment && (
               <div className="ide-console-meta">
-                Status: {judgment.status || 'Unknown'} · Passed: {judgment.passed ?? 0}/{judgment.total ?? 0}
+                Status: {judgment.status || 'Unknown'} · Time: {judgment.time_ms ?? 0} ms · Exit code: {judgment.returncode ?? 'N/A'}
               </div>
             )}
-            {judgment?.results?.map((result) => (
-              <div className="ide-console-result" key={result.case}>
-                Case {result.case}: {result.status} · {result.time_ms} ms
-                {result.returncode !== 0 ? ` · Exit code: ${result.returncode}` : ''}
-              </div>
-            ))}
             {error ? <div className="ide-error">{error}</div> : null}
             <div className="ide-console-actions">
               <button onClick={() => copyToClipboard(output)}>Copy stdout</button>
