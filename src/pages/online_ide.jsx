@@ -188,7 +188,7 @@ const OnlineIDE = () => {
             <div>{output || 'Waiting for output…'}</div>
             {judgment && (
               <div className="ide-console-meta">
-                Status: {judgment.status || 'Unknown'} · Time: {judgment.time_ms ?? 0} ms · Exit code: {judgment.returncode ?? 'N/A'}
+                Time: {judgment.time_ms ?? 0} ms · Exit code: {judgment.returncode ?? 'N/A'}
               </div>
             )}
             {error ? <div className="ide-error">{error}</div> : null}
