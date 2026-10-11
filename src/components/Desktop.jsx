@@ -20,6 +20,10 @@ const APP_LIST = [
 ];
 
 const ADMIN_APP = { key: 'admin', title: '管理平台', icon: ShieldCheck, color: 'icon-teal' };
+const AdminIcon = ADMIN_APP.icon;
+
+const DEFAULT_POS = Object.freeze({ x: 120, y: 80 });
+const DEFAULT_SIZE = Object.freeze({ w: 900, h: 560 });
 
 const APP_RESOLVERS = {
   'problem-detail': {
@@ -47,19 +51,16 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
   const [currentTime, setCurrentTime] = useState(new Date());
   const startMenuRef = useRef(null);
 
-  const defaultPos = { x: 120, y: 80 };
-  const defaultSize = { w: 900, h: 560 };
-
   const activeWindowId = windows.reduce((current, win) => {
     if (!current || win.z > current.z) return win;
     return current;
   }, null)?.id;
 
-  const createWindow = useCallback(({ key, title, Component, props = {}, size = defaultSize }) => {
+  const createWindow = useCallback(({ key, title, Component, props = {}, size = DEFAULT_SIZE }) => {
     const id = Date.now() + Math.floor(Math.random() * 1000);
     setWindows(w => [...w, {
       id, key, title, Component, z: zBase, minimized: false, maximized: false,
-      pos: { x: defaultPos.x + ((w.length * 24) % 180), y: defaultPos.y + ((w.length * 18) % 120) },
+      pos: { x: DEFAULT_POS.x + ((w.length * 24) % 180), y: DEFAULT_POS.y + ((w.length * 18) % 120) },
       size,
       props
     }]);
@@ -101,10 +102,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     createWindow({ key: appKey, title, Component: wrappedComponent });
   };
 
-  const focusWindow = useCallback(
-    (id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win)),
-    [zBase]
-  );
+  const focusWindow = useCallback((id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win)), [zBase]);
   const closeWindow = (id) => setWindows(w => w.filter(win => win.id !== id));
   const toggleMinimizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, minimized: !win.minimized } : win));
   const toggleMaximizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, maximized: !win.maximized, minimized: false } : win));
@@ -144,9 +142,6 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
 
   const rendered = useMemo(() => windows.map(win => {
     const C = win.Component;
-    const injectedProps = win.key === 'submission-detail' || win.key === 'problem-detail'
-      ? {}
-      : {};
     return (
       <Window
         key={win.id}
@@ -165,7 +160,6 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
           onLoginSuccess={onLoginSuccess}
           currentUser={currentUser}
           {...(win.props || {})}
-          {...injectedProps}
         />
       </Window>
     );
@@ -187,18 +181,21 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       />
 
       <div className="desktop-icons">
-        {APP_LIST.map(app => (
-          <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
-            <div className={`icon-visual ${app.color}`}>
-              <app.icon size={30} strokeWidth={2} />
+        {APP_LIST.map(app => {
+          const Icon = app.icon;
+          return (
+            <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
+              <div className={`icon-visual ${app.color}`}>
+                <Icon size={30} strokeWidth={2} />
+              </div>
+              <div className="icon-label">{app.title}</div>
             </div>
-            <div className="icon-label">{app.title}</div>
-          </div>
-        ))}
+          );
+        })}
         {currentUser?.is_staff && (
           <div className="desktop-icon" onDoubleClick={() => openApp('admin')}>
             <div className={`icon-visual ${ADMIN_APP.color}`}>
-              <ADMIN_APP.icon size={30} strokeWidth={2} />
+              <AdminIcon size={30} strokeWidth={2} />
             </div>
             <div className="icon-label">{ADMIN_APP.title}</div>
           </div>
@@ -231,18 +228,21 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
           <div className="start-menu-section">
             <div className="start-menu-section-title">Pinned</div>
             <div className="start-menu-grid">
-              {APP_LIST.map(app => (
-                <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
-                  <div className={`start-menu-icon ${app.color}`}>
-                    <app.icon size={22} strokeWidth={2} />
-                  </div>
-                  <span>{app.title}</span>
-                </button>
-              ))}
+              {APP_LIST.map(app => {
+                const Icon = app.icon;
+                return (
+                  <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
+                    <div className={`start-menu-icon ${app.color}`}>
+                      <Icon size={22} strokeWidth={2} />
+                    </div>
+                    <span>{app.title}</span>
+                  </button>
+                );
+              })}
               {currentUser?.is_staff && (
                 <button className="start-menu-item" onClick={() => { openApp('admin'); setIsStartOpen(false); }}>
                   <div className={`start-menu-icon ${ADMIN_APP.color}`}>
-                    <ADMIN_APP.icon size={22} strokeWidth={2} />
+                    <AdminIcon size={22} strokeWidth={2} />
                   </div>
                   <span>{ADMIN_APP.title}</span>
                 </button>
