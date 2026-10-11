@@ -1,152 +1,73 @@
-.submissions-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+/* Submissions 页面专属样式。
+   共享骨架 / 表格 / 状态徽章 / 按钮由 window-page.css 提供，此处只保留本页专属细节。 */
+
+/* ---------- 列对齐与数字排版 ---------- */
+/* Passed / Runtime / Memory 为数值列：右对齐 + 等宽数字，读数更整齐 */
+.submissions-table th:nth-child(5),
+.submissions-table th:nth-child(6),
+.submissions-table th:nth-child(7),
+.submissions-table td:nth-child(5),
+.submissions-table td:nth-child(6),
+.submissions-table td:nth-child(7) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
-.auth-required {
+/* ID 列使用等宽字体并弱化，避免抢视线 */
+.submissions-table td:nth-child(1) {
+  font-family: var(--vp-mono);
+  font-size: 0.82rem;
+  color: var(--vp-muted);
+}
+
+/* 提交时间列弱化 */
+.submissions-table td:nth-child(8) {
+  color: var(--vp-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 空状态单元格 ---------- */
+.submissions-table td.submissions-empty {
   text-align: center;
-  padding: 40px;
+  color: var(--vp-muted);
+  padding: 30px 14px;
 }
 
-.auth-required h2 {
-  color: #1a2a6c;
-  margin-bottom: 20px;
-}
-
-.login-link {
-  background: #1a2a6c;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background 0.3s;
-}
-
-.login-link:hover {
-  background: #b21f1f;
-}
-
-.submissions-table-container {
-  overflow-x: auto;
-  margin-top: 20px;
-}
-
-.submissions-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.submissions-table th, 
-.submissions-table td {
-  padding: 12px 15px;
-  color: #000000;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.submissions-table th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-}
-
-.submissions-table tr:hover {
-  background-color: #f9f9f9;
-}
-
-.status {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.status.accepted {
-  background-color: #e8f8f0;
-  color: #2ecc71;
-}
-
-.status.wrong-answer {
-  background-color: #fdecea;
-  color: #e74c3c;
-}
-
-.status.runtime-error {
-  background-color: #fff8e1;
-  color: #f39c12;
-}
-.status.compile-error {
-  background-color: #fff8e1;
-  color: #f39c12;
-}
-
-.status.time-limit-exceeded,
-.status.memory-limit-exceeded {
-  background-color: #ede9fe;
-  color: #6d28d9;
-}
-
-.status.pending,
-.status.running,
-.status.queued {
-  background-color: #dbeafe;
-  color: #1d4ed8;
-}
-
-.status.internal-error {
-  background-color: #fdecea;
-  color: #e74c3c;
-}
-
-.sub-row:hover td {
-  background-color: #f3f7ff !important;
-}
-.sub-row td,
-.submissions-table td {
-  border-bottom: 1px solid #eee;
-}
-
+/* ---------- 题目链接按钮：优雅的链接色，悬停有细节 ---------- */
 .sub-problem-link {
-  color: #2563eb;
+  color: var(--vp-accent-2);
   text-decoration: none;
   cursor: pointer;
   background: none;
   border: none;
   padding: 0;
   font: inherit;
+  font-weight: 600;
   text-align: left;
   display: inline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
 }
+
 .sub-problem-link:hover {
+  color: var(--vp-accent);
   text-decoration: underline;
 }
+
+.sub-problem-btn {
+  display: inline;
+}
+
 button.sub-problem-btn:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--vp-accent-2);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
-
-.detail-link {
-  color: #1a2a6c;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.detail-link:hover {
-  text-decoration: underline;
-}
-.hydro-problems {
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-}
-.hydro-main {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
+/* ---------- 响应式：窄屏收紧内边距 ---------- */
+@media (max-width: 640px) {
+  .submissions-table th,
+  .submissions-table td {
+    padding: 10px 10px;
+  }
 }

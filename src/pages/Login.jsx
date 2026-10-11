@@ -5,11 +5,14 @@ import "./AuthPages.css";
 import "../App.css";
 import { setCookie, API_BASE } from "../services/authService";
 import { useAuthContext } from "../context/authContext";
+import { useLanguage } from "../context/languageContext";
+import LanguageToggle from "../components/LanguageToggle";
 
 const Login = ({ onLoginSuccess }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser } = useAuthContext();
+  const { t } = useLanguage();
 
   const [fadeOut, setFadeOut] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -73,7 +76,7 @@ const Login = ({ onLoginSuccess }) => {
 
       setFadeOut(true);
     } catch (err) {
-      setError("用户名或密码错误");
+      setError(t('login.invalid'));
     } finally {
       setLoading(false);
     }
@@ -83,7 +86,7 @@ const Login = ({ onLoginSuccess }) => {
     const githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID || '';
 
     if (!githubClientId) {
-      alert("请先在 .env 文件中设置 REACT_APP_GITHUB_CLIENT_ID");
+      alert(t('login.missingClient'));
       return;
     }
 
@@ -102,20 +105,24 @@ const Login = ({ onLoginSuccess }) => {
     <div className={"windows-lockscreen " + (fadeOut ? "windows-fade-out" : "")}>
       <div className="lock-wallpaper" />
 
+      <div className="lock-lang">
+        <LanguageToggle variant="glass" />
+      </div>
+
       <div className="login-container">
         {/* 左侧 LOGO */}
         <div className="login-logo-area">
-          <img src="/logo.png" className="login-logo" alt="Veyth OJ" />
-          <h1>Veyth OJ</h1>
-          <p>Online Judge System</p>
+          <img src="/logo.png" className="login-logo" alt={t('login.brand')} />
+          <h1>{t('login.brand')}</h1>
+          <p>{t('login.tagline')}</p>
         </div>
 
         {/* 右侧登录 */}
         <div className="windows-login">
-          <h2>{formData.username || "用户登录"}</h2>
+          <h2>{formData.username || t('login.heading')}</h2>
 
           {registrationSuccess && (
-            <div className="success-message">注册成功，请登录</div>
+            <div className="success-message">{t('login.success')}</div>
           )}
 
           {error && (
@@ -125,7 +132,7 @@ const Login = ({ onLoginSuccess }) => {
           <form onSubmit={login}>
             <input
               name="username"
-              placeholder="用户名"
+              placeholder={t('login.username')}
               value={formData.username}
               onChange={handleChange}
             />
@@ -134,14 +141,14 @@ const Login = ({ onLoginSuccess }) => {
               <input
                 name="password"
                 type="password"
-                placeholder="密码"
+                placeholder={t('login.password')}
                 value={formData.password}
                 onChange={handleChange}
               />
             </div>
 
             <button disabled={loading}>
-              {loading ? "登录中..." : "登录"}
+              {loading ? t('login.submitting') : t('login.submit')}
             </button>
 
             <button type="button" className="github-login-button" onClick={githubLogin}>
@@ -151,16 +158,16 @@ const Login = ({ onLoginSuccess }) => {
                   d="M12 .3a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 016 0c2.3-1.6 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.3.8 1 .8 2v3c0 .3.2.7.8.6A12 12 0 0012 .3"
                 />
               </svg>
-              <span>使用 GitHub 登录</span>
+              <span>{t('login.github')}</span>
             </button>
           </form>
 
           <div className="oauth-divider">
-            <span>或者</span>
+            <span>{t('common.or')}</span>
           </div>
 
           <p className="switch" onClick={() => navigate("/register")}>
-            没有账号？立即注册
+            {t('login.noAccount')} {t('login.register')}
           </p>
         </div>
       </div>

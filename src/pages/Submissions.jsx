@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../context/languageContext';
 import { listSubmissions } from '../services/judgeService';
 import './Submissions.css';
 
@@ -7,6 +8,7 @@ const statusKey = (s) => String(s || '').toLowerCase().replace(/\s+/g, '-');
 
 const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
   const [submissions, setSubmissions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -45,16 +47,16 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
     <div className="window-page-shell">
       <div className="window-page-header">
         <div>
-          <p className="window-page-kicker">Recent activity</p>
-          <h2>Submissions</h2>
+          <p className="window-page-kicker">{t('submissions.kicker')}</p>
+          <h2>{t('submissions.title')}</h2>
         </div>
-        <div className="window-page-pill">{submissions.length} entries</div>
+        <div className="window-page-pill">{t('common.entries', { count: submissions.length })}</div>
       </div>
 
       {!currentUser ? (
-        <div className="window-page-state">No active session yet.</div>
+        <div className="window-page-state">{t('submissions.noSession')}</div>
       ) : isLoading ? (
-        <div className="window-page-state">Loading submissions…</div>
+        <div className="window-page-state">{t('submissions.loading')}</div>
       ) : error ? (
         <div className="window-page-state error">{error}</div>
       ) : (
@@ -62,19 +64,19 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
           <table className="submissions-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Problem</th>
-                <th>Language</th>
-                <th>Status</th>
-                <th>Passed</th>
-                <th>Runtime</th>
-                <th>Memory</th>
-                <th>Submitted</th>
+                <th>{t('submissions.id')}</th>
+                <th>{t('submissions.problem')}</th>
+                <th>{t('submissions.language')}</th>
+                <th>{t('submissions.status')}</th>
+                <th>{t('submissions.passed')}</th>
+                <th>{t('submissions.runtime')}</th>
+                <th>{t('submissions.memory')}</th>
+                <th>{t('submissions.submitted')}</th>
               </tr>
             </thead>
             <tbody>
               {submissions.length === 0 ? (
-                <tr><td colSpan={8} style={{ textAlign: 'center', color: '#666', padding: 24 }}>No submissions yet.</td></tr>
+                <tr><td colSpan={8} className="submissions-empty">{t('submissions.empty')}</td></tr>
               ) : submissions.map((sub) => {
                 const id = sub.id ?? sub.submission_id;
                 const problemTitle = sub.problem_title ?? sub.problemTitle ?? sub.problem?.title ?? `#${sub.problem_id ?? sub.problem?.id ?? '—'}`;
@@ -108,7 +110,7 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
                     </td>
                     <td>{sub.language ?? '—'}</td>
                     <td>
-                      <span className={`status ${statusKey(status)}`}>{status}</span>
+                      <span className={`status ${statusKey(status)}`}>{t('status.' + status) || status}</span>
                     </td>
                     <td>{passedTotal}</td>
                     <td>{runtime}</td>

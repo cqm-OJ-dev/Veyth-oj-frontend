@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from './context/languageContext';
 import { User, Settings, LogOut } from 'lucide-react';
 
 const UserAvatar = ({ user, onLogout }) => {
@@ -8,6 +9,7 @@ const UserAvatar = ({ user, onLogout }) => {
   const [avatarBroken, setAvatarBroken] = useState(false);
   const containerRef = useRef(null);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // 只要 user.avatar 变了（切账号/上传新图），就清空 onError 的降级标记
   useEffect(() => {
@@ -77,7 +79,7 @@ const UserAvatar = ({ user, onLogout }) => {
               <span className="username">{user.username}</span>
               {user.email && <span className="email">{user.email}</span>}
               {user.is_staff && (
-                <span className="staff-badge">管理员</span>
+                <span className="staff-badge">{t('avatar.admin')}</span>
               )}
             </div>
           </div>
@@ -91,7 +93,7 @@ const UserAvatar = ({ user, onLogout }) => {
             }}
           >
             <User className="dropdown-icon" size={18} />
-            <span>个人中心</span>
+            <span>{t('avatar.profile')}</span>
           </button>
           <button
             className="dropdown-item"
@@ -102,7 +104,7 @@ const UserAvatar = ({ user, onLogout }) => {
             }}
           >
             <Settings className="dropdown-icon" size={18} />
-            <span>设置</span>
+            <span>{t('avatar.settings')}</span>
           </button>
           <div className="dropdown-divider" />
           <button
@@ -114,7 +116,7 @@ const UserAvatar = ({ user, onLogout }) => {
             }}
           >
             <LogOut className="dropdown-icon" size={18} />
-            <span>退出登录</span>
+            <span>{t('avatar.logout')}</span>
           </button>
         </div>
       )}

@@ -8,9 +8,12 @@ import {
   IDE_RUN_API_URL,
   LANGUAGES_API_URL
 } from '../services/authService';
+import { useLanguage } from '../context/languageContext';
+import Icon from '../components/Icon';
 import './online_ide.css';
 
 const OnlineIDE = () => {
+  const { t } = useLanguage();
   const [code, setCode] = useState('# Enter your code here\n');
   const [language, setLanguage] = useState(IDE_DEFAULT_LANGUAGE);
   const [languages, setLanguages] = useState([]);
@@ -41,13 +44,15 @@ const OnlineIDE = () => {
           ));
         }
       } catch (err) {
-        setError('Failed to load supported languages');
+        setError(t('ide.languagesError'));
       } finally {
         setIsLoadingLanguages(false);
       }
     };
 
     fetchLanguages();
+    // 语言列表仅需在挂载时拉取一次，不随语言切换重跑
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const runCode = async () => {
@@ -73,15 +78,18 @@ const OnlineIDE = () => {
   const compileError = data.compile_info?.stderr || data.compile_info?.message || '';
 
       setJudgment(data);
-  setOutput(data.stdout || 'Execution finished with no output');
+  setOutput(data.stdout || t('ide.noOutput'));
   setError(data.stderr || compileError);
     } catch (err) {
       if (err.response) {
-        setError(`Server error: ${err.response.status} - ${err.response.data?.error || 'Unknown error'}`);
+        setError(t('ide.serverError', {
+          status: err.response.status,
+          message: err.response.data?.error || 'Unknown error'
+        }));
       } else if (err.request) {
-        setError('Network error: server did not respond');
+        setError(t('ide.networkError'));
       } else {
-        setError(`Request error: ${err.message}`);
+        setError(t('ide.requestError', { message: err.message }));
       }
     } finally {
       setIsRunning(false);
@@ -125,22 +133,26 @@ const OnlineIDE = () => {
   return (
     <div className="ide-shell">
       <div className="ide-toolbar">
-        <div className="ide-title">Online IDE</div>
+        <div className="ide-title">{t('ide.title')}</div>
         <select value={language} onChange={handleLanguageChange} disabled={isLoadingLanguages}>
-          {isLoadingLanguages && <option value="">Loading languages...</option>}
+          {isLoadingLanguages && <option value="">{t('ide.loadingLanguages')}</option>}
           {languages.map(({ value, label }) => (
             <option key={value} value={value}>{label}</option>
           ))}
         </select>
         <button className="primary" onClick={runCode} disabled={isRunning}>
-          {isRunning ? 'Judging...' : 'Run'}
+          <Icon name="play" size={15} />
+          {isRunning ? t('ide.running') : t('ide.run')}
         </button>
-        <button onClick={clearConsole}>Clear</button>
+        <button onClick={clearConsole}>
+          <Icon name="trash" size={15} />
+          {t('ide.clear')}
+        </button>
       </div>
 
       <div className="ide-main">
         <div className="ide-editor-panel">
-          <div className="ide-panel-title">Editor</div>
+          <div className="ide-panel-title">{t('ide.editor')}</div>
           <div className="ide-editor-wrap">
             <Editor
               height="100%"
@@ -154,17 +166,17 @@ const OnlineIDE = () => {
         </div>
 
         <div className="ide-console-panel">
-          <div className="ide-panel-title">Console</div>
+          <div className="ide-panel-title">{t('ide.console')}</div>
           <div className="ide-console-input">
-            <div style={{ fontSize: '12px', marginBottom: '6px', color: '#cbd5e1' }}>Standard input</div>
+            <div className="ide-input-label">{t('ide.stdin')}</div>
             <textarea
               value={stdin}
               onChange={(e) => setStdin(e.target.value)}
-              placeholder="Input sent to the program through stdin"
+              placeholder={t('ide.stdinPlaceholder')}
             />
             <div className="ide-limits">
               <label>
-                Time limit (ms)
+                {t('ide.timeLimit')}
                 <input
                   type="number"
                   min="1"
@@ -173,7 +185,7 @@ const OnlineIDE = () => {
                 />
               </label>
               <label>
-                Memory limit (MB)
+                {t('ide.memoryLimit')}
                 <input
                   type="number"
                   min="17"
@@ -185,17 +197,20 @@ const OnlineIDE = () => {
             </div>
           </div>
           <div ref={consoleRef} className="ide-console-content">
-            <div>{output || 'Waiting for output…'}</div>
+            <div>{output || t('ide.waiting')}</div>
             {judgment && (
               <div className="ide-console-meta">
-                Time: {judgment.time_ms ?? 0} ms · Exit code: {judgment.returncode ?? 'N/A'}
+                {t('ide.meta', {
+                  time: judgment.time_ms ?? 0,
+                  code: judgment.returncode ?? 'N/A'
+                })}
               </div>
             )}
             {error ? <div className="ide-error">{error}</div> : null}
             <div className="ide-console-actions">
-              <button onClick={() => copyToClipboard(output)}>Copy stdout</button>
-              <button onClick={() => downloadText(output, 'stdout.txt')}>Download stdout</button>
-              <button className="danger" onClick={() => copyToClipboard(error)}>Copy stderr</button>
+              <button onClick={() => copyToClipboard(output)}>{t('ide.copyStdout')}</button>
+              <button onClick={() => downloadText(output, 'stdout.txt')}>{t('ide.downloadStdout')}</button>
+              <button className="danger" onClick={() => copyToClipboard(error)}>{t('ide.copyStderr')}</button>
             </div>
           </div>
         </div>

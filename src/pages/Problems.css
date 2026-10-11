@@ -1,301 +1,185 @@
-.window-page-shell {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-}
+/* =========================================================
+   Problems 题库页专属样式
+   页面骨架 / 页头 / 状态占位 / 表格 / 状态徽章等共享样式
+   定义于 window-page.css，此处不再重复。
+   ========================================================= */
 
-.window-page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.06));
-  border: 1px solid rgba(15, 23, 42, 0.08);
-}
-
-.window-page-kicker {
-  margin: 0 0 4px;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #64748b;
-}
-
-.window-page-header h2 {
-  margin: 0;
-  font-size: 1.12rem;
-  color: #0f172a;
-}
-
-.window-page-pill {
-  padding: 7px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.8);
-  color: #2563eb;
-  font-size: 0.84rem;
-  font-weight: 600;
-}
-
-.window-page-state {
-  display: grid;
-  place-items: center;
-  min-height: 180px;
-  border: 1px dashed rgba(15, 23, 42, 0.16);
-  border-radius: 16px;
-  color: #475569;
-  background: rgba(248, 250, 252, 0.7);
-}
-
-.window-page-state.error {
-  color: #b91c1c;
-  border-color: rgba(248, 113, 113, 0.24);
-  background: rgba(254, 242, 242, 0.8);
-}
-
+/* ---------- 题目列表 ---------- */
 .problem-list {
   display: grid;
   gap: 12px;
 }
 
+/* ---------- 题目卡片 ---------- */
 .problem-card {
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: white;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  position: relative;
+  padding: 16px 18px 16px 21px;
+  border-radius: var(--vp-radius);
+  background: var(--vp-card);
+  border: 1px solid var(--vp-line);
+  box-shadow: var(--vp-shadow-sm);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
   cursor: pointer;
   user-select: none;
+  overflow: hidden;
+}
+
+/* 左侧渐变强调线，悬停时点亮 */
+.problem-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--vp-accent), var(--vp-accent-2));
+  opacity: 0.32;
+  transition: opacity 0.16s ease;
 }
 
 .problem-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-  border-color: rgba(37, 99, 235, 0.35);
+  transform: translateY(-2px);
+  box-shadow: var(--vp-shadow-md);
+  border-color: rgba(79, 70, 229, 0.28);
+}
+
+.problem-card:hover::before {
+  opacity: 1;
 }
 
 .problem-card:active {
   transform: translateY(0);
+  box-shadow: var(--vp-shadow-sm);
 }
 
-.problem-tags {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-  flex-wrap: wrap;
+.problem-card:focus-visible {
+  outline: 2px solid var(--vp-accent-2);
+  outline-offset: 2px;
 }
 
-.problem-tag {
-  font-size: 0.72rem;
-  color: #334155;
-  background: #eef2f7;
-  border: 1px solid #dbe4ef;
-  border-radius: 999px;
-  padding: 2px 8px;
-}
-
+/* ---------- 卡片头部 ---------- */
 .problem-card-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .problem-id {
-  font-size: 0.78rem;
-  color: #64748b;
-  margin-bottom: 3px;
+  font-family: var(--vp-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--vp-muted);
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
 }
 
 .problem-card h3 {
   margin: 0;
   font-size: 1rem;
-  color: #111827;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--vp-ink);
 }
 
+/* ---------- 标签 ---------- */
+.problem-tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+
+.problem-tag {
+  font-size: 0.72rem;
+  line-height: 1;
+  color: var(--vp-ink-2);
+  background: var(--vp-soft);
+  border: 1px solid var(--vp-line);
+  border-radius: 999px;
+  padding: 4px 9px;
+}
+
+/* ---------- 元信息行 ---------- */
 .problem-meta {
   display: flex;
-  gap: 18px;
-  margin-top: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--vp-line);
 }
 
 .problem-meta-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 0.86rem;
-  color: #475569;
+  gap: 3px;
+  padding: 0 16px;
+  font-size: 0.8rem;
+  color: var(--vp-muted);
+  min-width: 72px;
+}
+
+.problem-meta-item:first-child {
+  padding-left: 0;
+}
+
+.problem-meta-item + .problem-meta-item {
+  border-left: 1px solid var(--vp-line);
 }
 
 .problem-meta-item strong {
-  color: #0f172a;
+  color: var(--vp-ink);
+  font-size: 0.9rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
+/* ---------- 难度胶囊 ---------- */
 .difficulty {
-  padding: 4px 8px;
+  flex: none;
+  padding: 5px 11px;
   border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
 }
 
 .difficulty.easy {
-  background: #ecfdf3;
+  background: #e7f7ee;
   color: #15803d;
+  border-color: rgba(21, 128, 61, 0.16);
 }
 
 .difficulty.medium {
-  background: #fffbeb;
+  background: #fff7e6;
   color: #b45309;
+  border-color: rgba(180, 83, 9, 0.16);
 }
 
 .difficulty.hard {
   background: #fef2f2;
   color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.16);
 }
 
-.contest-cards-container {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
+/* ---------- 响应式 ---------- */
+@media (max-width: 560px) {
+  .problem-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-.contest-card {
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: white;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-}
+  .problem-meta-item {
+    padding: 0 12px;
+    min-width: 64px;
+  }
 
-.contest-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.contest-title {
-  margin: 0;
-  font-size: 1rem;
-  color: #111827;
-}
-
-.contest-status {
-  font-size: 0.76rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.contest-status.upcoming {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.contest-status.ongoing {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.contest-status.ended {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.contest-description {
-  margin: 0 0 10px;
-  color: #475569;
-  font-size: 0.92rem;
-  line-height: 1.5;
-}
-
-.contest-meta {
-  display: grid;
-  gap: 8px;
-}
-
-.meta-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 0.84rem;
-  color: #475569;
-}
-
-.meta-value {
-  color: #0f172a;
-  text-align: right;
-}
-
-.submissions-table-container {
-  overflow: auto;
-  border-radius: 14px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: white;
-}
-
-.submissions-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 560px;
-}
-
-.submissions-table th,
-.submissions-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-  text-align: left;
-  font-size: 0.9rem;
-}
-
-.submissions-table th {
-  color: #64748b;
-  background: #f8fafc;
-}
-
-.status {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.status.accepted {
-  background: #ecfdf3;
-  color: #15803d;
-}
-
-.status.wrong-answer {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.status.compile-error {
-  background: #fffbeb;
-  color: #b45309;
-}
-
-.status.time-limit-exceeded,
-.status.memory-limit-exceeded {
-  background: #ede9fe;
-  color: #6d28d9;
-}
-
-.status.pending,
-.status.running,
-.status.queued {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.status.internal-error {
-  background: #fef2f2;
-  color: #b91c1c;
+  .problem-meta-item:first-child {
+    padding-left: 0;
+  }
 }

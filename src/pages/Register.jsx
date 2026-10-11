@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AuthPages.css";
 import { API_BASE } from "../services/authService";
+import { useLanguage } from "../context/languageContext";
+import LanguageToggle from "../components/LanguageToggle";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -31,7 +34,7 @@ const Register = () => {
     setSuccess("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("两次密码不一致");
+      setError(t('register.mismatch'));
       return;
     }
 
@@ -52,7 +55,7 @@ const Register = () => {
         }
       );
 
-      setSuccess("注册成功，正在登录页面...");
+      setSuccess(t('register.success'));
 
       setTimeout(() => {
         navigate("/login", {
@@ -62,7 +65,7 @@ const Register = () => {
         });
       }, 1000);
     } catch (err) {
-      setError(err.response?.data?.error || "注册失败");
+      setError(err.response?.data?.error || t('register.failed'));
     } finally {
       setLoading(false);
     }
@@ -72,17 +75,21 @@ const Register = () => {
     <div className="windows-lockscreen">
       <div className="lock-wallpaper" />
 
+      <div className="lock-lang">
+        <LanguageToggle variant="glass" />
+      </div>
+
       <div className="login-container">
         {/* 左侧 LOGO */}
         <div className="login-logo-area">
-          <img src="/logo.png" className="login-logo" alt="Veyth OJ" />
-          <h1>Veyth OJ</h1>
-          <p>Create your account</p>
+          <img src="/logo.png" className="login-logo" alt={t('register.brand')} />
+          <h1>{t('register.brand')}</h1>
+          <p>{t('register.tagline')}</p>
         </div>
 
         {/* 右侧注册 */}
         <div className="windows-login register-box">
-          <h2>创建账户</h2>
+          <h2>{t('register.heading')}</h2>
 
           {error && (
             <div className="error-message">{error}</div>
@@ -95,7 +102,7 @@ const Register = () => {
           <form onSubmit={register}>
             <input
               name="username"
-              placeholder="用户名"
+              placeholder={t('register.username')}
               value={formData.username}
               onChange={handleChange}
             />
@@ -103,7 +110,7 @@ const Register = () => {
             <input
               name="email"
               type="email"
-              placeholder="邮箱"
+              placeholder={t('register.email')}
               value={formData.email}
               onChange={handleChange}
             />
@@ -112,7 +119,7 @@ const Register = () => {
               <input
                 name="password"
                 type="password"
-                placeholder="密码"
+                placeholder={t('register.password')}
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -122,19 +129,19 @@ const Register = () => {
               <input
                 name="confirmPassword"
                 type="password"
-                placeholder="确认密码"
+                placeholder={t('register.confirm')}
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />
             </div>
 
             <button disabled={loading}>
-              {loading ? "注册中..." : "注册"}
+              {loading ? t('register.submitting') : t('register.submit')}
             </button>
           </form>
 
           <p className="switch" onClick={() => navigate("/login")}>
-            已有账号？立即登录
+            {t('register.hasAccount')} {t('register.login')}
           </p>
         </div>
       </div>

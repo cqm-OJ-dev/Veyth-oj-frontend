@@ -33,13 +33,20 @@
     position: absolute;
     top: 35px;
     left: 35px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    /* 预留任务栏空间，图标按列自适应排布，矮视口下自动换列，避免被任务栏裁切 */
+    bottom: 92px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(auto-fill, 106px);
+    grid-auto-columns: 90px;
+    gap: 6px 16px;
+    align-content: start;
+    overflow: hidden;
 }
  
 .desktop-icon {
     width: 90px;
+    box-sizing: border-box;
     padding: 10px 8px;
     border-radius: 14px;
     text-align: center;
@@ -68,12 +75,14 @@
     align-items: center;
     justify-content: center;
     color: #fff;
+    border: 1px solid rgba(255, 255, 255, .28);
     box-shadow: 0 8px 22px rgba(0, 0, 0, .4);
-    transition: transform .2s ease, box-shadow .2s ease;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
 .desktop-icon:hover .icon-visual {
     transform: translateY(-3px) scale(1.06);
+    background: rgba(255, 255, 255, .32);
     box-shadow: 0 14px 30px rgba(0, 0, 0, .5);
 }
 
@@ -101,6 +110,12 @@
 .icon-teal {
     background: linear-gradient(135deg, #2dd4bf, #0d9488);
 }
+
+.icon-problems { color: #93c5fd; }
+.icon-contests { color: #fcd34d; }
+.icon-submissions { color: #6ee7b7; }
+.icon-ide { color: #c4b5fd; }
+.icon-admin { color: #fca5a5; }
  
 /* =========================
    任务栏
@@ -136,7 +151,17 @@
 }
  
 .start-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
     flex-shrink: 0;
+}
+
+.start-label {
+    font-size: 14px;
+    font-weight: 600;
 }
  
 .taskbar-windows {
@@ -575,16 +600,25 @@
 }
  
 .start-menu-item {
-    height: 90px;
+    height: 92px;
     border: none;
     border-radius: 15px;
     background: rgba(255, 255, 255, .35);
     cursor: pointer;
-    transition: .2s;
+    transition: background .2s ease, transform .2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #1f2937;
+    font-size: 12.5px;
+    font-weight: 600;
 }
  
 .start-menu-item:hover {
     background: rgba(255, 255, 255, .7);
+    transform: translateY(-1px);
 }
  
 .start-menu-search-icon {
@@ -604,41 +638,34 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
 }
 
-.start-menu-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    font-size: 13px;
-    color: #1f2937;
-}
-
 .start-menu-footer {
-    margin-top: 22px;
+    margin-top: 20px;
     padding-top: 16px;
-    border-top: 1px solid rgba(0, 0, 0, .08);
+    border-top: 1px solid rgba(15, 23, 42, .1);
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
-.signout-btn {
+.start-signout {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 9px 18px;
     border: none;
-    border-radius: 10px;
-    background: rgba(239, 68, 68, .1);
-    color: #dc2626;
+    background: transparent;
+    color: #334155;
     font-size: 14px;
     font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background .15s ease;
+    transition: background .18s ease, color .18s ease;
 }
 
-.signout-btn:hover {
-    background: rgba(239, 68, 68, .2);
+.start-signout:hover {
+    background: rgba(229, 72, 77, .12);
+    color: #b91c1c;
 }
  
 @keyframes start-in {

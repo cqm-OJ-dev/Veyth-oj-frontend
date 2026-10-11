@@ -10,16 +10,18 @@ import Admin from '../pages/Admin';
 import ProblemDetail from '../pages/ProblemDetail';
 import SubmissionDetail from '../pages/SubmissionDetail';
 import UserAvatar from '../UserAvatar';
+import LanguageToggle from './LanguageToggle';
+import { useLanguage } from '../context/languageContext';
 import wallpaper from "../assets/wallpaper.jpg";
 
 const APP_LIST = [
-  { key: 'problems', title: 'Problems', component: Problems, icon: BookOpen, color: 'icon-blue' },
-  { key: 'contests', title: 'Contests', component: Contests, icon: Trophy, color: 'icon-amber' },
-  { key: 'submissions', title: 'Submissions', component: Submissions, icon: ListChecks, color: 'icon-green' },
-  { key: 'ide', title: 'Online IDE', component: OnlineIDE, icon: Code2, color: 'icon-purple' },
+  { key: 'problems', i18n: 'apps.problems', icon: BookOpen, color: 'icon-blue', component: Problems },
+  { key: 'contests', i18n: 'apps.contests', icon: Trophy, color: 'icon-amber', component: Contests },
+  { key: 'submissions', i18n: 'apps.submissions', icon: ListChecks, color: 'icon-green', component: Submissions },
+  { key: 'ide', i18n: 'apps.ide', icon: Code2, color: 'icon-purple', component: OnlineIDE },
 ];
 
-const ADMIN_APP = { key: 'admin', title: '管理平台', icon: ShieldCheck, color: 'icon-teal' };
+const ADMIN_APP = { key: 'admin', i18n: 'apps.admin', icon: ShieldCheck, color: 'icon-teal' };
 const AdminIcon = ADMIN_APP.icon;
 
 const DEFAULT_POS = Object.freeze({ x: 120, y: 80 });
@@ -44,7 +46,8 @@ const APP_RESOLVERS = {
   },
 };
 
-export default function Desktop({ language, currentUser, onLoginSuccess, onLogout }) {
+export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
+  const { t, language } = useLanguage();
   const [windows, setWindows] = useState([]);
   const [zBase, setZBase] = useState(100);
   const [isStartOpen, setIsStartOpen] = useState(false);
@@ -74,7 +77,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     const app = APP_LIST.find(a => a.key === appKey);
     if (!app && appKey !== 'admin') return;
     const Component = app ? app.component : Admin;
-    const title = app ? app.title : '管理平台';
+    const title = app ? t(app.i18n) : t('apps.admin');
     const openProblem = (problemId) => {
       const resolver = APP_RESOLVERS['problem-detail'];
       createWindow({
@@ -182,13 +185,13 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
 
       <div className="desktop-icons">
         {APP_LIST.map(app => {
-          const Icon = app.icon;
+          const AppIcon = app.icon;
           return (
             <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
               <div className={`icon-visual ${app.color}`}>
-                <Icon size={30} strokeWidth={2} />
+                <AppIcon size={30} strokeWidth={2} />
               </div>
-              <div className="icon-label">{app.title}</div>
+              <div className="icon-label">{t(app.i18n)}</div>
             </div>
           );
         })}
@@ -197,7 +200,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
             <div className={`icon-visual ${ADMIN_APP.color}`}>
               <AdminIcon size={30} strokeWidth={2} />
             </div>
-            <div className="icon-label">{ADMIN_APP.title}</div>
+            <div className="icon-label">{t(ADMIN_APP.i18n)}</div>
           </div>
         )}
       </div>
@@ -207,7 +210,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       <div className="taskbar">
         <div className="start" onClick={() => setIsStartOpen(open => !open)}>
           <LayoutGrid className="start-icon" size={22} />
-          <span>Start</span>
+          <span className="start-label">{t('desktop.start')}</span>
         </div>
         <div className="taskbar-windows">
           {windows.map(w => (
@@ -215,6 +218,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
           ))}
         </div>
         <div className="tray-right">
+          <LanguageToggle variant="glass" />
           <UserAvatar user={currentUser} onLogout={onLogout} />
           <div className="tray">{currentTime.toLocaleTimeString()}</div>
         </div>
@@ -223,19 +227,19 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
         <div className="start-menu" ref={startMenuRef}>
           <div className="start-menu-search">
             <Search className="start-menu-search-icon" size={18} />
-            <input type="text" placeholder="Search apps, settings..." disabled />
+            <input type="text" placeholder={t('desktop.search')} disabled />
           </div>
           <div className="start-menu-section">
-            <div className="start-menu-section-title">Pinned</div>
+            <div className="start-menu-section-title">{t('desktop.pinned')}</div>
             <div className="start-menu-grid">
               {APP_LIST.map(app => {
-                const Icon = app.icon;
+                const AppIcon = app.icon;
                 return (
                   <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
                     <div className={`start-menu-icon ${app.color}`}>
-                      <Icon size={22} strokeWidth={2} />
+                      <AppIcon size={22} strokeWidth={2} />
                     </div>
-                    <span>{app.title}</span>
+                    <span>{t(app.i18n)}</span>
                   </button>
                 );
               })}
@@ -244,15 +248,16 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
                   <div className={`start-menu-icon ${ADMIN_APP.color}`}>
                     <AdminIcon size={22} strokeWidth={2} />
                   </div>
-                  <span>{ADMIN_APP.title}</span>
+                  <span>{t(ADMIN_APP.i18n)}</span>
                 </button>
               )}
             </div>
           </div>
           <div className="start-menu-footer">
-            <button className="signout-btn" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
-              <Power size={18} />
-              <span>Sign out</span>
+            <LanguageToggle variant="light" />
+            <button className="start-signout" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
+              <Power size={16} />
+              <span>{t('desktop.signOut')}</span>
             </button>
           </div>
         </div>

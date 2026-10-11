@@ -10,8 +10,6 @@ export default function Admin() {
         title="管理平台"
         src={`${API_BASE}/admin`}
         className="admin-frame"
-        sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-        referrerPolicy="no-referrer"
       />
     </div>
   );
