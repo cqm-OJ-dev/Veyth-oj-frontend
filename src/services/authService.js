@@ -1,6 +1,11 @@
 import initSqlJs from 'sql.js';
 
 export const API_BASE = process.env.REACT_APP_API_BASE || 'https://cqiming.pythonanywhere.com';
+export const IDE_RUN_API_URL = 'https://judge.cqiming.com/run';
+export const LANGUAGES_API_URL = 'https://judge.cqiming.com/languages/';
+export const IDE_DEFAULT_LANGUAGE = 'python';
+export const IDE_DEFAULT_TIME_LIMIT_MS = 100;
+export const IDE_DEFAULT_MEMORY_LIMIT_MB = 512;
 
 let sqlReadyPromise = null;
 let sqlDatabase = null;

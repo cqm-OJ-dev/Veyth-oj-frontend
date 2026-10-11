@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { BookOpen, Trophy, ListChecks, Code2, ShieldCheck, Search, LayoutGrid, Power } from 'lucide-react';
 import Window from './Window';
 import './Desktop.css';
 import Problems from '../pages/Problems';
@@ -12,11 +13,17 @@ import UserAvatar from '../UserAvatar';
 import wallpaper from "../assets/wallpaper.jpg";
 
 const APP_LIST = [
-  { key: 'problems', title: 'Problems', component: Problems },
-  { key: 'contests', title: 'Contests', component: Contests },
-  { key: 'submissions', title: 'Submissions', component: Submissions },
-  { key: 'ide', title: 'Online IDE', component: OnlineIDE },
+  { key: 'problems', title: 'Problems', component: Problems, icon: BookOpen, color: 'icon-blue' },
+  { key: 'contests', title: 'Contests', component: Contests, icon: Trophy, color: 'icon-amber' },
+  { key: 'submissions', title: 'Submissions', component: Submissions, icon: ListChecks, color: 'icon-green' },
+  { key: 'ide', title: 'Online IDE', component: OnlineIDE, icon: Code2, color: 'icon-purple' },
 ];
+
+const ADMIN_APP = { key: 'admin', title: '管理平台', icon: ShieldCheck, color: 'icon-teal' };
+const AdminIcon = ADMIN_APP.icon;
+
+const DEFAULT_POS = Object.freeze({ x: 120, y: 80 });
+const DEFAULT_SIZE = Object.freeze({ w: 900, h: 560 });
 
 const APP_RESOLVERS = {
   'problem-detail': {
@@ -44,19 +51,16 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
   const [currentTime, setCurrentTime] = useState(new Date());
   const startMenuRef = useRef(null);
 
-  const defaultPos = { x: 120, y: 80 };
-  const defaultSize = { w: 900, h: 560 };
-
   const activeWindowId = windows.reduce((current, win) => {
     if (!current || win.z > current.z) return win;
     return current;
   }, null)?.id;
 
-  const createWindow = useCallback(({ key, title, Component, props = {}, size = defaultSize }) => {
+  const createWindow = useCallback(({ key, title, Component, props = {}, size = DEFAULT_SIZE }) => {
     const id = Date.now() + Math.floor(Math.random() * 1000);
     setWindows(w => [...w, {
       id, key, title, Component, z: zBase, minimized: false, maximized: false,
-      pos: { x: defaultPos.x + ((w.length * 24) % 180), y: defaultPos.y + ((w.length * 18) % 120) },
+      pos: { x: DEFAULT_POS.x + ((w.length * 24) % 180), y: DEFAULT_POS.y + ((w.length * 18) % 120) },
       size,
       props
     }]);
@@ -98,10 +102,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     createWindow({ key: appKey, title, Component: wrappedComponent });
   };
 
-  const focusWindow = useCallback(
-    (id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win)),
-    [zBase]
-  );
+  const focusWindow = useCallback((id) => setWindows(w => w.map(win => win.id === id ? { ...win, z: zBase + 1, minimized: false } : win)), [zBase]);
   const closeWindow = (id) => setWindows(w => w.filter(win => win.id !== id));
   const toggleMinimizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, minimized: !win.minimized } : win));
   const toggleMaximizeWindow = (id) => setWindows(w => w.map(win => win.id === id ? { ...win, maximized: !win.maximized, minimized: false } : win));
@@ -141,9 +142,6 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
 
   const rendered = useMemo(() => windows.map(win => {
     const C = win.Component;
-    const injectedProps = win.key === 'submission-detail' || win.key === 'problem-detail'
-      ? {}
-      : {};
     return (
       <Window
         key={win.id}
@@ -162,7 +160,6 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
           onLoginSuccess={onLoginSuccess}
           currentUser={currentUser}
           {...(win.props || {})}
-          {...injectedProps}
         />
       </Window>
     );
@@ -184,16 +181,23 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       />
 
       <div className="desktop-icons">
-        {APP_LIST.map(app => (
-          <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
-            <div className={`icon-visual icon-${app.key}`} />
-            <div className="icon-label">{app.title}</div>
-          </div>
-        ))}
+        {APP_LIST.map(app => {
+          const Icon = app.icon;
+          return (
+            <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
+              <div className={`icon-visual ${app.color}`}>
+                <Icon size={30} strokeWidth={2} />
+              </div>
+              <div className="icon-label">{app.title}</div>
+            </div>
+          );
+        })}
         {currentUser?.is_staff && (
           <div className="desktop-icon" onDoubleClick={() => openApp('admin')}>
-            <div className={`icon-visual icon-admin`} />
-            <div className="icon-label">管理平台</div>
+            <div className={`icon-visual ${ADMIN_APP.color}`}>
+              <AdminIcon size={30} strokeWidth={2} />
+            </div>
+            <div className="icon-label">{ADMIN_APP.title}</div>
           </div>
         )}
       </div>
@@ -202,7 +206,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
 
       <div className="taskbar">
         <div className="start" onClick={() => setIsStartOpen(open => !open)}>
-          <span className="start-icon">⊞</span>
+          <LayoutGrid className="start-icon" size={22} />
           <span>Start</span>
         </div>
         <div className="taskbar-windows">
@@ -218,28 +222,36 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       {isStartOpen && (
         <div className="start-menu" ref={startMenuRef}>
           <div className="start-menu-search">
-            <span className="start-menu-search-icon">🔍</span>
+            <Search className="start-menu-search-icon" size={18} />
             <input type="text" placeholder="Search apps, settings..." disabled />
           </div>
           <div className="start-menu-section">
             <div className="start-menu-section-title">Pinned</div>
             <div className="start-menu-grid">
-              {APP_LIST.map(app => (
-                <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
-                  <div className={`start-menu-icon icon-${app.key}`} />
-                  <span>{app.title}</span>
-                </button>
-              ))}
+              {APP_LIST.map(app => {
+                const Icon = app.icon;
+                return (
+                  <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
+                    <div className={`start-menu-icon ${app.color}`}>
+                      <Icon size={22} strokeWidth={2} />
+                    </div>
+                    <span>{app.title}</span>
+                  </button>
+                );
+              })}
               {currentUser?.is_staff && (
                 <button className="start-menu-item" onClick={() => { openApp('admin'); setIsStartOpen(false); }}>
-                  <div className={`start-menu-icon icon-admin`} />
-                  <span>管理平台</span>
+                  <div className={`start-menu-icon ${ADMIN_APP.color}`}>
+                    <AdminIcon size={22} strokeWidth={2} />
+                  </div>
+                  <span>{ADMIN_APP.title}</span>
                 </button>
               )}
             </div>
           </div>
-          <div className="">
-            <button className="" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
+          <div className="start-menu-footer">
+            <button className="signout-btn" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
+              <Power size={18} />
               <span>Sign out</span>
             </button>
           </div>
