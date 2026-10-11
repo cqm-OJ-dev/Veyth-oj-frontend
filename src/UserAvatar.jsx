@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut } from 'lucide-react';
 
 const UserAvatar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -90,7 +89,7 @@ const UserAvatar = ({ user, onLogout }) => {
               navigate('/profile');
             }}
           >
-            <User className="dropdown-icon" size={18} />
+            <span className="dropdown-icon">👤</span>
             <span>个人中心</span>
           </button>
           <button
@@ -101,7 +100,7 @@ const UserAvatar = ({ user, onLogout }) => {
               navigate('/settings');
             }}
           >
-            <Settings className="dropdown-icon" size={18} />
+            <span className="dropdown-icon">⚙️</span>
             <span>设置</span>
           </button>
           <div className="dropdown-divider" />
@@ -113,7 +112,7 @@ const UserAvatar = ({ user, onLogout }) => {
               handleLogout();
             }}
           >
-            <LogOut className="dropdown-icon" size={18} />
+            <span className="dropdown-icon">🚪</span>
             <span>退出登录</span>
           </button>
         </div>
