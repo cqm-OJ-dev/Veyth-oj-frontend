@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { BookOpen, Trophy, ListChecks, Code2, ShieldCheck, Search, LayoutGrid, Power } from 'lucide-react';
 import Window from './Window';
 import './Desktop.css';
 import Problems from '../pages/Problems';
@@ -12,11 +13,13 @@ import UserAvatar from '../UserAvatar';
 import wallpaper from "../assets/wallpaper.jpg";
 
 const APP_LIST = [
-  { key: 'problems', title: 'Problems', component: Problems },
-  { key: 'contests', title: 'Contests', component: Contests },
-  { key: 'submissions', title: 'Submissions', component: Submissions },
-  { key: 'ide', title: 'Online IDE', component: OnlineIDE },
+  { key: 'problems', title: 'Problems', component: Problems, icon: BookOpen, color: 'icon-blue' },
+  { key: 'contests', title: 'Contests', component: Contests, icon: Trophy, color: 'icon-amber' },
+  { key: 'submissions', title: 'Submissions', component: Submissions, icon: ListChecks, color: 'icon-green' },
+  { key: 'ide', title: 'Online IDE', component: OnlineIDE, icon: Code2, color: 'icon-purple' },
 ];
+
+const ADMIN_APP = { key: 'admin', title: '管理平台', icon: ShieldCheck, color: 'icon-teal' };
 
 const APP_RESOLVERS = {
   'problem-detail': {
@@ -186,14 +189,18 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       <div className="desktop-icons">
         {APP_LIST.map(app => (
           <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
-            <div className={`icon-visual icon-${app.key}`} />
+            <div className={`icon-visual ${app.color}`}>
+              <app.icon size={30} strokeWidth={2} />
+            </div>
             <div className="icon-label">{app.title}</div>
           </div>
         ))}
         {currentUser?.is_staff && (
           <div className="desktop-icon" onDoubleClick={() => openApp('admin')}>
-            <div className={`icon-visual icon-admin`} />
-            <div className="icon-label">管理平台</div>
+            <div className={`icon-visual ${ADMIN_APP.color}`}>
+              <ADMIN_APP.icon size={30} strokeWidth={2} />
+            </div>
+            <div className="icon-label">{ADMIN_APP.title}</div>
           </div>
         )}
       </div>
@@ -202,7 +209,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
 
       <div className="taskbar">
         <div className="start" onClick={() => setIsStartOpen(open => !open)}>
-          <span className="start-icon">⊞</span>
+          <LayoutGrid className="start-icon" size={22} />
           <span>Start</span>
         </div>
         <div className="taskbar-windows">
@@ -218,7 +225,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       {isStartOpen && (
         <div className="start-menu" ref={startMenuRef}>
           <div className="start-menu-search">
-            <span className="start-menu-search-icon">🔍</span>
+            <Search className="start-menu-search-icon" size={18} />
             <input type="text" placeholder="Search apps, settings..." disabled />
           </div>
           <div className="start-menu-section">
@@ -226,20 +233,25 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
             <div className="start-menu-grid">
               {APP_LIST.map(app => (
                 <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
-                  <div className={`start-menu-icon icon-${app.key}`} />
+                  <div className={`start-menu-icon ${app.color}`}>
+                    <app.icon size={22} strokeWidth={2} />
+                  </div>
                   <span>{app.title}</span>
                 </button>
               ))}
               {currentUser?.is_staff && (
                 <button className="start-menu-item" onClick={() => { openApp('admin'); setIsStartOpen(false); }}>
-                  <div className={`start-menu-icon icon-admin`} />
-                  <span>管理平台</span>
+                  <div className={`start-menu-icon ${ADMIN_APP.color}`}>
+                    <ADMIN_APP.icon size={22} strokeWidth={2} />
+                  </div>
+                  <span>{ADMIN_APP.title}</span>
                 </button>
               )}
             </div>
           </div>
-          <div className="">
-            <button className="" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
+          <div className="start-menu-footer">
+            <button className="signout-btn" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
+              <Power size={18} />
               <span>Sign out</span>
             </button>
           </div>
