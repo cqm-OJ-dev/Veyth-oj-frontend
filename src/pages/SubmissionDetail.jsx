@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getSubmission, pollSubmission } from '../services/judgeService';
+import { useLanguage } from '../context/languageContext';
 
 const STATUS_COLORS = {
   Accepted: '#14804a',
@@ -15,6 +16,7 @@ const STATUS_COLORS = {
 };
 
 export default function SubmissionDetail({ submissionId, onOpenProblem }) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sub, setSub] = useState(null);
@@ -39,19 +41,20 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
   const data = sub || {};
   const results = data.results || [];
   const statusColor = STATUS_COLORS[data.status] || '#333';
+  const statusText = (s) => (s && STATUS_COLORS[s] ? t(`status.${s}`) : (s || '-'));
 
   return (
-    <div className="window-page-shell" style={{ height: '100%', overflowY: 'auto', paddingBottom: 16 }}>
+    <div className="window-page-shell sd-shell">
       <div className="window-page-header">
         <div>
-          <p className="window-page-kicker">Submission</p>
+          <p className="window-page-kicker">{t('submissionDetail.kicker')}</p>
           <h2>#{submissionId ?? '-'}</h2>
         </div>
         {data.id && (
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div className="sd-actions">
             {data.problem_id && (
               <button className="pd-link-btn" onClick={() => onOpenProblem?.(data.problem_id)}>
-                open problem #{data.problem_id}
+                {t('submissionDetail.openProblem', { id: data.problem_id })}
               </button>
             )}
             <div className="window-page-pill">{data.language || '-'}</div>
@@ -59,68 +62,62 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
         )}
       </div>
 
-      {loading ? <div className="window-page-state">Loading submission…</div>
+      {loading ? <div className="window-page-state">{t('submissionDetail.loading')}</div>
         : error ? <div className="window-page-state error">{error}</div>
-        : !submissionId ? <div className="window-page-state">No submission selected</div>
+        : !submissionId ? <div className="window-page-state">{t('submissionDetail.noSubmission')}</div>
         : (
-          <div style={{ padding: '4px 14px' }}>
-            <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: 10, marginBottom: 14,
-            }}>
-              <InfoCell label="Status" value={data.status || '-'} color={statusColor} bold />
-              <InfoCell label="Passed" value={`${data.passed ?? '?'} / ${data.total ?? '?'}`} />
-              <InfoCell label="Runtime" value={typeof data.time_ms === 'number' ? `${data.time_ms}ms` : '-'} />
-              <InfoCell label="Memory" value={typeof data.memory_mb === 'number' ? `${data.memory_mb}MB` : '-'} />
-              <InfoCell label="Language" value={data.language || '-'} />
-              <InfoCell label="At" value={data.created_at ? new Date(data.created_at).toLocaleString() : '-'} />
+          <div className="sd-body">
+            <div className="sd-grid">
+              <InfoCell label={t('submissionDetail.status')} value={statusText(data.status)} color={statusColor} bold />
+              <InfoCell label={t('submissionDetail.passed')} value={`${data.passed ?? '?'} / ${data.total ?? '?'}`} />
+              <InfoCell label={t('submissionDetail.runtime')} value={typeof data.time_ms === 'number' ? `${data.time_ms}ms` : '-'} />
+              <InfoCell label={t('submissionDetail.memory')} value={typeof data.memory_mb === 'number' ? `${data.memory_mb}MB` : '-'} />
+              <InfoCell label={t('submissionDetail.language')} value={data.language || '-'} />
+              <InfoCell label={t('submissionDetail.at')} value={data.created_at ? new Date(data.created_at).toLocaleString() : '-'} />
             </div>
 
             {data.code !== undefined && (
-              <div style={{ marginBottom: 14 }}>
-                <h4 style={{ margin: '6px 0 4px', fontSize: 13 }}>Submitted Code</h4>
+              <div className="sd-code-block">
+                <h4 className="sd-section-title">{t('submissionDetail.code')}</h4>
                 <pre className="pd-pre">{String(data.code)}</pre>
               </div>
             )}
 
             {results.length > 0 && (
               <div>
-                <h4 style={{ margin: '6px 0 8px', fontSize: 13 }}>Case Results</h4>
-                <div className="pd-cases" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <h4 className="sd-section-title">{t('submissionDetail.caseResults')}</h4>
+                <div className="sd-cases">
                   {results.map((c, idx) => {
                     const st = c.status || '-';
                     const cColor = STATUS_COLORS[st] || '#333';
                     return (
-                      <div key={idx} style={{
-                        border: '1px solid #e4e6ea', borderRadius: 6, padding: '8px 10px',
-                        background: '#fff', display: 'grid', gridTemplateColumns: '80px 140px 100px 1fr', gap: 10, alignItems: 'center'
-                      }}>
-                        <div style={{ fontWeight: 600 }}>Case #{c.case ?? idx + 1}</div>
-                        <div style={{ color: cColor, fontWeight: 700 }}>{st}</div>
-                        <div style={{ color: '#555', fontSize: 12 }}>{c.time_ms ?? '?'}ms</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div key={idx} className="sd-case">
+                        <div className="sd-case-id">{t('submissionDetail.case', { n: c.case ?? idx + 1 })}</div>
+                        <div className="sd-case-status" style={{ color: cColor }}>{statusText(st)}</div>
+                        <div className="sd-case-time">{c.time_ms ?? '?'}ms</div>
+                        <div className="sd-case-detail">
                           {c.stderr ? (
                             <details>
-                              <summary style={{ fontSize: 12, color: '#a1241e', cursor: 'pointer' }}>Stderr</summary>
-                              <pre className="pd-pre small" style={{ marginTop: 4 }}>{c.stderr}</pre>
+                              <summary className="sd-summary err">{t('submissionDetail.stderr')}</summary>
+                              <pre className="pd-pre small sd-detail-pre">{c.stderr}</pre>
                             </details>
                           ) : null}
                           {st === 'Wrong Answer' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div className="sd-wa">
                               <div>
-                                <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>Expected</div>
+                                <div className="sd-wa-label">{t('submissionDetail.expected')}</div>
                                 <pre className="pd-pre small">{c.expected ?? ''}</pre>
                               </div>
                               <div>
-                                <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>Got</div>
+                                <div className="sd-wa-label">{t('submissionDetail.got')}</div>
                                 <pre className="pd-pre small">{c.stdout ?? ''}</pre>
                               </div>
                             </div>
                           )}
                           {st === 'Accepted' && c.stdout !== undefined && !c.stderr ? (
                             <details>
-                              <summary style={{ fontSize: 12, color: '#555', cursor: 'pointer' }}>Output</summary>
-                              <pre className="pd-pre small" style={{ marginTop: 4 }}>{c.stdout}</pre>
+                              <summary className="sd-summary muted">{t('submissionDetail.output')}</summary>
+                              <pre className="pd-pre small sd-detail-pre">{c.stdout}</pre>
                             </details>
                           ) : null}
                         </div>
@@ -133,8 +130,8 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
 
             {!results.length && data.error && (
               <div>
-                <h4 style={{ margin: '6px 0 4px', fontSize: 13 }}>Error</h4>
-                <pre className="pd-pre" style={{ color: '#a1241e' }}>{String(data.error)}</pre>
+                <h4 className="sd-section-title">{t('submissionDetail.error')}</h4>
+                <pre className="pd-pre sd-error-pre">{String(data.error)}</pre>
               </div>
             )}
           </div>
@@ -145,18 +142,9 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
 
 function InfoCell({ label, value, color, bold }) {
   return (
-    <div style={{
-      background: '#fafafa', border: '1px solid #e4e6ea', borderRadius: 6,
-      padding: '8px 10px', minWidth: 0
-    }}>
-      <div style={{ fontSize: 11, color: '#666', textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</div>
-      <div style={{
-        fontSize: 14,
-        fontWeight: bold ? 700 : 600,
-        color: color || '#1f2328',
-        marginTop: 2,
-        wordBreak: 'break-word'
-      }}>{value}</div>
+    <div className="sd-info">
+      <div className="sd-info-label">{label}</div>
+      <div className={`sd-info-value${bold ? ' bold' : ''}`} style={color ? { color } : undefined}>{value}</div>
     </div>
   );
 }

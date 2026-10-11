@@ -9,13 +9,16 @@ import Admin from '../pages/Admin';
 import ProblemDetail from '../pages/ProblemDetail';
 import SubmissionDetail from '../pages/SubmissionDetail';
 import UserAvatar from '../UserAvatar';
+import Icon from './Icon';
+import LanguageToggle from './LanguageToggle';
+import { useLanguage } from '../context/languageContext';
 import wallpaper from "../assets/wallpaper.jpg";
 
 const APP_LIST = [
-  { key: 'problems', title: 'Problems', component: Problems },
-  { key: 'contests', title: 'Contests', component: Contests },
-  { key: 'submissions', title: 'Submissions', component: Submissions },
-  { key: 'ide', title: 'Online IDE', component: OnlineIDE },
+  { key: 'problems', i18n: 'apps.problems', icon: 'problems', component: Problems },
+  { key: 'contests', i18n: 'apps.contests', icon: 'contests', component: Contests },
+  { key: 'submissions', i18n: 'apps.submissions', icon: 'submissions', component: Submissions },
+  { key: 'ide', i18n: 'apps.ide', icon: 'ide', component: OnlineIDE },
 ];
 
 const DEFAULT_POS = Object.freeze({ x: 120, y: 80 });
@@ -40,7 +43,8 @@ const APP_RESOLVERS = {
   },
 };
 
-export default function Desktop({ language, currentUser, onLoginSuccess, onLogout }) {
+export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
+  const { t, language } = useLanguage();
   const [windows, setWindows] = useState([]);
   const [zBase, setZBase] = useState(100);
   const [isStartOpen, setIsStartOpen] = useState(false);
@@ -68,7 +72,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
     const app = APP_LIST.find(a => a.key === appKey);
     if (!app && appKey !== 'admin') return;
     const Component = app ? app.component : Admin;
-    const title = app ? app.title : '管理平台';
+    const title = app ? t(app.i18n) : t('apps.admin');
     const openProblem = (problemId) => {
       const resolver = APP_RESOLVERS['problem-detail'];
       createWindow({
@@ -177,14 +181,14 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       <div className="desktop-icons">
         {APP_LIST.map(app => (
           <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
-            <div className={`icon-visual icon-${app.key}`} />
-            <div className="icon-label">{app.title}</div>
+            <div className={`icon-visual icon-${app.key}`}><Icon name={app.icon} size={30} /></div>
+            <div className="icon-label">{t(app.i18n)}</div>
           </div>
         ))}
         {currentUser?.is_staff && (
           <div className="desktop-icon" onDoubleClick={() => openApp('admin')}>
-            <div className={`icon-visual icon-admin`} />
-            <div className="icon-label">管理平台</div>
+            <div className="icon-visual icon-admin"><Icon name="admin" size={30} /></div>
+            <div className="icon-label">{t('apps.admin')}</div>
           </div>
         )}
       </div>
@@ -193,8 +197,12 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
 
       <div className="taskbar">
         <div className="start" onClick={() => setIsStartOpen(open => !open)}>
-          <span className="start-icon">⊞</span>
-          <span>Start</span>
+          <span className="start-icon">
+            <span className="start-glyph">
+              <span /><span /><span /><span />
+            </span>
+          </span>
+          <span className="start-label">{t('desktop.start')}</span>
         </div>
         <div className="taskbar-windows">
           {windows.map(w => (
@@ -202,6 +210,7 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
           ))}
         </div>
         <div className="tray-right">
+          <LanguageToggle variant="glass" />
           <UserAvatar user={currentUser} onLogout={onLogout} />
           <div className="tray">{currentTime.toLocaleTimeString()}</div>
         </div>
@@ -209,29 +218,31 @@ export default function Desktop({ language, currentUser, onLoginSuccess, onLogou
       {isStartOpen && (
         <div className="start-menu" ref={startMenuRef}>
           <div className="start-menu-search">
-            <span className="start-menu-search-icon">🔍</span>
-            <input type="text" placeholder="Search apps, settings..." disabled />
+            <Icon name="search" size={17} className="start-menu-search-icon" />
+            <input type="text" placeholder={t('desktop.search')} disabled />
           </div>
           <div className="start-menu-section">
-            <div className="start-menu-section-title">Pinned</div>
+            <div className="start-menu-section-title">{t('desktop.pinned')}</div>
             <div className="start-menu-grid">
               {APP_LIST.map(app => (
                 <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
-                  <div className={`start-menu-icon icon-${app.key}`} />
-                  <span>{app.title}</span>
+                  <div className={`start-menu-icon icon-${app.key}`}><Icon name={app.icon} size={26} /></div>
+                  <span>{t(app.i18n)}</span>
                 </button>
               ))}
               {currentUser?.is_staff && (
                 <button className="start-menu-item" onClick={() => { openApp('admin'); setIsStartOpen(false); }}>
-                  <div className={`start-menu-icon icon-admin`} />
-                  <span>管理平台</span>
+                  <div className="start-menu-icon icon-admin"><Icon name="admin" size={26} /></div>
+                  <span>{t('apps.admin')}</span>
                 </button>
               )}
             </div>
           </div>
-          <div className="">
-            <button className="" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
-              <span>Sign out</span>
+          <div className="start-menu-footer">
+            <LanguageToggle variant="light" />
+            <button className="start-signout" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
+              <Icon name="logout" size={16} />
+              <span>{t('desktop.signOut')}</span>
             </button>
           </div>
         </div>

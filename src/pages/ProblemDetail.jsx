@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { getProblem, submitCode, pollSubmission } from '../services/judgeService';
+import Icon from '../components/Icon';
+import { useLanguage } from '../context/languageContext';
 import './ProblemDetail.css';
 
 const LANG_OPTIONS = [
@@ -32,6 +34,7 @@ const STATUS_COLORS = {
 const defaultCode = (lang) => LANG_OPTIONS.find(o => o.v === lang)?.tpl || '';
 
 export default function ProblemDetail({ problemId, onOpenSubmission }) {
+  const { t } = useLanguage();
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -91,15 +94,16 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
   const caseResults = result?.results || overall?.results || [];
   const passed = overall?.passed;
   const total = overall?.total;
+  const statusText = (s) => (s && STATUS_COLORS[s] ? t(`status.${s}`) : (s || '-'));
 
   return (
     <div className="pd-root">
       <div className="pd-col pd-left">
         <div className="pd-head">
           <div>
-            <p className="window-page-kicker">Problem</p>
+            <p className="window-page-kicker">{t('problemDetail.kicker')}</p>
             <h2 className="pd-title">
-              {loading ? 'Loading…' : (problem ? `#${problem.id}  ${problem.title}` : 'Problem detail')}
+              {loading ? t('problemDetail.loadingTitle') : (problem ? `#${problem.id}  ${problem.title}` : t('problemDetail.heading'))}
             </h2>
           </div>
           {problem && (
@@ -111,38 +115,38 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
           )}
         </div>
 
-        {loading && <div className="window-page-state">Loading problem…</div>}
+        {loading && <div className="window-page-state">{t('problemDetail.loading')}</div>}
         {error && !loading && <div className="window-page-state error">{error}</div>}
-        {!loading && !problem && !error && <div className="window-page-state">No problem selected</div>}
+        {!loading && !problem && !error && <div className="window-page-state">{t('problemDetail.noProblem')}</div>}
 
         {problem && (
           <div className="pd-body">
             <section className="pd-section">
-              <h4>Description</h4>
+              <h4>{t('problemDetail.description')}</h4>
               <pre className="pd-pre">{problem.description || problem.content || ''}</pre>
             </section>
 
             {problem.input_format && (
               <section className="pd-section">
-                <h4>Input</h4>
+                <h4>{t('problemDetail.input')}</h4>
                 <pre className="pd-pre">{problem.input_format}</pre>
               </section>
             )}
             {problem.output_format && (
               <section className="pd-section">
-                <h4>Output</h4>
+                <h4>{t('problemDetail.output')}</h4>
                 <pre className="pd-pre">{problem.output_format}</pre>
               </section>
             )}
 
             {samples.length > 0 && (
               <section className="pd-section">
-                <h4>Samples</h4>
+                <h4>{t('problemDetail.samples')}</h4>
                 {samples.map(s => (
                   <div key={s.i} className="pd-sample">
-                    <div><strong>Sample {s.i} Input</strong></div>
+                    <div><strong>{t('problemDetail.sampleInput', { n: s.i })}</strong></div>
                     <pre className="pd-pre">{s.in}</pre>
-                    <div><strong>Sample {s.i} Output</strong></div>
+                    <div><strong>{t('problemDetail.sampleOutput', { n: s.i })}</strong></div>
                     <pre className="pd-pre">{s.out}</pre>
                   </div>
                 ))}
@@ -151,7 +155,7 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
 
             {problem.hint && (
               <section className="pd-section">
-                <h4>Hint</h4>
+                <h4>{t('problemDetail.hint')}</h4>
                 <pre className="pd-pre">{problem.hint}</pre>
               </section>
             )}
@@ -170,7 +174,8 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
             {LANG_OPTIONS.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
           </select>
           <button className="pd-btn primary" onClick={doSubmit} disabled={!problem || judging}>
-            {judging ? 'Judging…' : 'Submit'}
+            <Icon name="play" size={15} />
+            {judging ? t('problemDetail.judging') : t('problemDetail.submit')}
           </button>
         </div>
 
@@ -184,25 +189,25 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
             onChange={(v) => setCode(v ?? '')}
             onMount={(editor) => { editorRef.current = editor; }}
             options={{ minimap: { enabled: false }, fontSize: 13, automaticLayout: true }}
-            loading={<div className="window-page-state">Loading editor…</div>}
+            loading={<div className="window-page-state">{t('problemDetail.loading')}</div>}
           />
         </div>
 
         <div className="pd-result">
           <div className="pd-result-head">
-            <strong>Result</strong>
+            <strong>{t('problemDetail.result')}</strong>
             {submitErr && <span className="pd-err">{submitErr}</span>}
             {overall && !submitErr && (
               <div className="pd-result-head-2">
                 <span className="pd-status" style={{ color: STATUS_COLORS[overall.status] || 'inherit' }}>
-                  {overall.status || '-'}
+                  {statusText(overall.status)}
                 </span>
                 <span className="pd-meta">{passed ?? '?'}/{total ?? '?'}</span>
                 {typeof overall.time_ms === 'number' && <span className="pd-meta">{overall.time_ms}ms</span>}
                 {typeof overall.memory_mb === 'number' && <span className="pd-meta">{overall.memory_mb}MB</span>}
                 {overall.id && (
                   <button className="pd-link-btn" onClick={() => onOpenSubmission?.(overall.id)}>
-                    view submission #{overall.id}
+                    {t('problemDetail.viewSubmission', { id: overall.id })}
                   </button>
                 )}
               </div>
@@ -216,13 +221,13 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
                 return (
                   <div key={idx} className="pd-case">
                     <div className="pd-case-id">#{c.case ?? idx + 1}</div>
-                    <div className="pd-status" style={{ color: STATUS_COLORS[st] || 'inherit' }}>{st}</div>
+                    <div className="pd-status" style={{ color: STATUS_COLORS[st] || 'inherit' }}>{statusText(st)}</div>
                     <div className="pd-case-num">{c.time_ms ?? '?'}ms</div>
                     {c.stderr ? <pre className="pd-pre small">{c.stderr}</pre> : null}
                     {c.stdout !== undefined && c.status === 'Wrong Answer' ? (
                       <div className="pd-wa">
-                        <div><strong>Expected</strong><pre className="pd-pre small">{c.expected ?? (problem?.samples || [])[idx]?.out ?? ''}</pre></div>
-                        <div><strong>Got</strong><pre className="pd-pre small">{c.stdout}</pre></div>
+                        <div><strong>{t('problemDetail.expected')}</strong><pre className="pd-pre small">{c.expected ?? (problem?.samples || [])[idx]?.out ?? ''}</pre></div>
+                        <div><strong>{t('problemDetail.got')}</strong><pre className="pd-pre small">{c.stdout}</pre></div>
                       </div>
                     ) : null}
                   </div>

@@ -1,36 +1,19 @@
 /*
 =================================
-Veyth OJ Login
-Windows + GitHub Style
+Veyth OJ — Authentication Pages
+Modern glassmorphism lock screen
 =================================
 */
 
-
-*{
-
-    box-sizing:border-box;
-
+* {
+  box-sizing: border-box;
 }
 
-
-
-body{
-
-    margin:0;
-
-    font-family:
-    "Segoe UI",
-    "Microsoft YaHei",
-    sans-serif;
-
-    overflow:hidden;
-
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  overflow: hidden;
 }
-
-
-
-
-
 
 /*
 =================================
@@ -38,39 +21,16 @@ body{
 =================================
 */
 
-
-.windows-lockscreen{
-
-
-    width:100vw;
-
-    height:100vh;
-
-
-    display:flex;
-
-
-    justify-content:center;
-
-
-    align-items:center;
-
-
-    position:relative;
-
-
-    overflow:hidden;
-
-
-    color:white;
-
-
+.windows-lockscreen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
 }
-
-
-
-
-
 
 /*
 =================================
@@ -78,76 +38,25 @@ body{
 =================================
 */
 
-
-.lock-wallpaper{
-
-
-    position:absolute;
-
-
-    inset:0;
-
-
-    background:
-
-
-    linear-gradient(
-
-        rgba(0,0,0,.25),
-
-        rgba(0,0,0,.55)
-
-    ),
-
-
-    url(
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
-    );
-
-
-    background-size:cover;
-
-
-    background-position:center;
-
-
-
-    animation:
-
-    wallpaperMove 30s infinite alternate;
-
-
+.lock-wallpaper {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(8, 12, 28, 0.45), rgba(8, 12, 28, 0.72)),
+    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+  background-size: cover;
+  background-position: center;
+  animation: wallpaperMove 30s infinite alternate;
 }
 
-
-
-
-
-@keyframes wallpaperMove{
-
-
-from{
-
-    transform:scale(1);
-
+@keyframes wallpaperMove {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
 }
-
-
-to{
-
-    transform:scale(1.08);
-
-}
-
-
-}
-
-
-
-
-
-
-
 
 /*
 =================================
@@ -155,62 +64,37 @@ to{
 =================================
 */
 
-
-.lock-clock{
-
-
-    position:absolute;
-
-
-    top:55px;
-
-
-    width:100%;
-
-
-    text-align:center;
-
-
-    z-index:2;
-
-
+.lock-clock {
+  position: absolute;
+  top: 55px;
+  width: 100%;
+  text-align: center;
+  z-index: 2;
 }
 
-
-
-.lock-clock div{
-
-
-    font-size:96px;
-
-
-    font-weight:300;
-
-
+.lock-clock div {
+  font-size: 96px;
+  font-weight: 300;
 }
 
-
-
-.lock-clock span{
-
-
-    display:block;
-
-
-    margin-top:10px;
-
-
-    font-size:24px;
-
-
+.lock-clock span {
+  display: block;
+  margin-top: 10px;
+  font-size: 24px;
 }
 
+/*
+=================================
+语言切换
+=================================
+*/
 
-
-
-
-
-
+.lock-lang {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 5;
+}
 
 /*
 =================================
@@ -218,247 +102,91 @@ to{
 =================================
 */
 
-
-.login-container{
-
-
-    width:900px;
-
-
-    min-height:480px;
-
-
-    display:flex;
-
-
-    z-index:3;
-
-
-    overflow:hidden;
-
-
-    border-radius:28px;
-
-
-
-    background:
-
-    rgba(255,255,255,.15);
-
-
-
-    backdrop-filter:
-
-    blur(25px);
-
-
-
-    box-shadow:
-
-    0 30px 90px rgba(0,0,0,.45);
-
-
-
-    animation:
-
-    loginShow .7s ease;
-
-
+.login-container {
+  width: 900px;
+  min-height: 480px;
+  display: flex;
+  z-index: 3;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  box-shadow:
+    0 32px 90px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: loginShow 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-
-
-
-
-@keyframes loginShow{
-
-
-from{
-
-    opacity:0;
-
-    transform:
-
-    translateY(50px);
-
+@keyframes loginShow {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
-
-
-to{
-
-    opacity:1;
-
-    transform:
-
-    translateY(0);
-
-}
-
-
-}
-
-
-
-
-
-
-
-
 
 /*
 =================================
-左侧Logo
+左侧 Logo
 =================================
 */
 
-
-.login-logo-area{
-
-
-    width:50%;
-
-
-    display:flex;
-
-
-    flex-direction:column;
-
-
-    align-items:center;
-
-
-    justify-content:center;
-
-
-
-    background:
-
-    rgba(255,255,255,.12);
-
-
+.login-logo-area {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-
-
-
-.login-logo{
-
-
-    width:180px;
-
-
-    height:180px;
-
-
-    object-fit:cover;
-
-
-    border-radius:50%;
-
-
-
-    box-shadow:
-
-
-    0 20px 60px rgba(0,0,0,.4);
-
-
+.login-logo {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
-
-
-
-
-.login-logo-area h1{
-
-
-    margin-top:30px;
-
-
-    margin-bottom:5px;
-
-
-    font-size:38px;
-
-
-    font-weight:500;
-
-
+.login-logo-area h1 {
+  margin: 30px 0 5px;
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
-
-
-.login-logo-area p{
-
-
-    opacity:.8;
-
-
-    font-size:18px;
-
-
+.login-logo-area p {
+  margin: 0;
+  opacity: 0.8;
+  font-size: 18px;
 }
-
-
-
-
-
-
-
-
 
 /*
 =================================
-右侧登录
+右侧登录 / 注册
 =================================
 */
 
-
-.windows-login{
-
-
-    width:50%;
-
-
-    padding:
-
-    55px;
-
-
-
-    text-align:center;
-
-
+.windows-login {
+  width: 50%;
+  padding: 55px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-
-
-
-
-
-
-.windows-login h2{
-
-
-    font-size:28px;
-
-
-    font-weight:400;
-
-
-    margin-bottom:30px;
-
-
+.windows-login h2 {
+  font-size: 28px;
+  font-weight: 400;
+  margin: 0 0 30px;
 }
-
-
-
-
-
-
-
-
 
 /*
 =================================
@@ -466,78 +194,29 @@ to{
 =================================
 */
 
-
-.windows-login input{
-
-
-    width:100%;
-
-
-    height:48px;
-
-
-
-    padding:
-
-    0 16px;
-
-
-
-    margin:
-
-    8px 0;
-
-
-
-    border-radius:10px;
-
-
-
-    border:
-
-    1px solid rgba(255,255,255,.4);
-
-
-
-    background:
-
-    rgba(255,255,255,.92);
-
-
-
-    outline:none;
-
-
-    font-size:16px;
-
-
+.windows-login input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.92);
+  color: #1a1a2e;
+  outline: none;
+  font-size: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-
-
-.windows-login input:focus{
-
-
-    border-color:#0078d4;
-
-
-    box-shadow:
-
-
-    0 0 0 3px
-
-    rgba(0,120,212,.25);
-
-
+.windows-login input::placeholder {
+  color: #7a8095;
 }
 
-
-
-
-
-
-
-
+.windows-login input:focus {
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.28);
+}
 
 /*
 =================================
@@ -545,69 +224,33 @@ to{
 =================================
 */
 
-
-.windows-login form > button{
-
-
-    width:100%;
-
-
-    height:48px;
-
-
-    margin-top:15px;
-
-
-
-    border:none;
-
-
-    border-radius:10px;
-
-
-
-    background:#0078d4;
-
-
-
-    color:white;
-
-
-    font-size:17px;
-
-
-    cursor:pointer;
-
-
-    transition:.25s;
-
-
+.windows-login form > button {
+  width: 100%;
+  height: 48px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(79, 70, 229, 0.38);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
 }
 
-
-
-
-
-.windows-login form > button:hover{
-
-
-    background:#106ebe;
-
-
-    transform:
-
-    translateY(-2px);
-
-
+.windows-login form > button:hover {
+  filter: brightness(1.06);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(79, 70, 229, 0.48);
 }
 
-
-
-
-
-
-
-
+.windows-login form > button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
 /*
 =================================
@@ -615,143 +258,49 @@ GitHub OAuth
 =================================
 */
 
-
-.github-login-button{
-
-
-    width:100%;
-
-
-    height:50px;
-
-
-
-    display:flex;
-
-
-    align-items:center;
-
-
-    justify-content:center;
-
-
-
-    gap:12px;
-
-
-
-    background:#24292f !important;
-
-
-
-    color:white;
-
-
-
-    border-radius:10px;
-
-
-
-    font-size:16px;
-
-
-
+.github-login-button {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #24292f !important;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: background 0.22s ease, transform 0.22s ease;
 }
 
-
-
-.github-login-button:hover{
-
-
-    background:#000 !important;
-
-
+.github-login-button:hover {
+  background: #000 !important;
+  transform: translateY(-2px);
 }
 
-
-
-
-.github-icon{
-
-
-    width:23px;
-
-
-    height:23px;
-
-
+.github-icon {
+  width: 23px;
+  height: 23px;
 }
 
-
-
-
-
-
-
-
-.oauth-divider{
-
-
-    display:flex;
-
-
-    align-items:center;
-
-
-    gap:15px;
-
-
-    margin:
-
-    25px 0;
-
-
-    opacity:.8;
-
-
+.oauth-divider {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 25px 0;
+  opacity: 0.75;
 }
-
-
 
 .oauth-divider::before,
-
-
-.oauth-divider::after{
-
-
-    content:"";
-
-
-    flex:1;
-
-
-    height:1px;
-
-
-    background:
-
-    rgba(255,255,255,.5);
-
-
+.oauth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.45);
 }
 
-
-
-.oauth-divider span{
-
-
-    font-size:14px;
-
-
+.oauth-divider span {
+  font-size: 14px;
 }
-
-
-
-
-
-
-
-
 
 /*
 =================================
@@ -759,40 +308,17 @@ GitHub OAuth
 =================================
 */
 
-
-.switch{
-
-
-    margin-top:20px;
-
-
-    cursor:pointer;
-
-
-    opacity:.85;
-
-
+.switch {
+  margin-top: 20px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
 }
 
-
-
-.switch:hover{
-
-
-    opacity:1;
-
-
-    text-decoration:underline;
-
-
+.switch:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
-
-
-
-
-
-
-
 
 /*
 =================================
@@ -800,64 +326,24 @@ GitHub OAuth
 =================================
 */
 
-
 .error-message,
-
-
-.success-message{
-
-
-    padding:12px;
-
-
-    border-radius:10px;
-
-
-    margin-bottom:15px;
-
-
-    background:
-
-    rgba(255,255,255,.9);
-
-
-
-    color:#222;
-
-
+.success-message {
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #222;
+  font-size: 14px;
+  text-align: left;
 }
 
-
-
-.error-message{
-
-
-    border-left:
-
-    4px solid #d13438;
-
-
+.error-message {
+  border-left: 4px solid #d13438;
 }
 
-
-
-.success-message{
-
-
-    border-left:
-
-    4px solid #107c10;
-
-
+.success-message {
+  border-left: 4px solid #107c10;
 }
-
-
-
-
-
-
-
-
 
 /*
 =================================
@@ -865,56 +351,108 @@ GitHub OAuth
 =================================
 */
 
-
-.windows-fade-out{
-
-
-    animation:
-
-    shutdown .9s forwards;
-
-
+.windows-fade-out {
+  animation: shutdown 0.9s forwards;
 }
 
-
-
-@keyframes shutdown{
-
-
-0%{
-
-opacity:1;
-
+@keyframes shutdown {
+  0% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0;
+    background: black;
+  }
 }
 
+/*
+=================================
+OAuth 回调页
+=================================
+*/
 
-
-70%{
-
-opacity:.2;
-
+.oauth-callback-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #e6eef8;
+  font-size: 16px;
 }
 
-
-
-100%{
-
-opacity:0;
-
-background:black;
-
+.oauth-callback-page .error-message {
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.96);
 }
 
-
+.oauth-processing {
+  opacity: 0.9;
+  letter-spacing: 0.3px;
 }
 
+/*
+=================================
+404 页面
+=================================
+*/
 
+.not-found {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #e6eef8;
+}
 
+.not-found-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 44px 36px;
+  text-align: center;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+}
 
+.not-found-card h1 {
+  margin: 0 0 12px;
+  font-size: 30px;
+  font-weight: 600;
+}
 
+.not-found-card p {
+  margin: 0 0 26px;
+  opacity: 0.8;
+  font-size: 16px;
+  line-height: 1.6;
+}
 
+.not-found-card a {
+  display: inline-block;
+  padding: 12px 26px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #4338ca);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  box-shadow: 0 10px 26px rgba(79, 70, 229, 0.38);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
 
-
+.not-found-card a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(79, 70, 229, 0.5);
+}
 
 /*
 =================================
@@ -922,81 +460,34 @@ background:black;
 =================================
 */
 
+@media (max-width: 700px) {
+  .login-container {
+    width: 90%;
+    flex-direction: column;
+  }
 
-@media(max-width:700px){
+  .login-logo-area {
+    width: 100%;
+    padding: 40px 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
 
+  .windows-login {
+    width: 100%;
+    padding: 35px;
+  }
 
+  .login-logo {
+    width: 120px;
+    height: 120px;
+  }
 
-.login-container{
+  .lock-clock div {
+    font-size: 60px;
+  }
 
-
-    width:90%;
-
-
-    flex-direction:column;
-
-
-}
-
-
-
-.login-logo-area{
-
-
-    width:100%;
-
-
-    padding:40px 0;
-
-
-}
-
-
-
-.windows-login{
-
-
-    width:100%;
-
-
-    padding:35px;
-
-
-}
-
-
-
-.login-logo{
-
-
-    width:120px;
-
-
-    height:120px;
-
-
-}
-
-
-
-.lock-clock div{
-
-
-    font-size:60px;
-
-
-}
-
-
-
-.lock-clock span{
-
-
-    font-size:18px;
-
-
-}
-
-
-
+  .lock-clock span {
+    font-size: 18px;
+  }
 }

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import './AuthPages.css';
 import { API_BASE } from '../services/authService';
+import { useLanguage } from '../context/languageContext';
 
 export default function OAuthCallback({ onLoginSuccess }) {
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const code = searchParams.get('code');
@@ -14,12 +17,12 @@ export default function OAuthCallback({ onLoginSuccess }) {
     const savedState = sessionStorage.getItem('github_oauth_state');
 
     if (!code) {
-      setError('OAuth 回调缺少 code。');
+      setError(t('oauth.missingCode'));
       return;
     }
 
     if (savedState && state && savedState !== state) {
-      setError('OAuth state 校验失败，请重试。');
+      setError(t('oauth.stateFail'));
       return;
     }
 
@@ -46,21 +49,23 @@ export default function OAuthCallback({ onLoginSuccess }) {
           sessionStorage.removeItem('github_oauth_state');
           navigate('/', { replace: true });
         } else {
-          setError('后端未返回有效登录凭据。');
+          setError(t('oauth.noCredential'));
         }
       } catch (err) {
         console.error('GitHub OAuth callback error:', err);
         const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message;
-        setError(serverMessage ? `GitHub 登录失败：${serverMessage}` : 'GitHub OAuth 登录失败。');
+        setError(serverMessage ? `${t('oauth.failed')}${serverMessage}` : t('oauth.failedGeneric'));
       }
     };
 
     exchangeCode();
+    // 该副作用仅需执行一次（交换授权码），不随语言切换重跑
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, onLoginSuccess, navigate]);
 
   return (
     <div className="oauth-callback-page">
-      {error ? <div className="error-message">{error}</div> : <div>正在处理 GitHub 登录...</div>}
+      {error ? <div className="error-message">{error}</div> : <div className="oauth-processing">{t('oauth.processing')}</div>}
     </div>
   );
 }

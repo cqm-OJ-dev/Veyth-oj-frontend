@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './Contests.css';
+import { useLanguage } from '../context/languageContext';
+import Icon from '../components/Icon';
 
 const Contests = () => {
+  const { t } = useLanguage();
   const [contests, setContests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchContests = async () => {
@@ -46,7 +49,7 @@ const Contests = () => {
 
         setContests(contestsWithStatus);
       } catch (err) {
-        setError('Failed to load contest list');
+        setError(true);
       } finally {
         setIsLoading(false);
       }
@@ -70,37 +73,30 @@ const Contests = () => {
     return 'ongoing';
   };
 
-  const getStatusText = (status) => {
-    const statusMap = {
-      upcoming: 'Upcoming',
-      ongoing: 'Ongoing',
-      ended: 'Ended'
-    };
-
-    return statusMap[status] || status;
-  };
-
   return (
     <div className="window-page-shell">
       <div className="window-page-header">
         <div>
-          <p className="window-page-kicker">Upcoming events</p>
-          <h2>Contests</h2>
+          <p className="window-page-kicker">
+            <Icon name="contests" size={14} style={{ verticalAlign: '-2px', marginRight: 6 }} />
+            {t('contests.kicker')}
+          </p>
+          <h2>{t('contests.title')}</h2>
         </div>
-        <div className="window-page-pill">{contests.length} items</div>
+        <div className="window-page-pill">{t('common.items', { count: contests.length })}</div>
       </div>
 
       {isLoading ? (
-        <div className="window-page-state">Loading contests…</div>
+        <div className="window-page-state">{t('contests.loading')}</div>
       ) : error ? (
-        <div className="window-page-state error">{error}</div>
+        <div className="window-page-state error">{t('common.error')}</div>
       ) : (
         <div className="contest-cards-container">
           {contests.map((contest) => (
             <div key={contest.id} className={`contest-card ${contest.status}`}>
               <div className="contest-card-header">
                 <h3 className="contest-title">{contest.title}</h3>
-                <span className={`contest-status ${contest.status}`}>{getStatusText(contest.status)}</span>
+                <span className={`contest-status ${contest.status}`}>{t('contests.' + contest.status)}</span>
               </div>
 
               <div className="contest-card-body">
@@ -108,19 +104,19 @@ const Contests = () => {
 
                 <div className="contest-meta">
                   <div className="meta-item">
-                    <span className="meta-label">Organizer</span>
+                    <span className="meta-label">{t('contests.organizer')}</span>
                     <span className="meta-value">{contest.organizer}</span>
                   </div>
                   <div className="meta-item">
-                    <span className="meta-label">Starts</span>
+                    <span className="meta-label">{t('contests.starts')}</span>
                     <span className="meta-value">{formatDate(contest.startTime)}</span>
                   </div>
                   <div className="meta-item">
-                    <span className="meta-label">Ends</span>
+                    <span className="meta-label">{t('contests.ends')}</span>
                     <span className="meta-value">{formatDate(contest.endTime)}</span>
                   </div>
                   <div className="meta-item">
-                    <span className="meta-label">Participants</span>
+                    <span className="meta-label">{t('contests.participants')}</span>
                     <span className="meta-value">{contest.participants}</span>
                   </div>
                 </div>

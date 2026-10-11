@@ -33,13 +33,20 @@
     position: absolute;
     top: 35px;
     left: 35px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    /* 预留任务栏空间，图标按列自适应排布，矮视口下自动换列，避免被任务栏裁切 */
+    bottom: 92px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(auto-fill, 106px);
+    grid-auto-columns: 90px;
+    gap: 6px 16px;
+    align-content: start;
+    overflow: hidden;
 }
  
 .desktop-icon {
     width: 90px;
+    box-sizing: border-box;
     padding: 10px 8px;
     border-radius: 14px;
     text-align: center;
@@ -70,33 +77,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .28);
+    transition: transform .2s ease, background .2s ease;
 }
- 
-.icon-problems::after {
-    content: "📘";
-    font-size: 32px;
+
+.desktop-icon:hover .icon-visual {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, .32);
 }
- 
-.icon-contests::after {
-    content: "🏆";
-    font-size: 32px;
-}
- 
-.icon-submissions::after {
-    content: "📋";
-    font-size: 32px;
-}
- 
-.icon-ide::after {
-    content: "</>";
-    font-size: 25px;
-    font-weight: 700;
-}
- 
-.icon-admin::after {
-    content: "🛠️";
-    font-size: 32px;
-}
+
+.icon-problems { color: #93c5fd; }
+.icon-contests { color: #fcd34d; }
+.icon-submissions { color: #6ee7b7; }
+.icon-ide { color: #c4b5fd; }
+.icon-admin { color: #fca5a5; }
  
 /* =========================
    任务栏
@@ -132,7 +127,32 @@
 }
  
 .start-icon {
-    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+}
+
+/* Win11 风格四宫格 */
+.start-glyph {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2.5px;
+    width: 18px;
+    height: 18px;
+}
+
+.start-glyph span {
+    background: #fff;
+    border-radius: 2px;
+    opacity: 0.95;
+}
+
+.start-label {
+    font-size: 14px;
+    font-weight: 600;
 }
  
 .taskbar-windows {
@@ -528,22 +548,71 @@
 }
  
 .start-menu-item {
-    height: 90px;
+    height: 92px;
     border: none;
     border-radius: 15px;
     background: rgba(255, 255, 255, .35);
     cursor: pointer;
-    transition: .2s;
+    transition: background .2s ease, transform .2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #1f2937;
+    font-size: 12.5px;
+    font-weight: 600;
 }
  
 .start-menu-item:hover {
     background: rgba(255, 255, 255, .7);
+    transform: translateY(-1px);
 }
  
 .start-menu-icon {
-    margin: auto;
     width: 40px;
     height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: rgba(79, 70, 229, .1);
+    color: #4f46e5;
+}
+
+.start-menu-icon.icon-contests { color: #b45309; background: rgba(245, 158, 11, .14); }
+.start-menu-icon.icon-submissions { color: #047857; background: rgba(16, 185, 129, .14); }
+.start-menu-icon.icon-ide { color: #6d28d9; background: rgba(139, 92, 246, .14); }
+.start-menu-icon.icon-admin { color: #b91c1c; background: rgba(239, 68, 68, .12); }
+
+.start-menu-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(15, 23, 42, .1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.start-signout {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background: transparent;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease;
+}
+
+.start-signout:hover {
+    background: rgba(229, 72, 77, .12);
+    color: #b91c1c;
 }
  
 @keyframes start-in {
