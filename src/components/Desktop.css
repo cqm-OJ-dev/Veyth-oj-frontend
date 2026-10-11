@@ -71,20 +71,44 @@
     height: 56px;
     margin: auto;
     border-radius: 16px;
-    background: rgba(255, 255, 255, .22);
-    backdrop-filter: blur(18px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, .35);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     border: 1px solid rgba(255, 255, 255, .28);
-    transition: transform .2s ease, background .2s ease;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .4);
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
 .desktop-icon:hover .icon-visual {
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.06);
     background: rgba(255, 255, 255, .32);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .5);
+}
+
+.desktop-icon:active .icon-visual {
+    transform: translateY(-1px) scale(1.02);
+}
+
+/* 图标配色（桌面 + 开始菜单共用） */
+.icon-blue {
+    background: linear-gradient(135deg, #4facfe, #2563eb);
+}
+
+.icon-amber {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.icon-green {
+    background: linear-gradient(135deg, #34d399, #059669);
+}
+
+.icon-purple {
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+}
+
+.icon-teal {
+    background: linear-gradient(135deg, #2dd4bf, #0d9488);
 }
 
 .icon-problems { color: #93c5fd; }
@@ -132,22 +156,7 @@
     justify-content: center;
     width: 22px;
     height: 22px;
-}
-
-/* Win11 风格四宫格 */
-.start-glyph {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 2.5px;
-    width: 18px;
-    height: 18px;
-}
-
-.start-glyph span {
-    background: #fff;
-    border-radius: 2px;
-    opacity: 0.95;
+    flex-shrink: 0;
 }
 
 .start-label {
@@ -340,8 +349,8 @@
 }
  
 .dropdown-icon {
-    width: 20px;
-    text-align: center;
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.75);
 }
  
 /* ========= Profile Page ========= */
@@ -487,6 +496,10 @@
 }
  
 .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
@@ -495,6 +508,45 @@
 .btn-danger {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #fff;
+}
+
+.btn-primary,
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary:hover,
+.btn-ghost:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-primary:disabled,
+.btn-ghost:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
  
 /* =========================
@@ -569,21 +621,22 @@
     transform: translateY(-1px);
 }
  
+.start-menu-search-icon {
+    flex-shrink: 0;
+    color: #6b7280;
+}
+
 .start-menu-icon {
+    margin: 0 auto 8px;
     width: 40px;
     height: 40px;
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 11px;
-    background: rgba(79, 70, 229, .1);
-    color: #4f46e5;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
 }
-
-.start-menu-icon.icon-contests { color: #b45309; background: rgba(245, 158, 11, .14); }
-.start-menu-icon.icon-submissions { color: #047857; background: rgba(16, 185, 129, .14); }
-.start-menu-icon.icon-ide { color: #6d28d9; background: rgba(139, 92, 246, .14); }
-.start-menu-icon.icon-admin { color: #b91c1c; background: rgba(239, 68, 68, .12); }
 
 .start-menu-footer {
     margin-top: 20px;

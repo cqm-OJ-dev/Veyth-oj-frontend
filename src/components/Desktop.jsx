@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { BookOpen, Trophy, ListChecks, Code2, ShieldCheck, Search, LayoutGrid, Power } from 'lucide-react';
 import Window from './Window';
 import './Desktop.css';
 import Problems from '../pages/Problems';
@@ -9,17 +10,19 @@ import Admin from '../pages/Admin';
 import ProblemDetail from '../pages/ProblemDetail';
 import SubmissionDetail from '../pages/SubmissionDetail';
 import UserAvatar from '../UserAvatar';
-import Icon from './Icon';
 import LanguageToggle from './LanguageToggle';
 import { useLanguage } from '../context/languageContext';
 import wallpaper from "../assets/wallpaper.jpg";
 
 const APP_LIST = [
-  { key: 'problems', i18n: 'apps.problems', icon: 'problems', component: Problems },
-  { key: 'contests', i18n: 'apps.contests', icon: 'contests', component: Contests },
-  { key: 'submissions', i18n: 'apps.submissions', icon: 'submissions', component: Submissions },
-  { key: 'ide', i18n: 'apps.ide', icon: 'ide', component: OnlineIDE },
+  { key: 'problems', i18n: 'apps.problems', icon: BookOpen, color: 'icon-blue', component: Problems },
+  { key: 'contests', i18n: 'apps.contests', icon: Trophy, color: 'icon-amber', component: Contests },
+  { key: 'submissions', i18n: 'apps.submissions', icon: ListChecks, color: 'icon-green', component: Submissions },
+  { key: 'ide', i18n: 'apps.ide', icon: Code2, color: 'icon-purple', component: OnlineIDE },
 ];
+
+const ADMIN_APP = { key: 'admin', i18n: 'apps.admin', icon: ShieldCheck, color: 'icon-teal' };
+const AdminIcon = ADMIN_APP.icon;
 
 const DEFAULT_POS = Object.freeze({ x: 120, y: 80 });
 const DEFAULT_SIZE = Object.freeze({ w: 900, h: 560 });
@@ -66,6 +69,8 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
     }]);
     setZBase(z => z + 1);
     return id;
+    // DEFAULT_POS / DEFAULT_SIZE 为模块顶层 Object.freeze 常量，无需也不可放入依赖
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zBase]);
 
   const openApp = (appKey) => {
@@ -179,16 +184,23 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
       />
 
       <div className="desktop-icons">
-        {APP_LIST.map(app => (
-          <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
-            <div className={`icon-visual icon-${app.key}`}><Icon name={app.icon} size={30} /></div>
-            <div className="icon-label">{t(app.i18n)}</div>
-          </div>
-        ))}
+        {APP_LIST.map(app => {
+          const AppIcon = app.icon;
+          return (
+            <div key={app.key} className="desktop-icon" onDoubleClick={() => openApp(app.key)}>
+              <div className={`icon-visual ${app.color}`}>
+                <AppIcon size={30} strokeWidth={2} />
+              </div>
+              <div className="icon-label">{t(app.i18n)}</div>
+            </div>
+          );
+        })}
         {currentUser?.is_staff && (
           <div className="desktop-icon" onDoubleClick={() => openApp('admin')}>
-            <div className="icon-visual icon-admin"><Icon name="admin" size={30} /></div>
-            <div className="icon-label">{t('apps.admin')}</div>
+            <div className={`icon-visual ${ADMIN_APP.color}`}>
+              <AdminIcon size={30} strokeWidth={2} />
+            </div>
+            <div className="icon-label">{t(ADMIN_APP.i18n)}</div>
           </div>
         )}
       </div>
@@ -197,11 +209,7 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
 
       <div className="taskbar">
         <div className="start" onClick={() => setIsStartOpen(open => !open)}>
-          <span className="start-icon">
-            <span className="start-glyph">
-              <span /><span /><span /><span />
-            </span>
-          </span>
+          <LayoutGrid className="start-icon" size={22} />
           <span className="start-label">{t('desktop.start')}</span>
         </div>
         <div className="taskbar-windows">
@@ -218,22 +226,29 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
       {isStartOpen && (
         <div className="start-menu" ref={startMenuRef}>
           <div className="start-menu-search">
-            <Icon name="search" size={17} className="start-menu-search-icon" />
+            <Search className="start-menu-search-icon" size={18} />
             <input type="text" placeholder={t('desktop.search')} disabled />
           </div>
           <div className="start-menu-section">
             <div className="start-menu-section-title">{t('desktop.pinned')}</div>
             <div className="start-menu-grid">
-              {APP_LIST.map(app => (
-                <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
-                  <div className={`start-menu-icon icon-${app.key}`}><Icon name={app.icon} size={26} /></div>
-                  <span>{t(app.i18n)}</span>
-                </button>
-              ))}
+              {APP_LIST.map(app => {
+                const AppIcon = app.icon;
+                return (
+                  <button key={app.key} className="start-menu-item" onClick={() => { openApp(app.key); setIsStartOpen(false); }}>
+                    <div className={`start-menu-icon ${app.color}`}>
+                      <AppIcon size={22} strokeWidth={2} />
+                    </div>
+                    <span>{t(app.i18n)}</span>
+                  </button>
+                );
+              })}
               {currentUser?.is_staff && (
                 <button className="start-menu-item" onClick={() => { openApp('admin'); setIsStartOpen(false); }}>
-                  <div className="start-menu-icon icon-admin"><Icon name="admin" size={26} /></div>
-                  <span>{t('apps.admin')}</span>
+                  <div className={`start-menu-icon ${ADMIN_APP.color}`}>
+                    <AdminIcon size={22} strokeWidth={2} />
+                  </div>
+                  <span>{t(ADMIN_APP.i18n)}</span>
                 </button>
               )}
             </div>
@@ -241,7 +256,7 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
           <div className="start-menu-footer">
             <LanguageToggle variant="light" />
             <button className="start-signout" onClick={() => { onLogout?.(); setIsStartOpen(false); }}>
-              <Icon name="logout" size={16} />
+              <Power size={16} />
               <span>{t('desktop.signOut')}</span>
             </button>
           </div>

@@ -55,9 +55,11 @@ export async function getProblem(id) {
     return await request(`/problems/problems/${id}/`);
   } catch (err) {
     if (err.status === 404) {
-      // 回退：从列表中查找
+      // 回退：从列表中查找；解析顺序与 Problems.jsx L14 完全一致
       const data = await listProblems();
-      const list = Array.isArray(data) ? data : (data?.results || []);
+      const list = Array.isArray(data?.problems) ? data.problems
+        : Array.isArray(data?.results) ? data.results
+        : Array.isArray(data) ? data : [];
       const found = list.find((p) => String(p.id) === String(id));
       if (found) return found;
     }

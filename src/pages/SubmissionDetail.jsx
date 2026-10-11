@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './ProblemDetail.css';
 import { getSubmission, pollSubmission } from '../services/judgeService';
 import { useLanguage } from '../context/languageContext';
 
@@ -39,7 +40,8 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
   }, [submissionId]);
 
   const data = sub || {};
-  const results = data.results || [];
+  const results = data.case_results || data.results || [];
+
   const statusColor = STATUS_COLORS[data.status] || '#333';
   const statusText = (s) => (s && STATUS_COLORS[s] ? t(`status.${s}`) : (s || '-'));
 
@@ -69,9 +71,9 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
           <div className="sd-body">
             <div className="sd-grid">
               <InfoCell label={t('submissionDetail.status')} value={statusText(data.status)} color={statusColor} bold />
-              <InfoCell label={t('submissionDetail.passed')} value={`${data.passed ?? '?'} / ${data.total ?? '?'}`} />
-              <InfoCell label={t('submissionDetail.runtime')} value={typeof data.time_ms === 'number' ? `${data.time_ms}ms` : '-'} />
-              <InfoCell label={t('submissionDetail.memory')} value={typeof data.memory_mb === 'number' ? `${data.memory_mb}MB` : '-'} />
+              <InfoCell label={t('submissionDetail.passed')} value={`${data.passed ?? data.passed_cases ?? '?'} / ${data.total ?? data.total_cases ?? '?'}`} />
+              <InfoCell label={t('submissionDetail.runtime')} value={typeof (data.time_ms ?? data.max_time_ms) === 'number' ? `${data.time_ms ?? data.max_time_ms}ms` : '-'} />
+              <InfoCell label={t('submissionDetail.memory')} value={typeof (data.memory_mb ?? data.max_memory_mb) === 'number' ? `${data.memory_mb ?? data.max_memory_mb}MB` : '-'} />
               <InfoCell label={t('submissionDetail.language')} value={data.language || '-'} />
               <InfoCell label={t('submissionDetail.at')} value={data.created_at ? new Date(data.created_at).toLocaleString() : '-'} />
             </div>

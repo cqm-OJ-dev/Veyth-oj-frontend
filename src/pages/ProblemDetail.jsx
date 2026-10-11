@@ -45,19 +45,21 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
   const [submitErr, setSubmitErr] = useState('');
   const editorRef = useRef(null);
 
+  const effId = typeof problemId === 'function' ? undefined : problemId;
+
   useEffect(() => { setCode(defaultCode(language)); }, [language]);
 
   useEffect(() => {
     let canceled = false;
     setLoading(true); setError(''); setProblem(null); setResult(null); setSubmitErr('');
-    if (!problemId) { setLoading(false); return; }
-    getProblem(problemId).then((p) => {
+    if (!effId) { setLoading(false); return; }
+    getProblem(effId).then((p) => {
       if (!canceled) { setProblem(p?.problem || p); }
     }).catch((e) => {
       if (!canceled) setError(e.message || 'failed to load');
     }).finally(() => { if (!canceled) setLoading(false); });
     return () => { canceled = true; };
-  }, [problemId]);
+  }, [effId]);
 
   const samples = useMemo(() => {
     const list = [];
@@ -91,9 +93,11 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
   };
 
   const overall = result?.submission || result || null;
-  const caseResults = result?.results || overall?.results || [];
-  const passed = overall?.passed;
-  const total = overall?.total;
+  // 后端 Serializer 返回字段是 case_results，兼容旧字段名 results
+  const caseResults = result?.case_results || result?.results
+    || overall?.case_results || overall?.results || [];
+  const passed = overall?.passed ?? overall?.passed_cases;
+  const total = overall?.total ?? overall?.total_cases;
   const statusText = (s) => (s && STATUS_COLORS[s] ? t(`status.${s}`) : (s || '-'));
 
   return (
@@ -183,7 +187,7 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
           <Editor
             height="100%"
             defaultLanguage="python"
-            language={language}
+            language={language === 'python' ? 'python' : language === 'cpp' ? 'cpp' : language === 'c' ? 'c' : language === 'java' ? 'java' : language === 'typescript' ? 'typescript' : language === 'javascript' ? 'javascript' : language === 'go' ? 'go' : language === 'rust' ? 'rust' : language === 'kotlin' ? 'kotlin' : language === 'csharp' ? 'csharp' : 'plaintext'}
             theme="vs-dark"
             value={code}
             onChange={(v) => setCode(v ?? '')}
@@ -203,8 +207,10 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
                   {statusText(overall.status)}
                 </span>
                 <span className="pd-meta">{passed ?? '?'}/{total ?? '?'}</span>
-                {typeof overall.time_ms === 'number' && <span className="pd-meta">{overall.time_ms}ms</span>}
-                {typeof overall.memory_mb === 'number' && <span className="pd-meta">{overall.memory_mb}MB</span>}
+                {typeof (overall?.time_ms ?? overall?.max_time_ms) === 'number' &&
+                  <span className="pd-meta">{overall?.time_ms ?? overall?.max_time_ms}ms</span>}
+                {typeof (overall?.memory_mb ?? overall?.max_memory_mb) === 'number' &&
+                  <span className="pd-meta">{overall?.memory_mb ?? overall?.max_memory_mb}MB</span>}
                 {overall.id && (
                   <button className="pd-link-btn" onClick={() => onOpenSubmission?.(overall.id)}>
                     {t('problemDetail.viewSubmission', { id: overall.id })}

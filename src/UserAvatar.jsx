@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './context/languageContext';
+import { User, Settings, LogOut } from 'lucide-react';
 
 const UserAvatar = ({ user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -91,7 +92,7 @@ const UserAvatar = ({ user, onLogout }) => {
               navigate('/profile');
             }}
           >
-            <span className="dropdown-icon">👤</span>
+            <User className="dropdown-icon" size={18} />
             <span>{t('avatar.profile')}</span>
           </button>
           <button
@@ -102,7 +103,7 @@ const UserAvatar = ({ user, onLogout }) => {
               navigate('/settings');
             }}
           >
-            <span className="dropdown-icon">⚙️</span>
+            <Settings className="dropdown-icon" size={18} />
             <span>{t('avatar.settings')}</span>
           </button>
           <div className="dropdown-divider" />
@@ -114,7 +115,7 @@ const UserAvatar = ({ user, onLogout }) => {
               handleLogout();
             }}
           >
-            <span className="dropdown-icon">🚪</span>
+            <LogOut className="dropdown-icon" size={18} />
             <span>{t('avatar.logout')}</span>
           </button>
         </div>
