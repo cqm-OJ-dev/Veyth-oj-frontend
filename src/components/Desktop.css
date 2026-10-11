@@ -64,42 +64,38 @@
     height: 56px;
     margin: auto;
     border-radius: 16px;
+    background: rgba(255, 255, 255, .22);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .35);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, .4);
-    transition: transform .2s ease, box-shadow .2s ease;
 }
-
-.desktop-icon:hover .icon-visual {
-    transform: translateY(-3px) scale(1.06);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, .5);
+ 
+.icon-problems::after {
+    content: "📘";
+    font-size: 32px;
 }
-
-.desktop-icon:active .icon-visual {
-    transform: translateY(-1px) scale(1.02);
+ 
+.icon-contests::after {
+    content: "🏆";
+    font-size: 32px;
 }
-
-/* 图标配色（桌面 + 开始菜单共用） */
-.icon-blue {
-    background: linear-gradient(135deg, #4facfe, #2563eb);
+ 
+.icon-submissions::after {
+    content: "📋";
+    font-size: 32px;
 }
-
-.icon-amber {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+ 
+.icon-ide::after {
+    content: "</>";
+    font-size: 25px;
+    font-weight: 700;
 }
-
-.icon-green {
-    background: linear-gradient(135deg, #34d399, #059669);
-}
-
-.icon-purple {
-    background: linear-gradient(135deg, #a78bfa, #7c3aed);
-}
-
-.icon-teal {
-    background: linear-gradient(135deg, #2dd4bf, #0d9488);
+ 
+.icon-admin::after {
+    content: "🛠️";
+    font-size: 32px;
 }
  
 /* =========================
@@ -136,7 +132,7 @@
 }
  
 .start-icon {
-    flex-shrink: 0;
+    font-size: 30px;
 }
  
 .taskbar-windows {
@@ -324,8 +320,8 @@
 }
  
 .dropdown-icon {
-    flex-shrink: 0;
-    color: rgba(255, 255, 255, 0.75);
+    width: 20px;
+    text-align: center;
 }
  
 /* ========= Profile Page ========= */
@@ -471,10 +467,6 @@
 }
  
 .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
@@ -483,45 +475,6 @@
 .btn-danger {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #fff;
-}
-
-.btn-primary,
-.btn-ghost {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.1s, opacity 0.15s;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
-}
-
-.btn-ghost {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.btn-primary:hover,
-.btn-ghost:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-}
-
-.btn-primary:disabled,
-.btn-ghost:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
 }
  
 /* =========================
@@ -587,58 +540,10 @@
     background: rgba(255, 255, 255, .7);
 }
  
-.start-menu-search-icon {
-    flex-shrink: 0;
-    color: #6b7280;
-}
-
 .start-menu-icon {
-    margin: 0 auto 8px;
+    margin: auto;
     width: 40px;
     height: 40px;
-    border-radius: 11px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
-}
-
-.start-menu-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    font-size: 13px;
-    color: #1f2937;
-}
-
-.start-menu-footer {
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(0, 0, 0, .08);
-    display: flex;
-    justify-content: flex-end;
-}
-
-.signout-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 18px;
-    border: none;
-    border-radius: 10px;
-    background: rgba(239, 68, 68, .1);
-    color: #dc2626;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .15s ease;
-}
-
-.signout-btn:hover {
-    background: rgba(239, 68, 68, .2);
 }
  
 @keyframes start-in {

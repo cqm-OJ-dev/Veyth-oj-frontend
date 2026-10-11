@@ -1,80 +1,58 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
-import {
-  IDE_DEFAULT_LANGUAGE,
-  IDE_DEFAULT_MEMORY_LIMIT_MB,
-  IDE_DEFAULT_TIME_LIMIT_MS,
-  IDE_RUN_API_URL,
-  LANGUAGES_API_URL
-} from '../services/authService';
+import { API_BASE } from '../services/authService';
 import './online_ide.css';
 
 const OnlineIDE = () => {
-  const [code, setCode] = useState('# Enter your code here\n');
-  const [language, setLanguage] = useState(IDE_DEFAULT_LANGUAGE);
-  const [languages, setLanguages] = useState([]);
-  const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
+  const [code, setCode] = useState('# Welcome to the online IDE\nprint("Hello, World!")');
+  const [language, setLanguage] = useState('python');
+  const WITH_CREDENTIALS = process.env.REACT_APP_WITH_CREDENTIALS === 'true';
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState('');
   const [stdin, setStdin] = useState('');
-  const [timeLimitMs, setTimeLimitMs] = useState(IDE_DEFAULT_TIME_LIMIT_MS);
-  const [memoryLimitMb, setMemoryLimitMb] = useState(IDE_DEFAULT_MEMORY_LIMIT_MB);
-  const [judgment, setJudgment] = useState(null);
+  const [returncode, setReturncode] = useState(null);
+  const [elapsedMs, setElapsedMs] = useState(null);
   const consoleRef = useRef(null);
-
-  useEffect(() => {
-    const fetchLanguages = async () => {
-      try {
-        const response = await axios.get(LANGUAGES_API_URL);
-        const supportedLanguages = Array.isArray(response.data?.languages)
-          ? response.data.languages
-          : [];
-
-        setLanguages(supportedLanguages);
-        if (supportedLanguages.length > 0) {
-          setLanguage((currentLanguage) => (
-            supportedLanguages.some(({ value }) => value === currentLanguage)
-              ? currentLanguage
-              : supportedLanguages[0].value
-          ));
-        }
-      } catch (err) {
-        setError('Failed to load supported languages');
-      } finally {
-        setIsLoadingLanguages(false);
-      }
-    };
-
-    fetchLanguages();
-  }, []);
 
   const runCode = async () => {
     setIsRunning(true);
     setOutput('');
     setError('');
-    setJudgment(null);
+    setReturncode(null);
+    setElapsedMs(null);
 
     try {
-      const response = await axios.post(IDE_RUN_API_URL, {
+      const response = await axios.post(`${API_BASE}/judge/`, {
         code,
         language,
-        input: stdin,
-        time_limit_ms: Number(timeLimitMs),
-        memory_limit_mb: Number(memoryLimitMb)
+        input: stdin
       }, {
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        withCredentials: WITH_CREDENTIALS
       });
 
       const data = response.data || {};
-  const compileError = data.compile_info?.stderr || data.compile_info?.message || '';
 
-      setJudgment(data);
-  setOutput(data.stdout || 'Execution finished with no output');
-  setError(data.stderr || compileError);
+      if (data.error) {
+        setError(data.error);
+        setOutput(data.stdout || '');
+      } else {
+        setOutput(data.stdout || 'Execution finished with no output');
+        setReturncode(typeof data.returncode !== 'undefined' ? data.returncode : null);
+        setElapsedMs(typeof data.elapsed_ms !== 'undefined' ? data.elapsed_ms : null);
+
+        if (typeof data.returncode !== 'undefined' && data.returncode !== 0) {
+          setError(data.stderr || `Exit code: ${data.returncode}`);
+        } else if (data.stderr) {
+          setError(data.stderr);
+        } else {
+          setError('');
+        }
+      }
     } catch (err) {
       if (err.response) {
         setError(`Server error: ${err.response.status} - ${err.response.data?.error || 'Unknown error'}`);
@@ -91,7 +69,8 @@ const OnlineIDE = () => {
   const clearConsole = () => {
     setOutput('');
     setError('');
-    setJudgment(null);
+    setReturncode(null);
+    setElapsedMs(null);
   };
 
   useEffect(() => {
@@ -126,14 +105,19 @@ const OnlineIDE = () => {
     <div className="ide-shell">
       <div className="ide-toolbar">
         <div className="ide-title">Online IDE</div>
-        <select value={language} onChange={handleLanguageChange} disabled={isLoadingLanguages}>
-          {isLoadingLanguages && <option value="">Loading languages...</option>}
-          {languages.map(({ value, label }) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
+        <select value={language} onChange={handleLanguageChange}>
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+          <option value="c">C</option>
+          <option value="cpp">C++</option>
+          <option value="go">Go</option>
+          <option value="javascript">JavaScript</option>
+          <option value="typescript">TypeScript</option>
+          <option value="kotlin">Kotlin</option>
+          <option value="rust">Rust</option>
         </select>
         <button className="primary" onClick={runCode} disabled={isRunning}>
-          {isRunning ? 'Judging...' : 'Run'}
+          {isRunning ? 'Running…' : 'Run'}
         </button>
         <button onClick={clearConsole}>Clear</button>
       </div>
@@ -162,33 +146,13 @@ const OnlineIDE = () => {
               onChange={(e) => setStdin(e.target.value)}
               placeholder="Input sent to the program through stdin"
             />
-            <div className="ide-limits">
-              <label>
-                Time limit (ms)
-                <input
-                  type="number"
-                  min="1"
-                  value={timeLimitMs}
-                  onChange={(e) => setTimeLimitMs(e.target.value)}
-                />
-              </label>
-              <label>
-                Memory limit (MB)
-                <input
-                  type="number"
-                  min="17"
-                  max="2047"
-                  value={memoryLimitMb}
-                  onChange={(e) => setMemoryLimitMb(e.target.value)}
-                />
-              </label>
-            </div>
           </div>
           <div ref={consoleRef} className="ide-console-content">
             <div>{output || 'Waiting for output…'}</div>
-            {judgment && (
+            {(returncode !== null || elapsedMs !== null) && (
               <div className="ide-console-meta">
-                Time: {judgment.time_ms ?? 0} ms · Exit code: {judgment.returncode ?? 'N/A'}
+                {returncode !== null ? `Exit code: ${returncode}` : null}
+                {elapsedMs !== null ? `${returncode !== null ? ' · ' : ''}Time: ${elapsedMs} ms` : null}
               </div>
             )}
             {error ? <div className="ide-error">{error}</div> : null}

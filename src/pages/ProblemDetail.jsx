@@ -17,16 +17,16 @@ const LANG_OPTIONS = [
 ];
 
 const STATUS_COLORS = {
-  Accepted: '#14804a',
-  'Wrong Answer': '#c07a00',
-  'Time Limit Exceeded': '#6941c6',
-  'Memory Limit Exceeded': '#6941c6',
-  'Runtime Error': '#a1241e',
-  'Compile Error': '#a1241e',
-  'Internal Error': '#a1241e',
-  Pending: '#1f6feb',
-  Running: '#1f6feb',
-  Queued: '#1f6feb',
+  Accepted: 'green',
+  'Wrong Answer': 'orange',
+  'Time Limit Exceeded': 'purple',
+  'Memory Limit Exceeded': 'purple',
+  'Runtime Error': 'red',
+  'Compile Error': 'red',
+  'Internal Error': 'red',
+  Pending: 'blue',
+  Running: 'blue',
+  Queued: 'blue',
 };
 
 const defaultCode = (lang) => LANG_OPTIONS.find(o => o.v === lang)?.tpl || '';
