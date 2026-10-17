@@ -129,12 +129,14 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
 
   const samples = useMemo(() => {
     const list = [];
-    const raw = (problem?.samples || problem?.test_cases || []);
+    // Support older "samples" / "test_cases" fields and also backend "examples"
+    const raw = (problem?.samples || problem?.test_cases || []).concat(problem?.examples || []);
     for (let i = 0; i < raw.length; i++) {
       list.push({
         i: i + 1,
-        in: raw[i].input ?? raw[i].in ?? '',
-        out: raw[i].expected_output ?? raw[i].output ?? raw[i].out ?? ''
+        in: raw[i].input ?? raw[i].input_data ?? raw[i].in ?? '',
+        out: raw[i].expected_output ?? raw[i].output ?? raw[i].output_data ?? raw[i].out ?? '',
+        explanation: raw[i].explanation ?? raw[i].note ?? ''
       });
     }
     return list;
@@ -148,6 +150,10 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
     rendered += '### Samples\n';
     samples.forEach((sample) => {
       rendered += `\n#### Sample ${sample.i}\n\n**Input**\n\n\`\`\`\n${sample.in}\n\`\`\`\n\n**Output**\n\n\`\`\`\n${sample.out}\n\`\`\`\n`;
+      if (sample.explanation) {
+        // include explanation if present
+        rendered += `\n**Explanation**\n\n${sample.explanation}\n`;
+      }
     });
     return rendered;
   }, [problem, samples]);
@@ -229,8 +235,14 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
                     <pre className="pd-pre">{s.in}</pre>
                     <div><strong>{t('problemDetail.sampleOutput', { n: s.i })}</strong></div>
                     <pre className="pd-pre">{s.out}</pre>
-                  </div>
-                ))}
+                      {s.explanation ? (
+                        <div className="pd-sample-explain">
+                          <div><strong>{t('problemDetail.sampleExplanation', { n: s.i })}</strong></div>
+                          <pre className="pd-pre small">{s.explanation}</pre>
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
               </section>
             )}
 
