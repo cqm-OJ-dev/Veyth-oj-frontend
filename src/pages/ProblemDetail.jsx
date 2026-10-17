@@ -84,7 +84,10 @@ function renderMarkdown(md) {
     .filter(Boolean);
 
   const htmlParts = parts.map((part) => {
-    if (/^<h\d>/.test(part) || /^<ul>/.test(part) || /^<ol>/.test(part) || /^<pre>/.test(part)) {
+    // If this part is an extracted code-block placeholder, keep it as-is so it won't be wrapped in <p>
+    if (/^@@CODE_BLOCK_\d+@@$/.test(part)) return part;
+    // Preserve already-rendered HTML blocks (headings, lists, pre with attrs, blockquote, etc.)
+    if (/^<h\d>/.test(part) || /^<ul>/.test(part) || /^<ol>/.test(part) || /^<pre/.test(part) || /^<blockquote>/.test(part)) {
       return part;
     }
     return `<p>${part.replace(/\n/g, '<br/>')}</p>`;
