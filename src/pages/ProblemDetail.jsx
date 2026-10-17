@@ -33,6 +33,70 @@ const STATUS_COLORS = {
 
 const defaultCode = (lang) => LANG_OPTIONS.find(o => o.v === lang)?.tpl || '';
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderMarkdown(md) {
+  if (!md) return { __html: '' };
+
+  let text = String(md).replace(/\r\n?/g, '\n');
+  const codeBlocks = [];
+
+  text = text.replace(/```([\s\S]*?)```/g, (match, code) => {
+    const index = codeBlocks.push(code) - 1;
+    return `@@CODE_BLOCK_${index}@@`;
+  });
+
+  text = escapeHtml(text);
+
+  text = text.replace(/^###### (.*)$/gm, '<h6>$1</h6>');
+  text = text.replace(/^##### (.*)$/gm, '<h5>$1</h5>');
+  text = text.replace(/^#### (.*)$/gm, '<h4>$1</h4>');
+  text = text.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+  text = text.replace(/^## (.*)$/gm, '<h2>$1</h2>');
+  text = text.replace(/^# (.*)$/gm, '<h1>$1</h1>');
+
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  text = text.replace(/(^|\n)(?:\s*[-\*] .+(?:\n|$))+/g, (match) => {
+    const items = match.trim().split(/\n/).map((line) => line.replace(/^[-\*] /, ''));
+    return '\n<ul>' + items.map((item) => `<li>${item}</li>`).join('') + '</ul>';
+  });
+
+  text = text.replace(/(^|\n)(?:\s*\d+\. .+(?:\n|$))+/g, (match) => {
+    const items = match.trim().split(/\n/).map((line) => line.replace(/^\d+\. /, ''));
+    return '\n<ol>' + items.map((item) => `<li>${item}</li>`).join('') + '</ol>';
+  });
+
+  const parts = text
+    .split(/\n{2,}/g)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  const htmlParts = parts.map((part) => {
+    if (/^<h\d>/.test(part) || /^<ul>/.test(part) || /^<ol>/.test(part) || /^<pre>/.test(part)) {
+      return part;
+    }
+    return `<p>${part.replace(/\n/g, '<br/>')}</p>`;
+  });
+
+  let html = htmlParts.join('\n');
+  html = html.replace(/@@CODE_BLOCK_(\d+)@@/g, (match, index) => {
+    const code = escapeHtml(codeBlocks[Number(index)] || '');
+    return `<pre class="md-code"><code>${code}</code></pre>`;
+  });
+
+  return { __html: html };
+}
+
 export default function ProblemDetail({ problemId, onOpenSubmission }) {
   const { t } = useLanguage();
   const [problem, setProblem] = useState(null);
@@ -74,6 +138,18 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
     return list;
   }, [problem]);
 
+  const descriptionMarkdown = useMemo(() => {
+    const base = (problem?.description || problem?.content || '').trim();
+    if (samples.length === 0) return base;
+
+    let rendered = base ? `${base}\n\n` : '';
+    rendered += '### Samples\n';
+    samples.forEach((sample) => {
+      rendered += `\n#### Sample ${sample.i}\n\n**Input**\n\n\`\`\`\n${sample.in}\n\`\`\`\n\n**Output**\n\n\`\`\`\n${sample.out}\n\`\`\`\n`;
+    });
+    return rendered;
+  }, [problem, samples]);
+
   const doSubmit = async () => {
     if (!problem) return;
     setJudging(true); setResult(null); setSubmitErr('');
@@ -93,7 +169,6 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
   };
 
   const overall = result?.submission || result || null;
-  // 后端 Serializer 返回字段是 case_results，兼容旧字段名 results
   const caseResults = result?.case_results || result?.results
     || overall?.case_results || overall?.results || [];
   const passed = overall?.passed ?? overall?.passed_cases;
@@ -127,7 +202,7 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
           <div className="pd-body">
             <section className="pd-section">
               <h4>{t('problemDetail.description')}</h4>
-              <pre className="pd-pre">{problem.description || problem.content || ''}</pre>
+              <div className="pd-markdown" dangerouslySetInnerHTML={renderMarkdown(descriptionMarkdown)} />
             </section>
 
             {problem.input_format && (
@@ -187,7 +262,7 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
           <Editor
             height="100%"
             defaultLanguage="python"
-            language={language === 'python' ? 'python' : language === 'cpp' ? 'cpp' : language === 'c' ? 'c' : language === 'java' ? 'java' : language === 'typescript' ? 'typescript' : language === 'javascript' ? 'javascript' : language === 'go' ? 'go' : language === 'rust' ? 'rust' : language === 'kotlin' ? 'kotlin' : language === 'csharp' ? 'csharp' : 'plaintext'}
+            language={language === 'python' ? 'python' : language === 'cpp' ? 'cpp' : language === 'c' ? 'c' : language === 'java' ? 'java' : language === 'typescript' ? 'typescript' : language === 'go' ? 'go' : language === 'javascript' ? 'javascript' : language === 'kotlin' ? 'kotlin' : language === 'rust' ? 'rust' : language === 'csharp' ? 'csharp' : 'python'}
             theme="vs-dark"
             value={code}
             onChange={(v) => setCode(v ?? '')}
