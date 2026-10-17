@@ -38,7 +38,7 @@ function escapeHtml(value) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/\"/g, '&quot;')
+    .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
 
@@ -66,11 +66,13 @@ function renderMarkdown(md) {
   text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
   text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
 
-  text = text.replace(/(^|\n)(?:\s*[-\*] .+(?:\n|$))+/g, (match) => {
-    const items = match.trim().split(/\n/).map((line) => line.replace(/^[-\*] /, ''));
+  // Unordered lists: support '-' or '*'
+  text = text.replace(/(^|\n)(?:\s*(?:-|\*) .+(?:\n|$))+/g, (match) => {
+    const items = match.trim().split(/\n/).map((line) => line.replace(/^(-|\*) /, ''));
     return '\n<ul>' + items.map((item) => `<li>${item}</li>`).join('') + '</ul>';
   });
 
+  // Ordered lists
   text = text.replace(/(^|\n)(?:\s*\d+\. .+(?:\n|$))+/g, (match) => {
     const items = match.trim().split(/\n/).map((line) => line.replace(/^\d+\. /, ''));
     return '\n<ol>' + items.map((item) => `<li>${item}</li>`).join('') + '</ol>';
