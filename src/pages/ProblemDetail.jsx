@@ -143,20 +143,9 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
   }, [problem]);
 
   const descriptionMarkdown = useMemo(() => {
-    const base = (problem?.description || problem?.content || '').trim();
-    if (samples.length === 0) return base;
-
-    let rendered = base ? `${base}\n\n` : '';
-    rendered += '### Samples\n';
-    samples.forEach((sample) => {
-      rendered += `\n#### Sample ${sample.i}\n\n**Input**\n\n\`\`\`\n${sample.in}\n\`\`\`\n\n**Output**\n\n\`\`\`\n${sample.out}\n\`\`\`\n`;
-      if (sample.explanation) {
-        // include explanation if present
-        rendered += `\n**Explanation**\n\n${sample.explanation}\n`;
-      }
-    });
-    return rendered;
-  }, [problem, samples]);
+    // Keep original description/content only. Samples are shown separately to avoid duplication.
+    return (problem?.description || problem?.content || '').trim();
+  }, [problem]);
 
   const doSubmit = async () => {
     if (!problem) return;
