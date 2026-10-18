@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { getProblem, submitCode, pollSubmission } from '../services/judgeService';
+import MarkdownIt from 'markdown-it';
 import Icon from '../components/Icon';
 import { useLanguage } from '../context/languageContext';
 import './ProblemDetail.css';
@@ -42,70 +43,14 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-function renderMarkdown(md) {
+function renderMarkdown(mdText) {
   try {
-    if (!md) return { __html: '' };
-
-    let text = String(md).replace(/\r\n?/g, '\n');
-    const codeBlocks = [];
-
-    text = text.replace(/```([\s\S]*?)```/g, (match, code) => {
-      const index = codeBlocks.push(code) - 1;
-      return `@@CODE_BLOCK_${index}@@`;
-    });
-
-    text = escapeHtml(text);
-
-    text = text.replace(/^###### (.*)$/gm, '<h6>$1</h6>');
-    text = text.replace(/^##### (.*)$/gm, '<h5>$1</h5>');
-    text = text.replace(/^#### (.*)$/gm, '<h4>$1</h4>');
-    text = text.replace(/^### (.*)$/gm, '<h3>$1</h3>');
-    text = text.replace(/^## (.*)$/gm, '<h2>$1</h2>');
-    text = text.replace(/^# (.*)$/gm, '<h1>$1</h1>');
-
-    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-    // Unordered lists: support '-' or '*'
-    text = text.replace(/(^|\n)(?:\s*(?:-|\*) .+(?:\n|$))+/g, (match) => {
-      const items = match.trim().split(/\n/).map((line) => line.replace(/^(-|\*) /, ''));
-      return '\n<ul>' + items.map((item) => `<li>${item}</li>`).join('') + '</ul>';
-    });
-
-    // Ordered lists
-    text = text.replace(/(^|\n)(?:\s*\d+\. .+(?:\n|$))+/g, (match) => {
-      const items = match.trim().split(/\n/).map((line) => line.replace(/^\d+\. /, ''));
-      return '\n<ol>' + items.map((item) => `<li>${item}</li>`).join('') + '</ol>';
-    });
-
-    const parts = text
-      .split(/\n{2,}/g)
-      .map((part) => part.trim())
-      .filter(Boolean);
-
-    const htmlParts = parts.map((part) => {
-      // If this part is an extracted code-block placeholder, keep it as-is so it won't be wrapped in <p>
-      if (/^@@CODE_BLOCK_\d+@@$/.test(part)) return part;
-      // Preserve already-rendered HTML blocks (headings, lists, pre with attrs, blockquote, etc.)
-      if (/^<h\d>/.test(part) || /^<ul>/.test(part) || /^<ol>/.test(part) || /^<pre/.test(part) || /^<blockquote>/.test(part)) {
-        return part;
-      }
-      return `<p>${part.replace(/\n/g, '<br/>')}</p>`;
-    });
-
-    let html = htmlParts.join('\n');
-    html = html.replace(/@@CODE_BLOCK_(\d+)@@/g, (match, index) => {
-      const code = escapeHtml(codeBlocks[Number(index)] || '');
-      return `<pre class="md-code"><code>${code}</code></pre>`;
-    });
-
-    return { __html: html };
+    const md = new MarkdownIt({ html: false, linkify: true });
+    return { __html: md.render(mdText || '') };
   } catch (e) {
-    // Avoid throwing inside render; log and show escaped raw content so users still see description
     // eslint-disable-next-line no-console
     console.error('renderMarkdown error:', e);
-    return { __html: escapeHtml(String(md || '')) };
+    return { __html: escapeHtml(String(mdText || '')) };
   }
 }
 
