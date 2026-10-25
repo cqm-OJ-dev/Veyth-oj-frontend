@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AuthPages.css";
@@ -9,10 +9,12 @@ import LanguageToggle from "../components/LanguageToggle";
 const Register = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const emailInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    verificationCode: "",
     password: "",
     confirmPassword: ""
   });
@@ -20,12 +22,44 @@ const Register = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+      ...(name === "email" ? { verificationCode: "" } : {})
+    }));
+
+    if (name === "email") {
+      setCodeSent(false);
+      setError("");
+      setSuccess("");
+    }
+  };
+
+  const sendVerificationCode = async () => {
+    setError("");
+    setSuccess("");
+
+    if (!emailInputRef.current?.reportValidity()) return;
+
+    setSendingCode(true);
+    try {
+      await axios.post(
+        `${API_BASE}/api/auth/email-verification/send/`,
+        { email: formData.email.trim() },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      setCodeSent(true);
+      setSuccess(t("register.codeSent"));
+    } catch (err) {
+      setError(err.response?.data?.error || t("register.sendCodeFailed"));
+    } finally {
+      setSendingCode(false);
+    }
   };
 
   const register = async (e) => {
@@ -38,6 +72,11 @@ const Register = () => {
       return;
     }
 
+    if (!formData.verificationCode.trim()) {
+      setError(t("register.verificationRequired"));
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -45,8 +84,9 @@ const Register = () => {
         `${API_BASE}/api/auth/register/`,
         {
           username: formData.username,
-          email: formData.email,
-          password: formData.password
+          email: formData.email.trim(),
+          password: formData.password,
+          verification_code: formData.verificationCode.trim()
         },
         {
           headers: {
@@ -108,12 +148,39 @@ const Register = () => {
             />
 
             <input
+              ref={emailInputRef}
               name="email"
               type="email"
+              required
+              disabled={sendingCode || loading}
               placeholder={t('register.email')}
               value={formData.email}
               onChange={handleChange}
             />
+
+            <div className="verification-code-row">
+              <input
+                name="verificationCode"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                pattern="[0-9]{6}"
+                placeholder={t("register.verificationCode")}
+                value={formData.verificationCode}
+                onChange={handleChange}
+                required
+              />
+              <button
+                className="send-verification-code"
+                type="button"
+                onClick={sendVerificationCode}
+                disabled={sendingCode || loading}
+              >
+                {sendingCode ? t("register.sendingCode") : t("register.sendCode")}
+              </button>
+            </div>
+            {codeSent && <p className="verification-code-hint">{t("register.codeExpiry")}</p>}
 
             <div className="password-wrapper">
               <input
@@ -135,7 +202,7 @@ const Register = () => {
               />
             </div>
 
-            <button disabled={loading}>
+            <button disabled={loading || sendingCode}>
               {loading ? t('register.submitting') : t('register.submit')}
             </button>
           </form>
