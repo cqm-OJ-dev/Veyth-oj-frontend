@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AuthPages.css";
 import { API_BASE } from "../services/authService";
+import { generateVerificationCode, sendVerificationEmail } from "../services/emailVerificationService";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -17,12 +18,62 @@ const Register = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationInput, setVerificationInput] = useState("");
+  const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    if (countdown <= 0) return undefined;
+    const timer = setTimeout(() => setCountdown((remaining) => remaining - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  useEffect(() => {
+    if (verificationCode && countdown === 0) {
+      setVerificationCode("");
+      setVerificationInput("");
+    }
+  }, [countdown, verificationCode]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData((current) => ({
+      ...current,
+      [name]: value
+    }));
+    if (name === "email") {
+      setVerificationCode("");
+      setVerificationInput("");
+      setCountdown(0);
+      setError("");
+      setSuccess("");
+    }
+  };
+
+  const sendCode = async () => {
+    setError("");
+    setSuccess("");
+
+    const email = formData.email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("请输入有效的邮箱地址");
+      return;
+    }
+
+    setSendingCode(true);
+    try {
+      const code = generateVerificationCode();
+      await sendVerificationEmail(email, code);
+      setVerificationCode(code);
+      setVerificationInput("");
+      setCountdown(60);
+      setSuccess("验证码已发送，请查收邮箱");
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || "验证码发送失败");
+    } finally {
+      setSendingCode(false);
+    }
   };
 
   const register = async (e) => {
@@ -32,6 +83,16 @@ const Register = () => {
 
     if (formData.password !== formData.confirmPassword) {
       setError("两次密码不一致");
+      return;
+    }
+
+    if (!verificationCode || countdown === 0) {
+      setError("请先获取有效的邮箱验证码");
+      return;
+    }
+
+    if (verificationInput.trim() !== verificationCode) {
+      setError("邮箱验证码不正确");
       return;
     }
 
@@ -100,12 +161,38 @@ const Register = () => {
               onChange={handleChange}
             />
 
+            <div className="verification-row">
+              <input
+                name="email"
+                type="email"
+                placeholder="邮箱"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={sendingCode}
+                required
+              />
+              <button
+                type="button"
+                onClick={sendCode}
+                disabled={sendingCode || countdown > 0}
+              >
+                {sendingCode
+                  ? "发送中..."
+                  : countdown > 0
+                    ? `${countdown}秒后重发`
+                    : "获取验证码"}
+              </button>
+            </div>
+
             <input
-              name="email"
-              type="email"
-              placeholder="邮箱"
-              value={formData.email}
-              onChange={handleChange}
+              name="verificationCode"
+              type="text"
+              placeholder="邮箱验证码"
+              value={verificationInput}
+              onChange={(e) => setVerificationInput(e.target.value)}
+              autoComplete="one-time-code"
+              inputMode="text"
+              maxLength={6}
             />
 
             <div className="password-wrapper">
@@ -128,7 +215,7 @@ const Register = () => {
               />
             </div>
 
-            <button disabled={loading}>
+            <button disabled={loading || sendingCode}>
               {loading ? "注册中..." : "注册"}
             </button>
           </form>
