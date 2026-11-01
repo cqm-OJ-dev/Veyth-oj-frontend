@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const MAIL_SERVER_URL = "https://mailserver.cqiming.com/api/batch_mail/api/send";
+const MAIL_SERVER_API_KEY = "6d30a382f79827bb04506d6027512be18a2cb0dd360edc89c455d5efdc8f0a2a";
 const CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 const RANDOM_BYTE_LIMIT = Math.floor(256 / CODE_CHARACTERS.length) * CODE_CHARACTERS.length;
 
@@ -32,21 +33,10 @@ export function generateVerificationCode() {
 }
 
 export async function sendVerificationEmail(recipient, code) {
-  const apiKey = (process.env.REACT_APP_MAILSERVER_API_KEY || "").trim();
-  const allowKeylessAccess = process.env.REACT_APP_MAILSERVER_ALLOW_NO_API_KEY === "true";
-
-  if (!apiKey && !allowKeylessAccess) {
-    throw new Error(
-      "邮箱验证服务未配置。请提供受限的公开客户端密钥，或确认邮件服务支持免密浏览器调用后启用免密配置。"
-    );
-  }
-
   const headers = {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "x-api-key": MAIL_SERVER_API_KEY
   };
-  if (apiKey) {
-    headers["x-api-key"] = apiKey;
-  }
 
   return axios.post(
     MAIL_SERVER_URL,

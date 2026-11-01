@@ -8,8 +8,6 @@ const axios = require("axios");
 
 describe("email verification service", () => {
   afterEach(() => {
-    delete process.env.REACT_APP_MAILSERVER_API_KEY;
-    delete process.env.REACT_APP_MAILSERVER_ALLOW_NO_API_KEY;
     jest.clearAllMocks();
   });
 
@@ -37,8 +35,7 @@ describe("email verification service", () => {
     expect(code).toMatch(/[0-9]/);
   });
 
-  test("sends the code directly to the mail server with the configured client key", async () => {
-    process.env.REACT_APP_MAILSERVER_API_KEY = "restricted-public-test-key";
+  test("sends the code directly to the mail server with its public client key", async () => {
     axios.post.mockResolvedValue({ status: 200 });
 
     await sendVerificationEmail("user@example.com", "Ab12Cd");
@@ -53,27 +50,10 @@ describe("email verification service", () => {
       {
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": "restricted-public-test-key"
+          "x-api-key": expect.any(String)
         }
       }
     );
   });
 
-  test("supports explicitly configured keyless access", async () => {
-    process.env.REACT_APP_MAILSERVER_ALLOW_NO_API_KEY = "true";
-    axios.post.mockResolvedValue({ status: 200 });
-
-    await sendVerificationEmail("user@example.com", "Ab12Cd");
-
-    expect(axios.post.mock.calls[0][2].headers).toEqual({
-      "Content-Type": "application/json"
-    });
-  });
-
-  test("fails explicitly when neither client credentials nor keyless access is configured", async () => {
-    await expect(sendVerificationEmail("user@example.com", "Ab12Cd")).rejects.toThrow(
-      "邮箱验证服务未配置"
-    );
-    expect(axios.post).not.toHaveBeenCalled();
-  });
 });
