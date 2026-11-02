@@ -1,16 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AuthPages.css";
 import { API_BASE } from "../services/authService";
+import { useLanguage } from "../context/languageContext";
+import LanguageToggle from "../components/LanguageToggle";
 import { generateVerificationCode, sendVerificationEmail } from "../services/emailVerificationService";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
+  const emailInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    verificationCode: "",
     password: "",
     confirmPassword: ""
   });
@@ -42,6 +47,7 @@ const Register = () => {
       ...current,
       [name]: value
     }));
+
     if (name === "email") {
       setVerificationCode("");
       setVerificationInput("");
@@ -55,22 +61,18 @@ const Register = () => {
     setError("");
     setSuccess("");
 
-    const email = formData.email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("请输入有效的邮箱地址");
-      return;
-    }
+    if (!emailInputRef.current?.reportValidity()) return;
 
     setSendingCode(true);
     try {
       const code = generateVerificationCode();
-      await sendVerificationEmail(email, code);
+      await sendVerificationEmail(formData.email.trim(), code);
       setVerificationCode(code);
       setVerificationInput("");
       setCountdown(60);
-      setSuccess("验证码已发送，请查收邮箱");
+      setSuccess(t("register.codeSent"));
     } catch (err) {
-      setError(err.response?.data?.error || err.message || "验证码发送失败");
+      setError(err.response?.data?.error || err.message || t("register.sendCodeFailed"));
     } finally {
       setSendingCode(false);
     }
@@ -82,12 +84,12 @@ const Register = () => {
     setSuccess("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("两次密码不一致");
+      setError(t('register.mismatch'));
       return;
     }
 
     if (!verificationCode || countdown === 0) {
-      setError("请先获取有效的邮箱验证码");
+      setError(t("register.verificationRequired"));
       return;
     }
 
@@ -103,7 +105,7 @@ const Register = () => {
         `${API_BASE}/api/auth/register/`,
         {
           username: formData.username,
-          email: formData.email,
+          email: formData.email.trim(),
           password: formData.password
         },
         {
@@ -113,7 +115,7 @@ const Register = () => {
         }
       );
 
-      setSuccess("注册成功，正在登录页面...");
+      setSuccess(t('register.success'));
 
       setTimeout(() => {
         navigate("/login", {
@@ -123,7 +125,7 @@ const Register = () => {
         });
       }, 1000);
     } catch (err) {
-      setError(err.response?.data?.error || "注册失败");
+      setError(err.response?.data?.error || t('register.failed'));
     } finally {
       setLoading(false);
     }
@@ -133,17 +135,21 @@ const Register = () => {
     <div className="windows-lockscreen">
       <div className="lock-wallpaper" />
 
+      <div className="lock-lang">
+        <LanguageToggle variant="glass" />
+      </div>
+
       <div className="login-container">
         {/* 左侧 LOGO */}
         <div className="login-logo-area">
-          <img src="/logo.png" className="login-logo" alt="Veyth OJ" />
-          <h1>Veyth OJ</h1>
-          <p>Create your account</p>
+          <img src="/logo.png" className="login-logo" alt={t('register.brand')} />
+          <h1>{t('register.brand')}</h1>
+          <p>{t('register.tagline')}</p>
         </div>
 
         {/* 右侧注册 */}
         <div className="windows-login register-box">
-          <h2>创建账户</h2>
+          <h2>{t('register.heading')}</h2>
 
           {error && (
             <div className="error-message">{error}</div>
@@ -156,50 +162,55 @@ const Register = () => {
           <form onSubmit={register}>
             <input
               name="username"
-              placeholder="用户名"
+              placeholder={t('register.username')}
               value={formData.username}
               onChange={handleChange}
             />
 
-            <div className="verification-row">
+            <input
+              ref={emailInputRef}
+              name="email"
+              type="email"
+              required
+              disabled={sendingCode || loading}
+              placeholder={t('register.email')}
+              value={formData.email}
+              onChange={handleChange}
+            />
+
+            <div className="verification-code-row">
               <input
-                name="email"
-                type="email"
-                placeholder="邮箱"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={sendingCode}
+                name="verificationCode"
+                type="text"
+                inputMode="text"
+                autoComplete="one-time-code"
+                maxLength={6}
+                pattern="[A-Za-z0-9]{6}"
+                placeholder={t("register.verificationCode")}
+                value={verificationInput}
+                onChange={(e) => setVerificationInput(e.target.value)}
                 required
               />
               <button
+                className="send-verification-code"
                 type="button"
                 onClick={sendCode}
-                disabled={sendingCode || countdown > 0}
+                disabled={sendingCode || loading || countdown > 0}
               >
                 {sendingCode
-                  ? "发送中..."
+                  ? t("register.sendingCode")
                   : countdown > 0
                     ? `${countdown}秒后重发`
-                    : "获取验证码"}
+                    : t("register.sendCode")}
               </button>
             </div>
-
-            <input
-              name="verificationCode"
-              type="text"
-              placeholder="邮箱验证码"
-              value={verificationInput}
-              onChange={(e) => setVerificationInput(e.target.value)}
-              autoComplete="one-time-code"
-              inputMode="text"
-              maxLength={6}
-            />
+            {verificationCode && <p className="verification-code-hint">{t("register.codeExpiry")}</p>}
 
             <div className="password-wrapper">
               <input
                 name="password"
                 type="password"
-                placeholder="密码"
+                placeholder={t('register.password')}
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -209,19 +220,19 @@ const Register = () => {
               <input
                 name="confirmPassword"
                 type="password"
-                placeholder="确认密码"
+                placeholder={t('register.confirm')}
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />
             </div>
 
             <button disabled={loading || sendingCode}>
-              {loading ? "注册中..." : "注册"}
+              {loading ? t('register.submitting') : t('register.submit')}
             </button>
           </form>
 
           <p className="switch" onClick={() => navigate("/login")}>
-            已有账号？立即登录
+            {t('register.hasAccount')} {t('register.login')}
           </p>
         </div>
       </div>

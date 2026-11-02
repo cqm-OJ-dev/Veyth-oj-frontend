@@ -1,7 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import './Window.css';
+import Icon from './Icon';
+import { useLanguage } from '../context/languageContext';
 
 export default function Window({ id, title, zIndex, onFocus, onClose, children, minimized = false, maximized = false, onMinimize, onMaximize, initialPos = { x: 100, y: 100 }, initialSize = { w: 800, h: 500 } }) {
+  const { t } = useLanguage();
   const winRef = useRef(null);
   const [pos, setPos] = useState(initialPos);
   const [size, setSize] = useState(initialSize);
@@ -121,9 +124,33 @@ export default function Window({ id, title, zIndex, onFocus, onClose, children, 
       <div className="win-title" onDoubleClick={handleMaximize}>
         <div className="win-title-text">{title}</div>
         <div className="win-controls">
-          <button className="win-btn" onClick={(e) => { e.stopPropagation(); handleMinimize(); }}>&#8211;</button>
-          <button className="win-btn" onClick={(e) => { e.stopPropagation(); handleMaximize(); }}>&#9723;</button>
-          <button className="win-btn close" onClick={(e) => { e.stopPropagation(); onClose(id); }}>&times;</button>
+          <button
+            type="button"
+            className="win-btn"
+            title={t('window.minimize')}
+            aria-label={t('window.minimize')}
+            onClick={(e) => { e.stopPropagation(); handleMinimize(); }}
+          >
+            <Icon name="minimize" size={14} />
+          </button>
+          <button
+            type="button"
+            className="win-btn"
+            title={maximized ? t('window.restore') : t('window.maximize')}
+            aria-label={maximized ? t('window.restore') : t('window.maximize')}
+            onClick={(e) => { e.stopPropagation(); handleMaximize(); }}
+          >
+            <Icon name={maximized ? 'restore' : 'maximize'} size={13} />
+          </button>
+          <button
+            type="button"
+            className="win-btn close"
+            title={t('window.close')}
+            aria-label={t('window.close')}
+            onClick={(e) => { e.stopPropagation(); onClose(id); }}
+          >
+            <Icon name="close" size={14} />
+          </button>
         </div>
       </div>
 

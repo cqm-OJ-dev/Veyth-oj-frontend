@@ -1,6 +1,7 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Register from "./Register";
+import { LanguageProvider } from "../context/languageContext";
 import { generateVerificationCode, sendVerificationEmail } from "../services/emailVerificationService";
 
 jest.mock("axios", () => ({
@@ -21,6 +22,7 @@ const axios = require("axios");
 
 describe("Register", () => {
   beforeEach(() => {
+    window.localStorage.setItem("veyth-language", "zh");
     generateVerificationCode.mockReturnValue("Ab12Cd");
     sendVerificationEmail.mockResolvedValue({ status: 200 });
     axios.post.mockResolvedValue({ status: 201 });
@@ -28,10 +30,13 @@ describe("Register", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    window.localStorage.removeItem("veyth-language");
   });
 
   const renderRegister = () => render(
-    <Register />
+    <LanguageProvider>
+      <Register />
+    </LanguageProvider>
   );
 
   test("sends a code and registers only after the entered code matches", async () => {

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { listProblems } from '../services/judgeService';
+import { useLanguage } from '../context/languageContext';
+import Icon from '../components/Icon';
 import './Problems.css';
 
 const Problems = ({ onOpenProblem }) => {
+  const { t } = useLanguage();
   const [problems, setProblems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -35,16 +38,21 @@ const Problems = ({ onOpenProblem }) => {
     <div className="window-page-shell">
       <div className="window-page-header">
         <div>
-          <p className="window-page-kicker">Workspace</p>
-          <h2>Problems</h2>
+          <p className="window-page-kicker">
+            <Icon name="problems" size={14} />
+            {t('problems.kicker')}
+          </p>
+          <h2>{t('problems.title')}</h2>
         </div>
-        <div className="window-page-pill">{problems.length} items</div>
+        <div className="window-page-pill">{t('common.items', { count: problems.length })}</div>
       </div>
 
       {isLoading ? (
-        <div className="window-page-state">Loading problems…</div>
+        <div className="window-page-state">{t('problems.loading')}</div>
       ) : error ? (
         <div className="window-page-state error">{error}</div>
+      ) : problems.length === 0 ? (
+        <div className="window-page-state">{t('problems.empty')}</div>
       ) : (
         <div className="problem-list">
           {problems.map((problem) => (
@@ -62,8 +70,8 @@ const Problems = ({ onOpenProblem }) => {
                   <h3>{problem.title}</h3>
                   {problem.tags && problem.tags.length > 0 && (
                     <div className="problem-tags">
-                      {problem.tags.map((t, i) => (
-                        <span key={i} className="problem-tag">{t}</span>
+                      {problem.tags.map((tag, i) => (
+                        <span key={i} className="problem-tag">{tag}</span>
                       ))}
                     </div>
                   )}
@@ -73,22 +81,22 @@ const Problems = ({ onOpenProblem }) => {
 
               <div className="problem-meta">
                 <div className="problem-meta-item">
-                  <span>Acceptance</span>
+                  <span>{t('problems.acceptance')}</span>
                   <strong>{problem.acceptance ?? '—'}</strong>
                 </div>
                 <div className="problem-meta-item">
-                  <span>Submissions</span>
+                  <span>{t('problems.submissions')}</span>
                   <strong>{problem.submissions ?? '—'}</strong>
                 </div>
                 {(problem.time_limit_ms || problem.time_limit) && (
                   <div className="problem-meta-item">
-                    <span>Time</span>
+                    <span>{t('problems.time')}</span>
                     <strong>{((problem.time_limit_ms ?? problem.time_limit * 1000) / 1000).toFixed(1)}s</strong>
                   </div>
                 )}
                 {(problem.memory_limit_mb || problem.memory_limit) && (
                   <div className="problem-meta-item">
-                    <span>Memory</span>
+                    <span>{t('problems.memory')}</span>
                     <strong>{(problem.memory_limit_mb ?? problem.memory_limit)}MB</strong>
                   </div>
                 )}

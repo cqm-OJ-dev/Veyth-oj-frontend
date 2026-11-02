@@ -5,12 +5,12 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  background: radial-gradient(circle at 30% 20%, #1e2a5a 0%, #0f172a 55%, #0a0f1e 100%);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  color: white;
+  color: #fff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -30,7 +30,8 @@
 .hydro-logo-text {
   font-size: 4rem;
   font-weight: bold;
-  background: linear-gradient(to right, #fff, #ddd);
+  letter-spacing: 1px;
+  background: linear-gradient(to right, #ffffff, #c7d2fe);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -41,24 +42,25 @@
 .hydro-logo-subtext {
   font-size: 1.2rem;
   letter-spacing: 3px;
-  opacity: 0.8;
+  opacity: 0.75;
   margin-top: 5px;
 }
 
 .hydro-loading-bar {
   width: 100%;
   height: 6px;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
   overflow: hidden;
   margin: 20px 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .hydro-loading-progress {
   height: 100%;
   width: 30%;
-  background: linear-gradient(to right, #fff, #61dafb);
-  border-radius: 3px;
+  background: linear-gradient(to right, #818cf8, #c7d2fe);
+  border-radius: 999px;
   animation: hydroLoading 2s ease-in-out infinite;
 }
 
@@ -66,6 +68,7 @@
   margin-top: 20px;
   font-size: 1rem;
   opacity: 0.9;
+  letter-spacing: 0.3px;
 }
 
 @keyframes hydroLoading {
@@ -80,6 +83,33 @@
     width: 10%;
     margin-left: 90%;
   }
+}
+
+/* 反馈提示 */
+.feedback-prompt {
+  margin-top: 24px;
+}
+
+.feedback-prompt p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.feedback-link {
+  margin-left: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #c7d2fe;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.feedback-link:hover {
+  color: #fff;
 }
 
 /* 淡出动画 */
@@ -100,13 +130,26 @@
   right: 18px;
   bottom: 18px;
   width: 260px;
-  background: rgba(28,30,34,0.92);
+  background: rgba(18, 22, 34, 0.92);
   color: #e6eef8;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+  padding: 12px 14px;
   z-index: 10000;
   font-family: 'Segoe UI', Roboto, Arial;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
-.hydro-notification-title { font-weight: 700; margin-bottom: 6px; }
-.hydro-notification-body { font-size: 13px; opacity: 0.9; }
+
+.hydro-notification-title {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  margin-bottom: 6px;
+}
+
+.hydro-notification-body {
+  font-size: 13px;
+  opacity: 0.85;
+}

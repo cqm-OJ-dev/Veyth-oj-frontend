@@ -7,31 +7,28 @@ import Register from './pages/Register';
 import OAuthCallback from './pages/OAuthCallback';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
-import { translations, getBrowserLanguage } from './include/locales';
 import { AuthProvider, useAuthContext } from './context/authContext';
+import { LanguageProvider, useLanguage } from './context/languageContext';
 import axios from 'axios';
 import { API_BASE } from './services/authService';
 import './App.css';
+import './pages/window-page.css';
 
 function AppContent() {
   const { currentUser, login, logout } = useAuthContext();
+  const { language, t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
-  const [language, setLanguage] = useState('en');
   const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false);
-  
-  const t = translations[language] || translations.en;
-  document.title = t.title;
 
   useEffect(() => {
-    const browserLanguage = getBrowserLanguage();
-    if (translations[browserLanguage]) {
-      setLanguage(browserLanguage);
-    }
+    document.title = `${t('app.name')} · ${t('app.subtitle')}`;
+  }, [t]);
 
+  useEffect(() => {
     const checkConnection = async () => {
       try {
         const response = await axios.post(`${API_BASE}/tests/test_conntect/`, {
-          'message': 'ok' 
+          'message': 'ok'
         });
         if (response.status === 200) {
           // 连接正常，无需额外操作
@@ -63,7 +60,7 @@ function AppContent() {
   // 将加载状态改为右下角通知，始终渲染 Desktop
   return (
     <Router>
-      <div style={{width: '100vw', height: '100vh'}}>
+      <div style={{ width: '100vw', height: '100vh' }}>
         {currentUser ? (
           <Routes>
             <Route path="/profile" element={<Profile />} />
@@ -90,9 +87,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

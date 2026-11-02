@@ -1,0 +1,59 @@
+/* 语言切换分段控件 */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
+}
+
+.lang-toggle-globe {
+  margin: 0 4px 0 6px;
+  opacity: 0.75;
+}
+
+.lang-toggle-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  white-space: nowrap;
+}
+
+.lang-toggle-btn:hover {
+  background: rgba(127, 127, 127, 0.18);
+}
+
+/* 深色 / 玻璃背景（桌面任务栏、锁屏） */
+.lang-toggle--glass {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.lang-toggle--glass .lang-toggle-btn.active {
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2937;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* 浅色卡片背景 */
+.lang-toggle--light {
+  background: #eef1f6;
+  border: 1px solid #e0e5ee;
+  color: #475569;
+}
+
+.lang-toggle--light .lang-toggle-btn.active {
+  background: #ffffff;
+  color: #4f46e5;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}

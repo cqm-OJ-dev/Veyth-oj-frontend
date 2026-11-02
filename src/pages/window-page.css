@@ -1,0 +1,213 @@
+/* =========================================================
+   Window 内页共享设计系统
+   所有窗口内页面（题库/比赛/提交/题目详情…）复用的基础样式。
+   具体页面的专属样式放在各自的 *.css 中。
+   ========================================================= */
+
+:root {
+  --vp-ink: #0f172a;
+  --vp-ink-2: #334155;
+  --vp-muted: #64748b;
+  --vp-line: #e6eaf1;
+  --vp-line-strong: #d8dee9;
+  --vp-soft: #f8fafc;
+  --vp-card: #ffffff;
+  --vp-accent: #4f46e5;
+  --vp-accent-2: #2563eb;
+  --vp-radius: 14px;
+  --vp-radius-sm: 10px;
+  --vp-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 22px rgba(15, 23, 42, 0.05);
+  --vp-shadow-md: 0 14px 34px rgba(15, 23, 42, 0.10);
+  --vp-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* ---------- 页面骨架 ---------- */
+.window-page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  padding: 6px;
+  box-sizing: border-box;
+  overflow: auto;
+  color: var(--vp-ink-2);
+}
+
+/* ---------- 页头 ---------- */
+.window-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  border-radius: var(--vp-radius);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.09), rgba(37, 99, 235, 0.05));
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.window-page-kicker {
+  margin: 0 0 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--vp-muted);
+}
+
+.window-page-header h2 {
+  margin: 0;
+  font-size: 1.16rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--vp-ink);
+}
+
+.window-page-pill {
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--vp-line);
+  color: var(--vp-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* ---------- 状态占位 ---------- */
+.window-page-state {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  padding: 20px;
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  border-radius: var(--vp-radius);
+  color: var(--vp-muted);
+  background: rgba(248, 250, 252, 0.7);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.window-page-state.error {
+  color: #b42318;
+  border-color: rgba(248, 113, 113, 0.28);
+  background: rgba(254, 242, 242, 0.75);
+}
+
+/* ---------- 状态徽章（由后端英文状态映射 class） ---------- */
+.status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status.accepted { background: #e7f7ee; color: #15803d; }
+.status.wrong-answer { background: #fef2f2; color: #dc2626; }
+.status.compile-error { background: #fff7e6; color: #b45309; }
+.status.runtime-error { background: #fef2f2; color: #b42318; }
+.status.time-limit-exceeded,
+.status.memory-limit-exceeded { background: #ede9fe; color: #6d28d9; }
+.status.pending,
+.status.running,
+.status.queued { background: #dbeafe; color: #1d4ed8; }
+.status.internal-error { background: #fef2f2; color: #b42318; }
+
+/* ---------- 数据表格 ---------- */
+.submissions-table-container {
+  overflow: auto;
+  border-radius: var(--vp-radius);
+  border: 1px solid var(--vp-line);
+  background: var(--vp-card);
+  box-shadow: var(--vp-shadow-sm);
+}
+
+.submissions-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.submissions-table th,
+.submissions-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--vp-line);
+  text-align: left;
+  font-size: 0.88rem;
+  color: var(--vp-ink-2);
+  white-space: nowrap;
+}
+
+.submissions-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--vp-soft);
+  color: var(--vp-muted);
+  font-weight: 700;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  z-index: 1;
+}
+
+.submissions-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.submissions-table tbody tr:hover {
+  background: #f6f8fd;
+}
+
+.submissions-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---------- 通用按钮（页面内） ---------- */
+.vp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--vp-radius-sm);
+  border: 1px solid var(--vp-line-strong);
+  background: #fff;
+  color: var(--vp-ink);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.vp-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.vp-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.vp-btn.primary {
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  border-color: transparent;
+  color: #fff;
+}
+
+.vp-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--vp-accent-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.vp-link-btn:hover {
+  color: var(--vp-accent);
+}

@@ -1,43 +1,71 @@
 /* 比赛卡片容器 */
 .contest-cards-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
 }
 
 /* 比赛卡片基础样式 */
 .contest-card {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
   display: flex;
   flex-direction: column;
+  background: var(--vp-card);
+  border: 1px solid var(--vp-line);
+  border-radius: var(--vp-radius);
+  box-shadow: var(--vp-shadow-sm);
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+/* 顶部状态色条（按状态着色） */
+.contest-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--vp-line-strong);
+}
+
+.contest-card.upcoming::before {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.contest-card.ongoing::before {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.contest-card.ended::before {
+  background: linear-gradient(90deg, #94a3b8, #cbd5e1);
 }
 
 .contest-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: var(--vp-shadow-md);
+  border-color: var(--vp-line-strong);
 }
 
 /* 卡片头部 */
 .contest-card-header {
-  padding: 15px 20px;
-  border-bottom: 1px solid #eee;
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
+  gap: 12px;
+  padding: 18px 20px 14px;
 }
 
 .contest-title {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--vp-ink);
+  line-height: 1.35;
 }
 
 .contest-title a {
-  color: #1a2a6c;
+  color: var(--vp-accent);
   text-decoration: none;
 }
 
@@ -47,99 +75,83 @@
 
 /* 比赛状态标签 */
 .contest-status {
+  flex: none;
   padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid transparent;
 }
 
 .contest-status.upcoming {
-  background-color: #ffeb3b;
-  color: #ff6f00;
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.28);
 }
 
 .contest-status.ongoing {
-  background-color: #4caf50;
-  color: white;
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.28);
 }
 
 .contest-status.ended {
-  background-color: #f5f5f5;
-  color: #666;
+  background: var(--vp-soft);
+  color: var(--vp-muted);
+  border-color: var(--vp-line);
 }
 
 /* 卡片主体 */
 .contest-card-body {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
+  padding: 0 20px 20px;
 }
 
 .contest-description {
-  color: #555;
-  margin-bottom: 15px;
-  line-height: 1.5;
+  margin: 0 0 16px;
+  color: var(--vp-ink-2);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 /* 元信息 */
 .contest-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 12px 18px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--vp-line);
 }
 
 .meta-item {
   display: flex;
   flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .meta-label {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--vp-muted);
 }
 
 .meta-value {
-  font-weight: 500;
-  color: #333;
-}
-
-/* 卡片底部 */
-.contest-card-footer {
-  padding: 15px 20px;
-  border-top: 1px solid #eee;
-  text-align: right;
-}
-
-.contest-action-button {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: opacity 0.3s;
-}
-
-.contest-action-button:hover {
-  opacity: 0.9;
-}
-
-/* 创建比赛按钮 */
-.create-contest-button {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: opacity 0.3s;
-}
-
-.create-contest-button:hover {
-  opacity: 0.9;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--vp-ink);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 响应式设计 */
@@ -147,44 +159,8 @@
   .contest-cards-container {
     grid-template-columns: 1fr;
   }
-  
+
   .contest-meta {
     grid-template-columns: 1fr;
   }
-}
-
-/* 加载和错误状态 */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  color: #666;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(26, 42, 108, 0.1);
-  border-radius: 50%;
-  border-top-color: #1a2a6c;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-}
-
-.error-container {
-  padding: 20px;
-  background: #fdecea;
-  color: #d32f2f;
-  border-radius: 5px;
-  text-align: center;
-}
-
-.error-icon {
-  margin-right: 8px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }

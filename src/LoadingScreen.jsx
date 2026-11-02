@@ -1,38 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import './LoadingScreen.css';
 
-import { translations, getBrowserLanguage } from './include/locales';
+import { useLanguage } from './context/languageContext';
 
-const LoadingScreen = ({ showFeedbackPrompt, inline=false })  => {
-  const [loadingText, setLoadingText] = useState('Loading...');
-  const language = getBrowserLanguage();
-  const t = translations[language] || translations.en;
-  useEffect(() => {
-    const userLanguage = navigator.language || navigator.userLanguage;
-    const languageMap = {
-      'zh': '正在连接服务器...',
-      'zh-CN': '正在连接服务器...',
-      'zh-TW': '正在連接伺服器...',
-      'ja': 'サーバーに接続中...',
-      'ko': '서버에 연결 중...',
-      'en': 'Connecting to server...',
-      'es': 'Conectando al servidor...',
-      'fr': 'Connexion au serveur...',
-      'de': 'Verbindung zum Server...',
-      'ru': 'Подключение к серверу...',
-      'pt': 'Conectando ao servidor...',
-      'it': 'Connessione al server...',
-      'ar': 'جارٍ الاتصال بالخادم...',
-      'hi': 'सर्वर से कनेक्ट हो रहा है...',
-    };
-    setLoadingText(languageMap[userLanguage.split('-')[0]] || languageMap[userLanguage] || 'Connecting to judge server...');
-  }, []);
+const LoadingScreen = ({ showFeedbackPrompt, inline = false }) => {
+  const { t } = useLanguage();
 
   if (inline) {
     return (
       <div className="hydro-notification">
-        <div className="hydro-notification-title">{t.title}</div>
-        <div className="hydro-notification-body">{loadingText}</div>
+        <div className="hydro-notification-title">{t('app.name')}</div>
+        <div className="hydro-notification-body">{t('loading.connecting')}</div>
       </div>
     );
   }
@@ -41,18 +19,18 @@ const LoadingScreen = ({ showFeedbackPrompt, inline=false })  => {
     <div className="hydro-loading-screen">
       <div className="hydro-loading-content">
         <div className="hydro-logo">
-          <span className="hydro-logo-text">{t.title}</span>
+          <span className="hydro-logo-text">{t('app.name')}</span>
           <div className="hydro-logo-subtext">Online Judge</div>
         </div>
         <div className="hydro-loading-bar">
           <div className="hydro-loading-progress"></div>
         </div>
-        <p className="hydro-loading-text">{loadingText}</p>
+        <p className="hydro-loading-text">{t('loading.connecting')}</p>
         {showFeedbackPrompt && (
           <div className="feedback-prompt">
-            <p>{t.issues}
-              <button type="button" className="feedback-link" onClick={() => alert('发送反馈')}>
-                {t.feedback}
+            <p>{t('loading.issues')}
+              <button type="button" className="feedback-link" onClick={() => alert(t('loading.feedback'))}>
+                {t('loading.feedback')}
               </button>
             </p>
           </div>
