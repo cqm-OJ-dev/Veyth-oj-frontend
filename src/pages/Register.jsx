@@ -1,10 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AuthPages.css";
 import { API_BASE } from "../services/authService";
 import { useLanguage } from "../context/languageContext";
 import LanguageToggle from "../components/LanguageToggle";
+import { generateVerificationCode, sendVerificationEmail } from "../services/emailVerificationService";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -23,24 +24,40 @@ const Register = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
-  const [codeSent, setCodeSent] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationInput, setVerificationInput] = useState("");
+  const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    if (countdown <= 0) return undefined;
+    const timer = setTimeout(() => setCountdown((remaining) => remaining - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  useEffect(() => {
+    if (verificationCode && countdown === 0) {
+      setVerificationCode("");
+      setVerificationInput("");
+    }
+  }, [countdown, verificationCode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((current) => ({
       ...current,
-      [name]: value,
-      ...(name === "email" ? { verificationCode: "" } : {})
+      [name]: value
     }));
 
     if (name === "email") {
-      setCodeSent(false);
+      setVerificationCode("");
+      setVerificationInput("");
+      setCountdown(0);
       setError("");
       setSuccess("");
     }
   };
 
-  const sendVerificationCode = async () => {
+  const sendCode = async () => {
     setError("");
     setSuccess("");
 
@@ -48,15 +65,14 @@ const Register = () => {
 
     setSendingCode(true);
     try {
-      await axios.post(
-        `${API_BASE}/api/auth/email-verification/send/`,
-        { email: formData.email.trim() },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      setCodeSent(true);
+      const code = generateVerificationCode();
+      await sendVerificationEmail(formData.email.trim(), code);
+      setVerificationCode(code);
+      setVerificationInput("");
+      setCountdown(60);
       setSuccess(t("register.codeSent"));
     } catch (err) {
-      setError(err.response?.data?.error || t("register.sendCodeFailed"));
+      setError(err.response?.data?.error || err.message || t("register.sendCodeFailed"));
     } finally {
       setSendingCode(false);
     }
@@ -72,8 +88,13 @@ const Register = () => {
       return;
     }
 
-    if (!formData.verificationCode.trim()) {
+    if (!verificationCode || countdown === 0) {
       setError(t("register.verificationRequired"));
+      return;
+    }
+
+    if (verificationInput.trim() !== verificationCode) {
+      setError("邮箱验证码不正确");
       return;
     }
 
@@ -85,8 +106,7 @@ const Register = () => {
         {
           username: formData.username,
           email: formData.email.trim(),
-          password: formData.password,
-          verification_code: formData.verificationCode.trim()
+          password: formData.password
         },
         {
           headers: {
@@ -162,25 +182,29 @@ const Register = () => {
               <input
                 name="verificationCode"
                 type="text"
-                inputMode="numeric"
+                inputMode="text"
                 autoComplete="one-time-code"
                 maxLength={6}
-                pattern="[0-9]{6}"
+                pattern="[A-Za-z0-9]{6}"
                 placeholder={t("register.verificationCode")}
-                value={formData.verificationCode}
-                onChange={handleChange}
+                value={verificationInput}
+                onChange={(e) => setVerificationInput(e.target.value)}
                 required
               />
               <button
                 className="send-verification-code"
                 type="button"
-                onClick={sendVerificationCode}
-                disabled={sendingCode || loading}
+                onClick={sendCode}
+                disabled={sendingCode || loading || countdown > 0}
               >
-                {sendingCode ? t("register.sendingCode") : t("register.sendCode")}
+                {sendingCode
+                  ? t("register.sendingCode")
+                  : countdown > 0
+                    ? `${countdown}秒后重发`
+                    : t("register.sendCode")}
               </button>
             </div>
-            {codeSent && <p className="verification-code-hint">{t("register.codeExpiry")}</p>}
+            {verificationCode && <p className="verification-code-hint">{t("register.codeExpiry")}</p>}
 
             <div className="password-wrapper">
               <input

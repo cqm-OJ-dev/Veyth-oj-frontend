@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Link2, RotateCcw } from 'lucide-react';
 import { useAuthContext } from '../context/authContext';
 import '../components/Desktop.css';
 
@@ -135,14 +134,7 @@ const Profile = () => {
               disabled={saving}
               onClick={() => fileRef.current?.click()}
             >
-              {saving ? (
-                '保存中…'
-              ) : (
-                <>
-                  <Camera size={16} />
-                  从本地上传
-                </>
-              )}
+              {saving ? '保存中…' : '📷 从本地上传'}
             </button>
             <input
               ref={fileRef}
@@ -163,7 +155,6 @@ const Profile = () => {
               className="avatar-url-input"
             />
             <button type="submit" className="btn-secondary" disabled={saving}>
-              <Link2 size={16} />
               应用 URL
             </button>
           </form>
@@ -175,7 +166,6 @@ const Profile = () => {
               disabled={saving || !currentUser.avatar}
               onClick={onClearAvatar}
             >
-              <RotateCcw size={16} />
               恢复默认（首字母）
             </button>
           </div>
