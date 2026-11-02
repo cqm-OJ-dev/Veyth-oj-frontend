@@ -48,12 +48,12 @@ describe("Register", () => {
     fireEvent.change(screen.getByPlaceholderText("邮箱"), {
       target: { value: "user@example.com" }
     });
-    fireEvent.click(screen.getByRole("button", { name: "获取验证码" }));
+    fireEvent.click(screen.getByRole("button", { name: "发送验证码" }));
 
     await waitFor(() => {
       expect(sendVerificationEmail).toHaveBeenCalledWith("user@example.com", "Ab12Cd");
     });
-    expect(await screen.findByText("验证码已发送，请查收邮箱")).toBeInTheDocument();
+    expect(await screen.findByText("验证码已发送，请查收邮件。")).toBeInTheDocument();
 
     fireEvent.change(screen.getByPlaceholderText("邮箱验证码"), {
       target: { value: "wrong1" }
@@ -100,7 +100,7 @@ describe("Register", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "注册" }));
 
-    expect(await screen.findByText("请先获取有效的邮箱验证码")).toBeInTheDocument();
+    expect(await screen.findByText("请输入邮箱验证码。")).toBeInTheDocument();
     expect(axios.post).not.toHaveBeenCalled();
   });
 });
