@@ -74,6 +74,79 @@
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
+.list-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.list-search {
+  width: min(100%, 380px);
+  min-width: 180px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--vp-line-strong);
+  border-radius: var(--vp-radius-sm);
+  background: var(--vp-card);
+  color: var(--vp-ink);
+  font: inherit;
+}
+
+.list-search:focus {
+  outline: none;
+  border-color: var(--vp-accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.list-count {
+  color: var(--vp-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--vp-muted);
+  font-size: 0.82rem;
+}
+
+.list-pagination button {
+  padding: 7px 12px;
+  border: 1px solid var(--vp-line);
+  border-radius: var(--vp-radius-sm);
+  background: var(--vp-card);
+  color: var(--vp-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.list-pagination button:hover:not(:disabled) {
+  border-color: var(--vp-accent);
+  color: var(--vp-accent);
+}
+
+.list-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 560px) {
+  .list-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .list-search {
+    width: 100%;
+  }
+}
+
 /* ---------- 状态占位 ---------- */
 .window-page-state {
   display: grid;

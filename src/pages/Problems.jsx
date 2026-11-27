@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { listProblems } from '../services/judgeService';
 import { useLanguage } from '../context/languageContext';
 import Icon from '../components/Icon';
 import './Problems.css';
 
+const PAGE_SIZE = 10;
+
 const Problems = ({ onOpenProblem }) => {
   const { t } = useLanguage();
   const [problems, setProblems] = useState([]);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -25,6 +29,23 @@ const Problems = ({ onOpenProblem }) => {
 
     fetchProblems();
   }, []);
+
+  const filteredProblems = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    if (!query) return problems;
+    return problems.filter((problem) =>
+      String(problem.title || '').toLocaleLowerCase().includes(query)
+      || String(problem.difficulty || '').toLocaleLowerCase().includes(query)
+    );
+  }, [problems, search]);
+  const pageCount = Math.max(1, Math.ceil(filteredProblems.length / PAGE_SIZE));
+  const visibleProblems = filteredProblems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pageStart = filteredProblems.length ? (page - 1) * PAGE_SIZE + 1 : 0;
+  const pageEnd = Math.min(page * PAGE_SIZE, filteredProblems.length);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
 
   const getDifficultyClass = (difficulty) => {
     if (difficulty === 'Easy') return 'easy';
@@ -54,56 +75,86 @@ const Problems = ({ onOpenProblem }) => {
       ) : problems.length === 0 ? (
         <div className="window-page-state">{t('problems.empty')}</div>
       ) : (
-        <div className="problem-list">
-          {problems.map((problem) => (
-            <article
-              key={problem.id ?? problem.problem_id ?? problem.title}
-              className="problem-card"
-              onClick={() => openIt(problem)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openIt(problem); }}
-            >
-              <div className="problem-card-head">
-                <div>
-                  <div className="problem-id">#{problem.id ?? problem.problem_id ?? '—'}</div>
-                  <h3>{problem.title}</h3>
-                  {problem.tags && problem.tags.length > 0 && (
-                    <div className="problem-tags">
-                      {problem.tags.map((tag, i) => (
-                        <span key={i} className="problem-tag">{tag}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <span className={`difficulty ${getDifficultyClass(problem.difficulty)}`}>{problem.difficulty || '-'}</span>
-              </div>
+        <>
+          <div className="list-controls">
+            <input
+              className="list-search"
+              type="search"
+              value={search}
+              onChange={(event) => { setSearch(event.target.value); setPage(1); }}
+              placeholder={t('problems.searchPlaceholder')}
+              aria-label={t('problems.searchPlaceholder')}
+            />
+            <span className="list-count">
+              {t('common.paginationRange', { start: pageStart, end: pageEnd, total: filteredProblems.length })}
+            </span>
+          </div>
+          {visibleProblems.length === 0 ? (
+            <div className="window-page-state">{t('common.noSearchResults')}</div>
+          ) : (
+            <div className="problem-list">
+              {visibleProblems.map((problem) => (
+                <article
+                  key={problem.id ?? problem.problem_id ?? problem.title}
+                  className="problem-card"
+                  onClick={() => openIt(problem)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openIt(problem); }}
+                >
+                  <div className="problem-card-head">
+                      <div>
+                        <div className="problem-id">#{problem.id ?? problem.problem_id ?? '—'}</div>
+                        <h3>{problem.title}</h3>
+                        {problem.tags && problem.tags.length > 0 && (
+                          <div className="problem-tags">
+                            {problem.tags.map((tag, i) => (
+                              <span key={i} className="problem-tag">{tag}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <span className={`difficulty ${getDifficultyClass(problem.difficulty)}`}>{problem.difficulty || '-'}</span>
+                  </div>
 
-              <div className="problem-meta">
-                <div className="problem-meta-item">
-                  <span>{t('problems.acceptance')}</span>
-                  <strong>{problem.acceptance ?? '—'}</strong>
-                </div>
-                <div className="problem-meta-item">
-                  <span>{t('problems.submissions')}</span>
-                  <strong>{problem.submissions ?? '—'}</strong>
-                </div>
-                {(problem.time_limit_ms || problem.time_limit) && (
-                  <div className="problem-meta-item">
-                    <span>{t('problems.time')}</span>
-                    <strong>{((problem.time_limit_ms ?? problem.time_limit * 1000) / 1000).toFixed(1)}s</strong>
+                  <div className="problem-meta">
+                      <div className="problem-meta-item">
+                        <span>{t('problems.acceptance')}</span>
+                        <strong>{problem.acceptance ?? '—'}</strong>
+                      </div>
+                      <div className="problem-meta-item">
+                        <span>{t('problems.submissions')}</span>
+                        <strong>{problem.submissions ?? '—'}</strong>
+                      </div>
+                      {(problem.time_limit_ms || problem.time_limit) && (
+                        <div className="problem-meta-item">
+                          <span>{t('problems.time')}</span>
+                          <strong>{((problem.time_limit_ms ?? problem.time_limit * 1000) / 1000).toFixed(1)}s</strong>
+                        </div>
+                      )}
+                      {(problem.memory_limit_mb || problem.memory_limit) && (
+                        <div className="problem-meta-item">
+                          <span>{t('problems.memory')}</span>
+                          <strong>{(problem.memory_limit_mb ?? problem.memory_limit)}MB</strong>
+                        </div>
+                      )}
                   </div>
-                )}
-                {(problem.memory_limit_mb || problem.memory_limit) && (
-                  <div className="problem-meta-item">
-                    <span>{t('problems.memory')}</span>
-                    <strong>{(problem.memory_limit_mb ?? problem.memory_limit)}MB</strong>
-                  </div>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
+                </article>
+              ))}
+            </div>
+          )}
+          {pageCount > 1 && (
+            <nav className="list-pagination" aria-label={t('common.pagination')}>
+              <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1}>
+                {t('common.previous')}
+              </button>
+              <span>{t('common.pageOf', { page, pages: pageCount })}</span>
+              <button type="button" onClick={() => setPage((current) => Math.min(pageCount, current + 1))} disabled={page === pageCount}>
+                {t('common.next')}
+              </button>
+            </nav>
+          )}
+        </>
       )}
     </div>
   );

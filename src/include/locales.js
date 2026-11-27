@@ -23,6 +23,12 @@ export const translations = {
       or: 'or',
       items: '{count} items',
       entries: '{count} entries',
+      pagination: 'List pagination',
+      paginationRange: 'Showing {start}-{end} of {total}',
+      pageOf: 'Page {page} of {pages}',
+      previous: 'Previous',
+      next: 'Next',
+      noSearchResults: 'No matching results.',
       unknown: '—'
     },
     window: {
@@ -100,7 +106,8 @@ export const translations = {
       acceptance: 'Acceptance',
       submissions: 'Submissions',
       time: 'Time',
-      memory: 'Memory'
+      memory: 'Memory',
+      searchPlaceholder: 'Search by title or difficulty…'
     },
     problemDetail: {
       kicker: 'Problem',
@@ -148,7 +155,8 @@ export const translations = {
       passed: 'Passed',
       runtime: 'Runtime',
       memory: 'Memory',
-      submitted: 'Submitted'
+      submitted: 'Submitted',
+      searchPlaceholder: 'Search by problem number or status…'
     },
     submissionDetail: {
       kicker: 'Submission',
@@ -259,6 +267,12 @@ export const translations = {
       or: '或',
       items: '{count} 项',
       entries: '{count} 条',
+      pagination: '列表分页',
+      paginationRange: '显示 {start}-{end} 条，共 {total} 条',
+      pageOf: '第 {page} / {pages} 页',
+      previous: '上一页',
+      next: '下一页',
+      noSearchResults: '没有符合条件的结果。',
       unknown: '—'
     },
     window: {
@@ -336,7 +350,8 @@ export const translations = {
       acceptance: '通过率',
       submissions: '提交数',
       time: '时间',
-      memory: '内存'
+      memory: '内存',
+      searchPlaceholder: '按题目标题或难度搜索…'
     },
     problemDetail: {
       kicker: '题目',
@@ -384,7 +399,8 @@ export const translations = {
       passed: '通过',
       runtime: '耗时',
       memory: '内存',
-      submitted: '提交时间'
+      submitted: '提交时间',
+      searchPlaceholder: '按题号或状态搜索…'
     },
     submissionDetail: {
       kicker: '提交',
