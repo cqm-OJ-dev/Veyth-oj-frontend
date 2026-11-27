@@ -5,17 +5,17 @@ import "./AuthPages.css";
 import { API_BASE } from "../services/authService";
 import { useLanguage } from "../context/languageContext";
 import LanguageToggle from "../components/LanguageToggle";
-import { generateVerificationCode, sendVerificationEmail } from "../services/emailVerificationService";
+import { sendVerificationEmail } from "../services/emailVerificationService";
 
 const Register = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const emailInputRef = useRef(null);
+  const apiRoot = API_BASE.replace(/\/+$/, "");
 
   const [formData, setFormData] = useState({
     username: "",
     email: "",
-    verificationCode: "",
     password: "",
     confirmPassword: ""
   });
@@ -24,7 +24,7 @@ const Register = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
   const [verificationInput, setVerificationInput] = useState("");
   const [countdown, setCountdown] = useState(0);
 
@@ -34,13 +34,6 @@ const Register = () => {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  useEffect(() => {
-    if (verificationCode && countdown === 0) {
-      setVerificationCode("");
-      setVerificationInput("");
-    }
-  }, [countdown, verificationCode]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((current) => ({
@@ -49,7 +42,7 @@ const Register = () => {
     }));
 
     if (name === "email") {
-      setVerificationCode("");
+      setCodeSent(false);
       setVerificationInput("");
       setCountdown(0);
       setError("");
@@ -65,9 +58,8 @@ const Register = () => {
 
     setSendingCode(true);
     try {
-      const code = generateVerificationCode();
-      await sendVerificationEmail(formData.email.trim(), code);
-      setVerificationCode(code);
+      await sendVerificationEmail(formData.email.trim());
+      setCodeSent(true);
       setVerificationInput("");
       setCountdown(60);
       setSuccess(t("register.codeSent"));
@@ -88,13 +80,14 @@ const Register = () => {
       return;
     }
 
-    if (!verificationCode || countdown === 0) {
+    const enteredCode = verificationInput.trim();
+    if (!enteredCode) {
       setError(t("register.verificationRequired"));
       return;
     }
 
-    if (verificationInput.trim() !== verificationCode) {
-      setError("邮箱验证码不正确");
+    if (!/^\d{6}$/.test(enteredCode)) {
+      setError(t("register.verificationCodeInvalid"));
       return;
     }
 
@@ -102,11 +95,12 @@ const Register = () => {
 
     try {
       await axios.post(
-        `${API_BASE}/api/auth/register/`,
+        `${apiRoot}/api/auth/register/`,
         {
           username: formData.username,
           email: formData.email.trim(),
-          password: formData.password
+          password: formData.password,
+          verification_code: enteredCode
         },
         {
           headers: {
@@ -182,14 +176,12 @@ const Register = () => {
               <input
                 name="verificationCode"
                 type="text"
-                inputMode="text"
+                inputMode="numeric"
                 autoComplete="one-time-code"
                 maxLength={6}
-                pattern="[A-Za-z0-9]{6}"
                 placeholder={t("register.verificationCode")}
                 value={verificationInput}
-                onChange={(e) => setVerificationInput(e.target.value)}
-                required
+                onChange={(e) => setVerificationInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
               />
               <button
                 className="send-verification-code"
@@ -204,7 +196,7 @@ const Register = () => {
                     : t("register.sendCode")}
               </button>
             </div>
-            {verificationCode && <p className="verification-code-hint">{t("register.codeExpiry")}</p>}
+            {codeSent && <p className="verification-code-hint">{t("register.codeExpiry")}</p>}
 
             <div className="password-wrapper">
               <input

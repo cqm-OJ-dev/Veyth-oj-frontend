@@ -1,15 +1,12 @@
 # Registration email verification
 
-The registration page sends verification messages directly from the browser to
-`https://mailserver.cqiming.com/api/batch_mail/api/send` and includes the
-deliberately public, restricted client key in the `x-api-key` header. The key is
-compiled into the browser bundle and is visible to users; it must remain
-restricted to the mail-send operation and approved origins, and should be
-rotated if its scope changes or it is abused. Never use a private or
-unrestricted service key in frontend code.
+The registration page requests a verification code from
+`POST /api/auth/email-verification/send/` with `{ "email": "name@example.com" }`.
+The backend sends and validates the six-digit code; it expires after 10 minutes
+and is consumed only when registration succeeds.
 
-The current registration flow checks the emailed code in browser memory before
-calling the existing registration API. This is a user-interface check, not a
-server-enforced identity proof; users can bypass client-side checks. Enforcing
-email ownership for account creation requires the registration service to
-validate a server-issued verification token.
+Registration submits
+`{ "username": "...", "email": "...", "password": "...", "verification_code": "123456" }`
+to `POST /api/auth/register/`. The backend is the source of truth for code
+validity, expiry, and one-time use. The browser does not generate or verify
+codes, and no mail-service credentials are included in the frontend.
