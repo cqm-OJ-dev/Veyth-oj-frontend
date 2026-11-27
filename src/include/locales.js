@@ -28,7 +28,6 @@ export const translations = {
       pageOf: 'Page {page} of {pages}',
       previous: 'Previous',
       next: 'Next',
-      noSearchResults: 'No matching results.',
       unknown: '—'
     },
     window: {
@@ -46,8 +45,17 @@ export const translations = {
     },
     desktop: {
       start: 'Start',
-      search: 'Search apps, settings…',
+      search: 'Search apps, problems, or submissions…',
       pinned: 'Pinned',
+      clearSearch: 'Clear search',
+      searching: 'Searching…',
+      searchPartialError: 'Some search results could not be loaded.',
+      noSearchResults: 'No matching results.',
+      appsResults: 'Apps',
+      problemsResults: 'Problems',
+      submissionsResults: 'Submissions',
+      appResultType: 'App',
+      submissionResultMeta: 'Submission #{id} · Problem #{problemId} · {status}',
       signOut: 'Sign out',
       language: 'Language'
     },
@@ -107,7 +115,6 @@ export const translations = {
       submissions: 'Submissions',
       time: 'Time',
       memory: 'Memory',
-      searchPlaceholder: 'Search by title or difficulty…'
     },
     problemDetail: {
       kicker: 'Problem',
@@ -156,7 +163,6 @@ export const translations = {
       runtime: 'Runtime',
       memory: 'Memory',
       submitted: 'Submitted',
-      searchPlaceholder: 'Search by problem number or status…'
     },
     submissionDetail: {
       kicker: 'Submission',
@@ -272,7 +278,6 @@ export const translations = {
       pageOf: '第 {page} / {pages} 页',
       previous: '上一页',
       next: '下一页',
-      noSearchResults: '没有符合条件的结果。',
       unknown: '—'
     },
     window: {
@@ -290,8 +295,17 @@ export const translations = {
     },
     desktop: {
       start: '开始',
-      search: '搜索应用、设置…',
+      search: '搜索应用、题目或提交记录…',
       pinned: '已固定',
+      clearSearch: '清除搜索',
+      searching: '正在搜索…',
+      searchPartialError: '部分搜索结果暂时无法加载。',
+      noSearchResults: '没有符合条件的结果。',
+      appsResults: '应用',
+      problemsResults: '题目',
+      submissionsResults: '提交记录',
+      appResultType: '应用',
+      submissionResultMeta: '提交 #{id} · 题目 #{problemId} · {status}',
       signOut: '退出登录',
       language: '语言'
     },
@@ -351,7 +365,6 @@ export const translations = {
       submissions: '提交数',
       time: '时间',
       memory: '内存',
-      searchPlaceholder: '按题目标题或难度搜索…'
     },
     problemDetail: {
       kicker: '题目',
@@ -400,7 +413,6 @@ export const translations = {
       runtime: '耗时',
       memory: '内存',
       submitted: '提交时间',
-      searchPlaceholder: '按题号或状态搜索…'
     },
     submissionDetail: {
       kicker: '提交',

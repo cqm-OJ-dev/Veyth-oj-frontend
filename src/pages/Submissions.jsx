@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../context/languageContext';
 import { listSubmissions, normalizeSubmissionStatus } from '../services/judgeService';
@@ -11,7 +11,6 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
   const { currentUser } = useAuth();
   const { t } = useLanguage();
   const [submissions, setSubmissions] = useState([]);
-  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -54,22 +53,8 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
     };
   }, [currentUser]);
 
-  const filteredSubmissions = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase();
-    if (!query) return submissions;
-    return submissions.filter((submission) => {
-      const problemId = submission.problem_id ?? submission.problem?.id ?? '';
-      const status = normalizeSubmissionStatus(submission.status) ?? '';
-      const translatedStatus = t(`status.${status}`);
-      return String(problemId).toLocaleLowerCase().includes(query)
-        || String(status).toLocaleLowerCase().includes(query)
-        || (translatedStatus !== `status.${status}` && translatedStatus.toLocaleLowerCase().includes(query));
-    });
-  }, [search, submissions, t]);
-  const pageCount = Math.max(1, Math.ceil(filteredSubmissions.length / PAGE_SIZE));
-  const visibleSubmissions = filteredSubmissions.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const pageStart = filteredSubmissions.length ? (page - 1) * PAGE_SIZE + 1 : 0;
-  const pageEnd = Math.min(page * PAGE_SIZE, filteredSubmissions.length);
+  const pageCount = Math.max(1, Math.ceil(submissions.length / PAGE_SIZE));
+  const visibleSubmissions = submissions.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   useEffect(() => {
     if (page > pageCount) setPage(pageCount);
@@ -103,19 +88,6 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
         <div className="window-page-state error">{error}</div>
       ) : (
         <>
-          <div className="list-controls">
-            <input
-              className="list-search"
-              type="search"
-              value={search}
-              onChange={(event) => { setSearch(event.target.value); setPage(1); }}
-              placeholder={t('submissions.searchPlaceholder')}
-              aria-label={t('submissions.searchPlaceholder')}
-            />
-            <span className="list-count">
-              {t('common.paginationRange', { start: pageStart, end: pageEnd, total: filteredSubmissions.length })}
-            </span>
-          </div>
           <div className="submissions-table-container">
             <table className="submissions-table">
               <thead>
@@ -132,7 +104,7 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
               </thead>
               <tbody>
                 {visibleSubmissions.length === 0 ? (
-                  <tr><td colSpan={8} className="submissions-empty">{submissions.length ? t('common.noSearchResults') : t('submissions.empty')}</td></tr>
+                  <tr><td colSpan={8} className="submissions-empty">{t('submissions.empty')}</td></tr>
                 ) : visibleSubmissions.map((sub) => {
                   const id = sub.id ?? sub.submission_id;
                   const problemTitle = sub.problem_title ?? sub.problemTitle ?? sub.problem?.title ?? `#${sub.problem_id ?? sub.problem?.id ?? '—'}`;
