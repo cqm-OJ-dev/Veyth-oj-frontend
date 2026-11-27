@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Register from "./Register";
 import { LanguageProvider } from "../context/languageContext";
-import { sendVerificationEmail } from "../services/emailVerificationService";
+import { generateVerificationCode, sendVerificationEmail } from "../services/emailVerificationService";
 
 jest.mock("axios", () => ({
   post: jest.fn()
@@ -11,9 +11,10 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => jest.fn()
 }), { virtual: true });
 jest.mock("../services/authService", () => ({
-  API_BASE: "https://api.example.com/"
+  API_BASE: "https://api.example.com"
 }));
 jest.mock("../services/emailVerificationService", () => ({
+  generateVerificationCode: jest.fn(),
   sendVerificationEmail: jest.fn()
 }));
 
@@ -22,6 +23,7 @@ const axios = require("axios");
 describe("Register", () => {
   beforeEach(() => {
     window.localStorage.setItem("veyth-language", "zh");
+    generateVerificationCode.mockReturnValue("Ab12Cd");
     sendVerificationEmail.mockResolvedValue({ status: 200 });
     axios.post.mockResolvedValue({ status: 201 });
   });
@@ -37,7 +39,7 @@ describe("Register", () => {
     </LanguageProvider>
   );
 
-  test("requests a code and submits the entered code to registration", async () => {
+  test("sends a code directly and registers only after the entered code matches", async () => {
     renderRegister();
 
     fireEvent.change(screen.getByPlaceholderText("用户名"), {
@@ -49,7 +51,7 @@ describe("Register", () => {
     fireEvent.click(screen.getByRole("button", { name: "发送验证码" }));
 
     await waitFor(() => {
-      expect(sendVerificationEmail).toHaveBeenCalledWith("user@example.com");
+      expect(sendVerificationEmail).toHaveBeenCalledWith("user@example.com", "Ab12Cd");
     });
     expect(await screen.findByText(/验证码发送较慢，请耐心等待1~2分钟/)).toBeInTheDocument();
 
@@ -59,19 +61,23 @@ describe("Register", () => {
     fireEvent.change(screen.getByPlaceholderText("确认密码"), {
       target: { value: "password" }
     });
-    fireEvent.click(screen.getByRole("button", { name: "注册" }));
+    fireEvent.submit(screen.getByRole("button", { name: "注册" }).closest("form"));
 
     expect(await screen.findByText("请输入邮箱验证码。")).toBeInTheDocument();
-    expect(axios.post).not.toHaveBeenCalledWith(
-      "https://api.example.com/api/auth/register/",
-      expect.anything(),
-      expect.anything()
-    );
+    expect(axios.post).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByPlaceholderText("邮箱验证码"), {
-      target: { value: "123456" }
+      target: { value: "wrong1" }
     });
-    fireEvent.click(screen.getByRole("button", { name: "注册" }));
+    fireEvent.submit(screen.getByRole("button", { name: "注册" }).closest("form"));
+
+    expect(await screen.findByText("邮箱验证码不正确，请重新输入。")).toBeInTheDocument();
+    expect(axios.post).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByPlaceholderText("邮箱验证码"), {
+      target: { value: "Ab12Cd" }
+    });
+    fireEvent.submit(screen.getByRole("button", { name: "注册" }).closest("form"));
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
@@ -79,8 +85,7 @@ describe("Register", () => {
         {
           username: "test-user",
           email: "user@example.com",
-          password: "password",
-          verification_code: "123456"
+          password: "password"
         },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -104,22 +109,18 @@ describe("Register", () => {
     expect(axios.post).not.toHaveBeenCalled();
   });
 
-  test("rejects a verification code that is not six digits", async () => {
+  test("does not register when the entered code does not match the emailed code", async () => {
     renderRegister();
     fireEvent.change(screen.getByPlaceholderText("邮箱"), {
       target: { value: "user@example.com" }
     });
     fireEvent.click(screen.getByRole("button", { name: "发送验证码" }));
-    await waitFor(() => expect(sendVerificationEmail).toHaveBeenCalled());
+    await waitFor(() => expect(sendVerificationEmail).toHaveBeenCalledWith("user@example.com", "Ab12Cd"));
     fireEvent.change(screen.getByPlaceholderText("邮箱验证码"), {
-      target: { value: "12345" }
+      target: { value: "wrong1" }
     });
     fireEvent.click(screen.getByRole("button", { name: "注册" }));
-    expect(await screen.findByText("请输入6位邮箱验证码。")).toBeInTheDocument();
-    expect(axios.post).not.toHaveBeenCalledWith(
-      "https://api.example.com/api/auth/register/",
-      expect.anything(),
-      expect.anything()
-    );
+    expect(await screen.findByText("邮箱验证码不正确，请重新输入。")).toBeInTheDocument();
+    expect(axios.post).not.toHaveBeenCalled();
   });
 });

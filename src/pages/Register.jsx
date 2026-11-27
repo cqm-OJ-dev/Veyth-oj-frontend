@@ -5,7 +5,7 @@ import "./AuthPages.css";
 import { API_BASE } from "../services/authService";
 import { useLanguage } from "../context/languageContext";
 import LanguageToggle from "../components/LanguageToggle";
-import { sendVerificationEmail } from "../services/emailVerificationService";
+import { generateVerificationCode, sendVerificationEmail } from "../services/emailVerificationService";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -24,9 +24,11 @@ const Register = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [verificationInput, setVerificationInput] = useState("");
   const [countdown, setCountdown] = useState(0);
+  const [codeExpiresAt, setCodeExpiresAt] = useState(0);
 
   useEffect(() => {
     if (countdown <= 0) return undefined;
@@ -42,9 +44,11 @@ const Register = () => {
     }));
 
     if (name === "email") {
+      setVerificationCode("");
       setCodeSent(false);
       setVerificationInput("");
       setCountdown(0);
+      setCodeExpiresAt(0);
       setError("");
       setSuccess("");
     }
@@ -58,10 +62,13 @@ const Register = () => {
 
     setSendingCode(true);
     try {
-      await sendVerificationEmail(formData.email.trim());
+      const code = generateVerificationCode();
+      await sendVerificationEmail(formData.email.trim(), code);
+      setVerificationCode(code);
       setCodeSent(true);
       setVerificationInput("");
       setCountdown(60);
+      setCodeExpiresAt(Date.now() + 10 * 60 * 1000);
       setSuccess(t("register.codeSent"));
     } catch (err) {
       setError(err.response?.data?.error || err.message || t("register.sendCodeFailed"));
@@ -81,12 +88,17 @@ const Register = () => {
     }
 
     const enteredCode = verificationInput.trim();
+    if (!verificationCode || Date.now() >= codeExpiresAt) {
+      setError(t("register.verificationRequired"));
+      return;
+    }
+
     if (!enteredCode) {
       setError(t("register.verificationRequired"));
       return;
     }
 
-    if (!/^\d{6}$/.test(enteredCode)) {
+    if (enteredCode !== verificationCode) {
       setError(t("register.verificationCodeInvalid"));
       return;
     }
@@ -99,8 +111,7 @@ const Register = () => {
         {
           username: formData.username,
           email: formData.email.trim(),
-          password: formData.password,
-          verification_code: enteredCode
+          password: formData.password
         },
         {
           headers: {
@@ -176,12 +187,14 @@ const Register = () => {
               <input
                 name="verificationCode"
                 type="text"
-                inputMode="numeric"
+                inputMode="text"
                 autoComplete="one-time-code"
                 maxLength={6}
+                pattern="[A-Za-z0-9]{6}"
                 placeholder={t("register.verificationCode")}
                 value={verificationInput}
-                onChange={(e) => setVerificationInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                onChange={(e) => setVerificationInput(e.target.value)}
+                required
               />
               <button
                 className="send-verification-code"
