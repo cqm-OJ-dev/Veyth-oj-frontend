@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
-import { getProblem, submitCode, pollSubmission } from '../services/judgeService';
+import { getProblem, submitCode, pollSubmission, isSubmissionPending, normalizeSubmissionStatus } from '../services/judgeService';
 import MarkdownIt from 'markdown-it';
 import Icon from '../components/Icon';
 import { useLanguage } from '../context/languageContext';
@@ -30,6 +30,7 @@ const STATUS_COLORS = {
   Pending: '#1f6feb',
   Running: '#1f6feb',
   Queued: '#1f6feb',
+  Judging: '#1f6feb',
 };
 
 const defaultCode = (lang) => LANG_OPTIONS.find(o => o.v === lang)?.tpl || '';
@@ -109,7 +110,7 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
       const r = await submitCode({ problem_id: problem.id, language, code });
       const subId = r?.submission?.id ?? r?.id;
       let final = r;
-      if (subId && ['Pending','Running','Queued'].includes(r?.submission?.status || r?.status || 'Pending')) {
+      if (subId && isSubmissionPending(r?.submission?.status || r?.status || 'Pending')) {
         final = await pollSubmission(subId, { maxWaitMs: 30000, intervalMs: 700 });
       }
       setResult(final);
@@ -125,7 +126,12 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
     || overall?.case_results || overall?.results || [];
   const passed = overall?.passed ?? overall?.passed_cases;
   const total = overall?.total ?? overall?.total_cases;
-  const statusText = (s) => (s && STATUS_COLORS[s] ? t(`status.${s}`) : (s || '-'));
+  const statusText = (status) => {
+    const normalizedStatus = normalizeSubmissionStatus(status);
+    if (!normalizedStatus) return '-';
+    const translated = t(`status.${normalizedStatus}`);
+    return translated === `status.${normalizedStatus}` ? normalizedStatus : translated;
+  };
 
   return (
     <div className="pd-root">
@@ -236,7 +242,7 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
             {submitErr && <span className="pd-err">{submitErr}</span>}
             {overall && !submitErr && (
               <div className="pd-result-head-2">
-                <span className="pd-status" style={{ color: STATUS_COLORS[overall.status] || 'inherit' }}>
+                <span className="pd-status" style={{ color: STATUS_COLORS[normalizeSubmissionStatus(overall.status)] || 'inherit' }}>
                   {statusText(overall.status)}
                 </span>
                 <span className="pd-meta">{passed ?? '?'}/{total ?? '?'}</span>
@@ -260,15 +266,9 @@ export default function ProblemDetail({ problemId, onOpenSubmission }) {
                 return (
                   <div key={idx} className="pd-case">
                     <div className="pd-case-id">#{c.case ?? idx + 1}</div>
-                    <div className="pd-status" style={{ color: STATUS_COLORS[st] || 'inherit' }}>{statusText(st)}</div>
+                    <div className="pd-status" style={{ color: STATUS_COLORS[normalizeSubmissionStatus(st)] || 'inherit' }}>{statusText(st)}</div>
                     <div className="pd-case-num">{c.time_ms ?? '?'}ms</div>
                     {c.stderr ? <pre className="pd-pre small">{c.stderr}</pre> : null}
-                    {c.stdout !== undefined && c.status === 'Wrong Answer' ? (
-                      <div className="pd-wa">
-                        <div><strong>{t('problemDetail.expected')}</strong><pre className="pd-pre small">{c.expected ?? (problem?.samples || [])[idx]?.out ?? ''}</pre></div>
-                        <div><strong>{t('problemDetail.got')}</strong><pre className="pd-pre small">{c.stdout}</pre></div>
-                      </div>
-                    ) : null}
                   </div>
                 );
               })}

@@ -83,13 +83,23 @@ export function getSubmission(id) {
   return request(`/judge/submissions/${id}/`);
 }
 
+export function normalizeSubmissionStatus(status) {
+  if (typeof status !== 'string') return status;
+  return status.toLowerCase() === 'judging' ? 'Judging' : status;
+}
+
+export function isSubmissionPending(status) {
+  const normalizedStatus = normalizeSubmissionStatus(status);
+  return !normalizedStatus || ['Pending', 'Running', 'Queued', 'Judging'].includes(normalizedStatus);
+}
+
 export function pollSubmission(id, { maxWaitMs = 15000, intervalMs = 800 } = {}) {
   const start = Date.now();
   const tick = (resolve, reject) => {
     getSubmission(id)
       .then((r) => {
-        const status = r && r.status;
-        const pending = !status || ['Pending', 'Running', 'Queued'].includes(status);
+        const status = r?.submission?.status ?? r?.status;
+        const pending = isSubmissionPending(status);
         if (!pending || Date.now() - start > maxWaitMs) return resolve(r);
         setTimeout(tick, intervalMs, resolve, reject);
       })

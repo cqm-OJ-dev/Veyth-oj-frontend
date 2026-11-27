@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './ProblemDetail.css';
-import { getSubmission, pollSubmission } from '../services/judgeService';
+import { getSubmission, isSubmissionPending, normalizeSubmissionStatus } from '../services/judgeService';
 import { useLanguage } from '../context/languageContext';
 
 const STATUS_COLORS = {
@@ -14,6 +14,7 @@ const STATUS_COLORS = {
   Pending: '#1f6feb',
   Running: '#1f6feb',
   Queued: '#1f6feb',
+  Judging: '#1f6feb',
 };
 
 export default function SubmissionDetail({ submissionId, onOpenProblem }) {
@@ -24,26 +25,54 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
 
   useEffect(() => {
     let canceled = false;
+    let refreshTimer;
+    let hasLoaded = false;
     setLoading(true); setError(''); setSub(null);
     if (!submissionId) { setLoading(false); return; }
-    getSubmission(submissionId).then((r) => {
-      const payload = r?.submission || r;
-      const status = payload?.status || r?.status;
-      setSub(payload);
-      if (['Pending', 'Running', 'Queued'].includes(status)) {
-        pollSubmission(submissionId, { maxWaitMs: 30000, intervalMs: 700 })
-          .then((p) => { if (!canceled) setSub(p?.submission || p); });
+
+    const refreshSubmission = async () => {
+      try {
+        const response = await getSubmission(submissionId);
+        const payload = response?.submission || response;
+        const status = normalizeSubmissionStatus(payload?.status || response?.status);
+        const updatedPayload = status && status !== payload?.status
+          ? { ...payload, status }
+          : payload;
+
+        if (canceled) return;
+        hasLoaded = true;
+        setSub(updatedPayload);
+        setError('');
+        setLoading(false);
+
+        if (isSubmissionPending(status)) {
+          refreshTimer = setTimeout(refreshSubmission, 5000);
+        }
+      } catch (e) {
+        if (canceled) return;
+        if (!hasLoaded) setError(e.message || 'failed');
+        setLoading(false);
+        refreshTimer = setTimeout(refreshSubmission, 5000);
       }
-    }).catch((e) => { if (!canceled) setError(e.message || 'failed'); })
-      .finally(() => { if (!canceled) setLoading(false); });
-    return () => { canceled = true; };
+    };
+
+    refreshSubmission();
+    return () => {
+      canceled = true;
+      clearTimeout(refreshTimer);
+    };
   }, [submissionId]);
 
   const data = sub || {};
   const results = data.case_results || data.results || [];
 
-  const statusColor = STATUS_COLORS[data.status] || '#333';
-  const statusText = (s) => (s && STATUS_COLORS[s] ? t(`status.${s}`) : (s || '-'));
+  const statusColor = STATUS_COLORS[normalizeSubmissionStatus(data.status)] || '#333';
+  const statusText = (status) => {
+    const normalizedStatus = normalizeSubmissionStatus(status);
+    if (!normalizedStatus) return '-';
+    const translated = t(`status.${normalizedStatus}`);
+    return translated === `status.${normalizedStatus}` ? normalizedStatus : translated;
+  };
 
   return (
     <div className="window-page-shell sd-shell">
@@ -90,7 +119,7 @@ export default function SubmissionDetail({ submissionId, onOpenProblem }) {
                 <h4 className="sd-section-title">{t('submissionDetail.caseResults')}</h4>
                 <div className="sd-cases">
                   {results.map((c, idx) => {
-                    const st = c.status || '-';
+                    const st = normalizeSubmissionStatus(c.status) || '-';
                     const cColor = STATUS_COLORS[st] || '#333';
                     return (
                       <div key={idx} className="sd-case">

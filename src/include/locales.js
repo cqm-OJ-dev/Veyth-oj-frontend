@@ -114,6 +114,7 @@ export const translations = {
       samples: 'Samples',
       sampleInput: 'Sample {n} Input',
       sampleOutput: 'Sample {n} Output',
+      sampleExplanation: 'Sample {n} Explanation',
       hint: 'Hint',
       submit: 'Submit',
       judging: 'Judging…',
@@ -244,7 +245,8 @@ export const translations = {
       'Internal Error': 'Internal Error',
       Pending: 'Pending',
       Running: 'Running',
-      Queued: 'Queued'
+      Queued: 'Queued',
+      Judging: 'Judging…'
     }
   },
 
@@ -348,6 +350,7 @@ export const translations = {
       samples: '样例',
       sampleInput: '样例 {n} 输入',
       sampleOutput: '样例 {n} 输出',
+      sampleExplanation: '样例 {n} 解释',
       hint: '提示',
       submit: '提交',
       judging: '评测中…',
@@ -478,7 +481,8 @@ export const translations = {
       'Internal Error': '内部错误',
       Pending: '等待中',
       Running: '运行中',
-      Queued: '排队中'
+      Queued: '排队中',
+      Judging: '评测中…'
     }
   }
 };

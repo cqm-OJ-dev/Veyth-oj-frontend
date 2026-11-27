@@ -112,7 +112,8 @@
 .status.memory-limit-exceeded { background: #ede9fe; color: #6d28d9; }
 .status.pending,
 .status.running,
-.status.queued { background: #dbeafe; color: #1d4ed8; }
+.status.queued,
+.status.judging { background: #dbeafe; color: #1d4ed8; }
 .status.internal-error { background: #fef2f2; color: #b42318; }
 
 /* ---------- 数据表格 ---------- */

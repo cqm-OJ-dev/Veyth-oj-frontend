@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../context/languageContext';
-import { listSubmissions } from '../services/judgeService';
+import { listSubmissions, normalizeSubmissionStatus } from '../services/judgeService';
 import './Submissions.css';
 
 const statusKey = (s) => String(s || '').toLowerCase().replace(/\s+/g, '-');
@@ -80,7 +80,8 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
               ) : submissions.map((sub) => {
                 const id = sub.id ?? sub.submission_id;
                 const problemTitle = sub.problem_title ?? sub.problemTitle ?? sub.problem?.title ?? `#${sub.problem_id ?? sub.problem?.id ?? '—'}`;
-                const status = sub.status ?? '-';
+                const status = normalizeSubmissionStatus(sub.status) ?? '-';
+                const translatedStatus = t(`status.${status}`);
                 const runtime = typeof (sub.time_ms ?? sub.max_time_ms) === 'number'
                   ? `${sub.time_ms ?? sub.max_time_ms}ms`
                   : (sub.runtime ?? 'N/A');
@@ -110,7 +111,9 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
                     </td>
                     <td>{sub.language ?? '—'}</td>
                     <td>
-                      <span className={`status ${statusKey(status)}`}>{t('status.' + status) || status}</span>
+                      <span className={`status ${statusKey(status)}`}>
+                        {translatedStatus === `status.${status}` ? status : translatedStatus}
+                      </span>
                     </td>
                     <td>{passedTotal}</td>
                     <td>{runtime}</td>
