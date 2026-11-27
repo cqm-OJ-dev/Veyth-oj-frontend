@@ -15,22 +15,40 @@ const Submissions = ({ onOpenSubmission, onOpenProblem }) => {
 
   useEffect(() => {
     let alive = true;
+    let refreshTimer;
+    let requestInFlight = false;
+    if (!currentUser) {
+      setIsLoading(false);
+      return () => { alive = false; };
+    }
+
     const fetchSubmissions = async () => {
+      if (requestInFlight) return;
+      requestInFlight = true;
       try {
-        if (!currentUser) { if (alive) { setIsLoading(false); } return; }
         const data = await listSubmissions();
         const arr = Array.isArray(data?.submissions) ? data.submissions
           : Array.isArray(data?.results) ? data.results
           : Array.isArray(data) ? data : [];
-        if (alive) setSubmissions(arr);
+        if (alive) {
+          setSubmissions(arr);
+          setError('');
+        }
       } catch (err) {
         if (alive) setError(err?.message || 'Failed to load submissions');
       } finally {
-        if (alive) setIsLoading(false);
+        requestInFlight = false;
+        if (alive) {
+          setIsLoading(false);
+          refreshTimer = setTimeout(fetchSubmissions, 5000);
+        }
       }
     };
     fetchSubmissions();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+      clearTimeout(refreshTimer);
+    };
   }, [currentUser]);
 
   const openSub = (s) => {
