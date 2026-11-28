@@ -2,6 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { getProblem, submitCode, pollSubmission, isSubmissionPending, normalizeSubmissionStatus } from '../services/judgeService';
 import MarkdownIt from 'markdown-it';
+import texmath from 'markdown-it-texmath';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+import 'markdown-it-texmath/css/texmath.css';
 import Icon from '../components/Icon';
 import { useLanguage } from '../context/languageContext';
 import './ProblemDetail.css';
@@ -44,9 +48,13 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-function renderMarkdown(mdText) {
+export function renderMarkdown(mdText) {
   try {
-    const md = new MarkdownIt({ html: false, linkify: true });
+    const md = new MarkdownIt({ html: false, linkify: true }).use(texmath, {
+      engine: katex,
+      delimiters: ['dollars', 'brackets'],
+      katexOptions: { throwOnError: false, strict: 'ignore' }
+    });
     return { __html: md.render(mdText || '') };
   } catch (e) {
     // eslint-disable-next-line no-console
