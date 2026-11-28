@@ -264,7 +264,7 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
   useEffect(() => {
     refreshUnreadNotifications();
     if (!currentUser) return undefined;
-    const timer = window.setInterval(refreshUnreadNotifications, 60000);
+    const timer = window.setInterval(refreshUnreadNotifications, 5000);
     return () => window.clearInterval(timer);
   }, [currentUser, refreshUnreadNotifications]);
 
@@ -361,6 +361,9 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
                 }}
               >
                 <Bell size={19} />
+                {unreadNotifications > 0 && (
+                  <span className="notification-unread-dot" aria-hidden="true" />
+                )}
                 {unreadNotifications > 0 && (
                   <span className="notification-unread-badge">{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>
                 )}
