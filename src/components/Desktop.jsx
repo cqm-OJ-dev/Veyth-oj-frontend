@@ -391,11 +391,6 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
               onChange={(event) => setStartSearch(event.target.value)}
               aria-label={t('desktop.search')}
             />
-            {startSearch && (
-              <button type="button" className="start-menu-clear" onClick={() => setStartSearch('')} aria-label={t('desktop.clearSearch')}>
-                <X size={16} />
-              </button>
-            )}
           </div>
           <div className="start-menu-content">
             {!startSearch.trim() ? (
