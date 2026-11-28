@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { BookOpen, Trophy, ListChecks, Code2, ShieldCheck, Search, LayoutGrid, Power, X } from 'lucide-react';
+import { BookOpen, Trophy, ListChecks, Code2, ShieldCheck, Search, LayoutGrid, Power, X, Bell } from 'lucide-react';
 import Window from './Window';
 import './Desktop.css';
 import Problems from '../pages/Problems';
@@ -10,9 +10,11 @@ import Admin from '../pages/Admin';
 import ProblemDetail from '../pages/ProblemDetail';
 import SubmissionDetail from '../pages/SubmissionDetail';
 import UserAvatar from '../UserAvatar';
+import NotificationCenter from './NotificationCenter';
 import LanguageToggle from './LanguageToggle';
 import { useLanguage } from '../context/languageContext';
 import { listProblems, listSubmissions, normalizeSubmissionStatus } from '../services/judgeService';
+import { getUnreadNotificationCount } from '../services/notificationService';
 import wallpaper from "../assets/wallpaper.jpg";
 
 const APP_LIST = [
@@ -62,6 +64,9 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
   const [searchResults, setSearchResults] = useState({ apps: [], problems: [], submissions: [] });
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [notificationCountError, setNotificationCountError] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
   const startMenuRef = useRef(null);
   const startButtonRef = useRef(null);
@@ -235,6 +240,34 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
     return () => window.clearInterval(timer);
   }, []);
 
+  const refreshUnreadNotifications = useCallback(async () => {
+    if (!currentUser) {
+      setUnreadNotifications(0);
+      setNotificationCountError('');
+      return;
+    }
+    try {
+      const response = await getUnreadNotificationCount();
+      setUnreadNotifications(Number(response?.unread_count) || 0);
+      setNotificationCountError('');
+    } catch (error) {
+      setNotificationCountError(error.message || t('notifications.loadFailed'));
+    }
+  }, [currentUser, t]);
+
+  const closeNotifications = useCallback(() => setNotificationsOpen(false), []);
+  const updateNotificationBadge = useCallback((count) => {
+    setUnreadNotifications(count);
+    setNotificationCountError('');
+  }, []);
+
+  useEffect(() => {
+    refreshUnreadNotifications();
+    if (!currentUser) return undefined;
+    const timer = window.setInterval(refreshUnreadNotifications, 60000);
+    return () => window.clearInterval(timer);
+  }, [currentUser, refreshUnreadNotifications]);
+
   const rendered = useMemo(() => windows.map(win => {
     const C = win.Component;
     return (
@@ -313,6 +346,34 @@ export default function Desktop({ currentUser, onLoginSuccess, onLogout }) {
           <LanguageToggle variant="glass" />
           <UserAvatar user={currentUser} onLogout={onLogout} />
           <div className="tray">{currentTime.toLocaleTimeString()}</div>
+          {currentUser && (
+            <div className="notification-center-anchor">
+              <button
+                type="button"
+                className="notification-bell-button"
+                aria-label={t('notifications.title')}
+                aria-expanded={notificationsOpen}
+                title={notificationCountError || t('notifications.title')}
+                onClick={() => {
+                  setIsStartOpen(false);
+                  setNotificationsOpen((open) => !open);
+                  if (notificationsOpen) refreshUnreadNotifications();
+                }}
+              >
+                <Bell size={19} />
+                {unreadNotifications > 0 && (
+                  <span className="notification-unread-badge">{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>
+                )}
+              </button>
+              {notificationsOpen && (
+                <NotificationCenter
+                  currentUser={currentUser}
+                  onClose={closeNotifications}
+                  onUnreadCountChange={updateNotificationBadge}
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
       {isStartOpen && (
