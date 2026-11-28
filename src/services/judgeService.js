@@ -21,7 +21,8 @@ function authHeaders() {
 }
 
 async function request(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const apiRoot = API_BASE.replace(/\/+$/, '');
+  const res = await fetch(`${apiRoot}${path.startsWith('/') ? path : `/${path}`}`, {
     ...options,
     headers: {
       ...authHeaders(),
@@ -83,6 +84,64 @@ export function getSubmission(id) {
   return request(`/judge/submissions/${id}/`);
 }
 
+export function listContests(params) {
+  const q = new URLSearchParams(params || {}).toString();
+  return request(`/contest/${q ? `?${q}` : ''}`);
+}
+
+export function getContest(contestId) {
+  return request(`/contest/${contestId}/`);
+}
+
+export function createContest(data) {
+  return request('/contest/', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function updateContest(contestId, data) {
+  return request(`/contest/${contestId}/`, { method: 'PATCH', body: JSON.stringify(data) });
+}
+
+export function deleteContest(contestId) {
+  return request(`/contest/${contestId}/`, { method: 'DELETE' });
+}
+
+export function registerForContest(contestId) {
+  return request(`/contest/${contestId}/register/`, { method: 'POST', body: JSON.stringify({}) });
+}
+
+export function unregisterFromContest(contestId) {
+  return request(`/contest/${contestId}/register/`, { method: 'DELETE' });
+}
+
+export function listContestProblems(contestId) {
+  return request(`/contest/${contestId}/problems/`);
+}
+
+export function addContestProblem(contestId, data) {
+  return request(`/contest/${contestId}/problems/manage/`, { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function removeContestProblem(contestId, problemId) {
+  return request(`/contest/${contestId}/problems/${problemId}/`, { method: 'DELETE' });
+}
+
+export function submitContestCode(contestId, data) {
+  return request(`/contest/${contestId}/submit/`, { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function listContestSubmissions(contestId, params) {
+  const q = new URLSearchParams(params || {}).toString();
+  return request(`/contest/${contestId}/submissions/${q ? `?${q}` : ''}`);
+}
+
+export function getContestSubmission(contestId, submissionId) {
+  return request(`/contest/${contestId}/submissions/${submissionId}/`);
+}
+
+export function getContestStanding(contestId) {
+  return request(`/contest/${contestId}/standing/`);
+}
+
 export function normalizeSubmissionStatus(status) {
   if (typeof status !== 'string') return status;
   return status.toLowerCase() === 'judging' ? 'Judging' : status;
@@ -114,7 +173,21 @@ const judgeService = {
   submitCode,
   listSubmissions,
   getSubmission,
-  pollSubmission
+  pollSubmission,
+  listContests,
+  getContest,
+  createContest,
+  updateContest,
+  deleteContest,
+  registerForContest,
+  unregisterFromContest,
+  listContestProblems,
+  addContestProblem,
+  removeContestProblem,
+  submitContestCode,
+  listContestSubmissions,
+  getContestSubmission,
+  getContestStanding
 };
 
 export default judgeService;
