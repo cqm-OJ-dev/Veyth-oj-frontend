@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { BookOpen, Trophy, ListChecks, Code2, ShieldCheck, Search, LayoutGrid, Power, X, Bell } from 'lucide-react';
+import { BookOpen, Trophy, ListChecks, Code2, ShieldCheck, Search, LayoutGrid, Power, Bell } from 'lucide-react';
 import Window from './Window';
 import './Desktop.css';
 import Problems from '../pages/Problems';
